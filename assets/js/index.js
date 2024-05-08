@@ -26,6 +26,20 @@
                 return;
             }
 
+            let t = tracking.trim(); // Eliminar espacios en blanco al inicio y al final
+
+            let regex = /^JMX\d{12}$/;
+            if (t.length !== 15 || !regex.test(t.toUpperCase())) {
+                let mensajeError = "Número de guía";
+                if (t.length !== 15) {
+                    mensajeError += " no válido"; //length 15
+                } else {
+                    mensajeError += " no válido"; //invalid
+                }
+                swal("Atención!", mensajeError, "error");
+                return;
+            }
+
 			let formData = new FormData();
 			formData.append('tracking',tracking);
 			formData.append('option','check-tracking');
