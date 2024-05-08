@@ -6,29 +6,7 @@ require_once('../system/configuration.php');
 require_once('../system/DB.php');
 $db = new DB(HOST,USERNAME,PASSWD,DBNAME,PORT,SOCKET);
 
-if(!isset($_SESSION["uActive"])){
-	// check if exist cookie
-	if (isset($_COOKIE['uActive'])) {
-		echo "reasignado session";
-		$_SESSION["uId"]    = $_COOKIE['uId'] ?? null;
-		$_SESSION["uName"]  = $_COOKIE['uName'] ?? null;
-		$_SESSION["uLocation"]= $_COOKIE['uLocation'] ?? null;
-		$_SESSION["uLocationDefault"]= $_COOKIE['uLocationDefault'] ?? null;
-		$_SESSION["uActive"]= $_COOKIE['uActive'] ?? null;
-		$_SESSION["uMarker"]= $_COOKIE['uMarker'] ?? null;
-	} else {
-		header('Location: '.BASE_URL.'/admin');
-		die();
-	}
-}
-
-if(isset($_SESSION['uLocation'])){
-	setcookie('uMarker', $_SESSION['uLocation'], time() + 3600, '/');
-	$_SESSION['uLocation'] = $_SESSION['uLocation'];
-}else{
-	setcookie('uMarker', $_SESSION['uLocationDefault'], time() + 3600, '/');
-	$_SESSION['uLocation'] = $_SESSION['uLocationDefault'];
-}
+require_once('../system/session_cookies.php');
 $id_location = $_SESSION['uLocation'];
 
 $sql="SELECT 
@@ -70,7 +48,7 @@ $packages = $db->select($sql);
 			<?php
 				include '../views/navTop.php';
 			?>
-			<h3>Usuarios y Paquetes Pendientes de Entrega</h3>
+			<h3>Usuarios y Paquetes Pendientes de Entrega <?php echo $desc_loc;?></h3>
 			<table id="tbl-inspect" class="table table-striped table-bordered nowrap table-hover" cellspacing="0" style="width:100%">
 				<thead>
 					<tr>
