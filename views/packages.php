@@ -230,7 +230,6 @@ $templateMsj=$user[0]['template'];
 		include('modal/folio.php');
 		include('modal/template.php');
 		include('modal/package.php');
-		include('modal/messages.php');
 		include('modal/release.php');
 		include('modal/sync.php');
 		include('modal/bot.php');

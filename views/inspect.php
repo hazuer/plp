@@ -21,12 +21,10 @@ $sql="SELECT
 		GROUP_CONCAT(p.id_package) AS ids 
 		FROM package p 
 		INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
-		INNER JOIN cat_contact_type cct ON cct.id_contact_type = cc.id_contact_type 
 		WHERE 
 		p.id_location IN ($id_location) 
 		AND p.id_status IN (1,2,7) 
-		AND cct.id_contact_type IN (1) 
-		GROUP BY cc.phone,main_name
+		GROUP BY cc.phone,main_name 
 		ORDER BY total_p DESC";
 $packages = $db->select($sql);
 ?>

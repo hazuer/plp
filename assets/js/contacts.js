@@ -1,5 +1,6 @@
 $(document).ready(function() {
 	let baseController = 'controllers/packageController.php';
+	let idLocationSelected = $('#option-location');
 
   	let table = $('#tbl-contacts').DataTable({
 		"bPaginate": true,
@@ -15,14 +16,14 @@ $(document).ready(function() {
 			'excel'
 		],
 		"columns" : [
-			{title: `id_contact`,          name:`id_contact`,      data:`id_contact`},     //0
-			{title: `id_location`,            name:`id_location`,  data:`id_location`}, //1
-			{title: `Télefono`,     		 name:`phone`,    data:`phone`},   //2
-            {title: `Nombre`,            name:`contact_name`,     data:`contact_name`},    //3
-			{title: `id_contact_type`,             name:`id_contact_type`,  data:`id_contact_type`}, //4
-			{title: `Tipo Contacto`,             name:`contact_type`,  data:`contact_type`}, //5
-			{title: `id_contact_status`,             name:`id_contact_status`,  data:`id_contact_status`}, //6
-			{title: `Estatus`,             name:`desc_estatus`,  data:`desc_estatus`}, //7+ 1 last
+			{title: `id_contact`,       name:`id_contact`,       data:`id_contact`},        //0
+			{title: `id_location`,      name:`id_location`,      data:`id_location`},       //1
+			{title: `Télefono`,     	name:`phone`,            data:`phone`},             //2
+            {title: `Nombre`,           name:`contact_name`,     data:`contact_name`},      //3
+			{title: `id_contact_type`,  name:`id_contact_type`,  data:`id_contact_type`},   //4
+			{title: `Tipo Contacto`,    name:`contact_type`,     data:`contact_type`},      //5
+			{title: `id_contact_status`,name:`id_contact_status`,data:`id_contact_status`}, //6
+			{title: `Estatus`,          name:`desc_estatus`,     data:`desc_estatus`},      //7+ 1 last
 		],
 		"columnDefs": [
 			{ "targets": [0,1,4,6], "visible"   : false, "searchable": false, "orderable": false},
@@ -41,15 +42,34 @@ $(document).ready(function() {
 	});
 	$("#tbl-contacts_filter label").append(clearButton);
 
-	let idLocationSelected = $('#option-location');
-
 	$(`#tbl-contacts tbody`).on( `click`, `#btn-tbl-edit-contact`, function () {
 		let row = table.row( $(this).closest('tr') ).data();
 		loadContactModal(row);
 	});
 
+	$('#mCPhone').on('input', function() {
+        let phoneNumber = $(this).val();
+
+        input = phoneNumber.replace(/\D/g, '').slice(0, 10); // Elimina caracteres no numéricos y limita a 10 dígitos
+        $(this).val(input);
+        if (input.length === 10) {
+			$('#mCName').focus();
+        }
+	});
+
+	$("#btn-add-contact").click(function(e){
+		let row = {
+			id_contact     : 0,
+			phone          : '',
+			contact_name   : '',
+			id_contact_type: 2,
+			id_contact_status:1
+		}
+		loadContactModal(row);
+	});
+
 	function loadContactModal(row){
-		console.log(row);
+		$('#form-modal-contact')[0].reset();
 		let titleModal = 'Nuevo Contacto';
 		$('#mCid_contact').val(row.id_contact);
 		$('#mCIdLocation').val(idLocationSelected.val());
@@ -57,10 +77,10 @@ $(document).ready(function() {
 		$('#mCName').val(row.contact_name);
 		$('#mCContactType').val(row.id_contact_type);
 		$('#mCEstatus').val(row.id_contact_status);
-		
+
 		$('#mCaction').val('new');
 		$('#mCPhone').prop('disabled', false);
-		if(row.id_package!=0){
+		if(row.id_contact!=0){
 			titleModal = 'Editar Contacto';
 			$('#mCPhone').prop('disabled', true);
 			$('#mCaction').val('update');
@@ -79,15 +99,14 @@ $(document).ready(function() {
 			return;
 		}
 
-		console.log('continue');
-		return
-
 		let formData =  new FormData();
 		formData.append('id_location', idLocationSelected.val());
+		formData.append('id_contact', $('#mCid_contact').val());
 		formData.append('mCPhone', $('#mCPhone').val());
 		formData.append('mCName', $('#mCName').val());
 		formData.append('mCContactType', $('#mCContactType').val());
 		formData.append('mCEstatus', $('#mCEstatus').val());
+		formData.append('action', $('#mCaction').val());
 		formData.append('option', 'saveContact');
 		try {
 			$.ajax({
@@ -100,11 +119,12 @@ $(document).ready(function() {
 			})
 			.done(function(response) {
 				if(response.success=='true'){
-					swal(`${response.message}`, "", "success");
+					swal("Éxito", `${response.message}`, "success");
 					$('.swal-button-container').hide();
 					$('#modal-contacto').modal('hide');
 					setTimeout(function(){
 						swal.close();
+						window.location.reload();
 					}, 1500);
 				}
 			}).fail(function(e) {
@@ -114,6 +134,5 @@ $(document).ready(function() {
 			console.error(error);
 		}
 	});
-	
 
 });

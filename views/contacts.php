@@ -26,7 +26,7 @@ INNER JOIN cat_contact_type ct ON ct.id_contact_type = c.id_contact_type
 WHERE 
 c.id_location IN ($id_location) 
 ORDER BY c.contact_name ASC";
-$packages = $db->select($sql);
+$contacts = $db->select($sql);
 ?>
 <!doctype html>
 <html lang = "en">
@@ -47,6 +47,15 @@ $packages = $db->select($sql);
 				include '../views/navTop.php';
 			?>
 			<h3>Lista de Contactos <?php echo $desc_loc;?></h3>
+			<div class="row">
+				<div class="col-md-12 row justify-content-end">
+					<div class="btn-group" role="group" aria-label="Basic example">
+						<button id="btn-add-contact" type="button" class="btn-success btn-sm" title="Nuevo Contacto">
+							<i class="fa fa-user-plus" aria-hidden="true"></i>
+						</button>
+					</div>
+				</div>
+			</div>
 			<table id="tbl-contacts" class="table table-striped table-bordered nowrap table-hover" cellspacing="0" style="width:100%">
 				<thead>
 					<tr>
@@ -62,7 +71,7 @@ $packages = $db->select($sql);
 					</tr>
 				</thead>
 				<tbody>
-					<?php foreach($packages as $d): ?>
+					<?php foreach($contacts as $d): ?>
 						<tr>
 						<td><?php echo $d['id_contact']; ?></td>
 						<td><?php echo $d['id_location']; ?></td>

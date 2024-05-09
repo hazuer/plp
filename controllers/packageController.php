@@ -230,16 +230,30 @@ switch ($_POST['option']) {
 		$dataJson = [];
 		$message  = 'Error al guardar el contacto';
 
-		 $data['id_location']       = $_POST['id_location'];
-		 $data['phone']             = $_POST['mCPhone'];
 		 $data['contact_name']      = $_POST['mCName'];
 		 $data['id_contact_type']   = $_POST['mCContactType'];
 		 $data['id_contact_status'] = $_POST['mCEstatus'];
-		try {
-			$data['id_contact']  = null;
-			$success  = 'true';
-			$dataJson = $db->insert('cat_contact',$data);
-			$message  = 'Registrado';
+
+		 $action = $_POST['action'];
+
+		 try {
+			switch ($action) {
+				case 'update':
+					$id       = $_POST['id_contact'];
+					$success  = 'true';
+					$dataJson = $db->update('cat_contact',$data," `id_contact` = $id");
+					$message  = 'Contacto Actualizado';
+				break;
+				case 'new':
+					$data['id_location']       = $_POST['id_location'];
+					$data['phone']             = $_POST['mCPhone'];
+					$data['id_contact']  = null;
+					$success  = 'true';
+					$dataJson = $db->insert('cat_contact',$data);
+					$message  = 'Contacto Registrado';
+				break;
+			}
+
 			$result = [
 				'success'  => $success,
 				'dataJson' => $dataJson,
@@ -252,143 +266,6 @@ switch ($_POST['option']) {
 				'message'  => $message.": ".$e->getMessage()
 			];
 		}
-		echo json_encode($result);
-	break;
-/*
-	case 'getPackageNewSms':
-		try {
-		$result   = [];
-		$success  = 'false';
-		$dataJson = [];
-		$message  = 'Error listar los envios para sms';
-		$id_location   = $_POST['id_location'];
-		$IdContactType = $_POST['IdContactType'];
-		$idStatus      = $_POST['idStatus'];
-		$sql="SELECT 
-		cc.phone,
-		(SELECT cct2.contact_name FROM cat_contact cct2 WHERE cct2.phone=cc.phone AND cct2.id_location IN($id_location) LIMIT 1) main_name,
-		COUNT(p.tracking) AS total_p,
-		GROUP_CONCAT(p.tracking) AS trackings,
-		GROUP_CONCAT(p.id_package) AS ids,
-		GROUP_CONCAT(p.folio) AS folios 
-		FROM package p 
-		INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
-		INNER JOIN cat_contact_type cct ON cct.id_contact_type = cc.id_contact_type 
-		WHERE 
-		p.id_location IN ($id_location) 
-		AND p.id_status IN (1) 
-		AND cct.id_contact_type IN (1) 
-		GROUP BY cc.phone,main_name
-		ORDER BY cc.phone ASC";
-				$success  = 'true';
-				$dataJson = $db->select($sql);
-				$message  = 'ok';
-				$result = [
-					'success'  => $success,
-					'dataJson' => $dataJson,
-					'message'  => $message
-				];
-		} catch (Exception $e) {
-			$result = [
-				'success'  => $success,
-				'dataJson' => $dataJson,
-				'message'  => $message.": ".$e->getMessage()
-			];
-		}
-		echo json_encode($result);
-	break;
-	*/
-
-	case 'sendMessages':
-		$result   = [];
-		$success  = 'false';
-		$dataJson = [];
-		$message  = 'Error al enviar los mensajes';
-
-		$id_location   = $_POST['id_location'];
-		$idContactType = $_POST['idContactType'];
-		$smsMessage    = $_POST['message'];
-
-		$data['id_notification'] = null;
-		$data['id_location']     = $id_location;
-		$data['n_user_id']       = $_SESSION["uId"];
-		$data['message']         = $smsMessage;
-		$data['id_contact_type'] = $idContactType;
-
-		$ids   = $_POST['ids'];
-		$phone = $_POST['phone'];
-
-
-		$nameFile = "sms_".$phone;
-		$jsfile_content = 'const adb = require("adbkit");
-		const { spawn } = require("child_process");
-		const client = adb.createClient();
-		const phoneNumber = `'.$phone.'`;
-		const message = `'.$smsMessage.'`;
-		// Comando adb para enviar el SMS
-		const command = `am start -a android.intent.action.SENDTO -d sms:${phoneNumber} --es sms_body "${message}" --ez exit_on_sent true`;
-		client.listDevices()
-			.then((devices) => {
-				if (devices.length > 0) {
-					const deviceId = devices[0].id;
-					const child = spawn(`adb`, [`-s`, deviceId, `shell`, command], { stdio: `inherit` });
-					child.on(`exit`, (code) => {
-						console.log(`Proceso de envío de SMS finalizado con código de salida ${code}`);
-					});
-				} else {
-					console.error(`No se encontraron dispositivos conectados.`);
-				}
-			})
-			.catch((err) => {
-				console.error(`Error al obtener la lista de dispositivos:`, err);
-			});';
-		$init = array(
-			"nameFile" => $nameFile,
-		);
-		require_once('../nodejs/NodeJs.php');
-		$nodeFile = new NodeJs($init);
-		$path_file = NODE_PATH_FILE;
-		$nodeFile->createContentFileJs($path_file, $jsfile_content);
-		//$nodeFile->getContentFile(true); # true:continue
-		$nodeJsPath = $nodeFile->getFullPathFile();
-		//var_dump($nodeJsPath);
-		$output = null;
-		$retval = null;
-		$rstNodeJs = null;
-		try {
-			exec("node " . $nodeJsPath . ' 2>&1', $output, $retval);
-			if (isset($output[0]) && !empty($output[0])) {
-				$rstNodeJs = $output[1];
-				$data['sid']   = $rstNodeJs;
-				$statusPackage = 2; // SMS Enviado
-			}else{
-				$data['sid']   = "Sin respueta de nodeJs";
-				$statusPackage = 6; //Error al enviar mensaje
-			}
-		} catch (Exception $e) {
-			$data['sid']   = $e->getMessage();
-			$statusPackage = 6; //Error al enviar mensaje
-		}
-		unlink($nodeJsPath);
-
-		$listIds = explode(",", $ids);
-		foreach ($listIds as $id_package) {
-			$nDate = date("Y-m-d H:i:s");
-			$data['id_package']  = $id_package;
-			$data['n_date']      = $nDate;
-			$db->insert('notification',$data);
-			$upData['n_date']    = $nDate;
-			$upData['n_user_id'] = $_SESSION["uId"];
-			$upData['id_status'] = $statusPackage;
-			$db->update('package',$upData," `id_package` IN($id_package)");
-		}
-		sleep(2);
-		$result = [
-			'success'  => 'true',
-			'dataJson' => [$rstNodeJs],
-			'message'  => "Enviados"
-		];
-
 		echo json_encode($result);
 	break;
 

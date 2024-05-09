@@ -8,9 +8,10 @@
                 </button>
             </div>
             <div class="modal-body">
+            <form id="form-modal-contact" name="form-modal-contact" class="form" enctype="multipart/form-data">
                 <div class="form-group">
-                        <input type="text" name="mCid_contact" id="mCid_contact" value="" >
-                        <input type="text" name="mCaction" id="mCaction" value="" >
+                        <input type="hidden" name="mCid_contact" id="mCid_contact" value="" >
+                        <input type="hidden" name="mCaction" id="mCaction" value="" >
                 </div>
                 <div class="row">
                     <div class="col-md-6">
@@ -40,7 +41,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label for="mCContactType"><b>Tipo:</b></label>
+                            <label for="mCContactType"><b>Tipo Contacto:</b></label>
                             <select name="mCContactType" id="mCContactType" class="form-control" >
                                 <option value="1">SMS</option>
                                 <option value="2">WhatsApp</option>
@@ -62,6 +63,7 @@
                     </div>
                 </div>
             </div>
+            </form>
             <div class="modal-footer">
                 <button id="btn-save-contacto" type="button" class="btn btn-success" title="Guardar">Guardar</button>
                 <button type="button" class="btn btn-danger" title="Cerrar" data-dismiss="modal">Cerrar</button>
