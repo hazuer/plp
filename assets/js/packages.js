@@ -495,57 +495,6 @@ $(document).ready(function() {
 		}
 	});
 
-	$('#btn-contacto').click(function(){
-		$('#mCIdLocation').val(idLocationSelected.val());
-		$('#mCPhone').val('');
-		$('#mCName').val('');
-
-		$('#modal-contacto-title').html('Nuevo Contacto');
-		$('#modal-contacto').modal({backdrop: 'static', keyboard: false}, 'show');
-		setTimeout(function(){
-			$('#mCPhone').focus();
-		}, 600);
-	});
-
-	$(`#btn-save-contacto`).click(function(){
-		if($('#mCPhone').val()=='' || $('#mCName').val()==''){
-			swal("Atención!", "* Campos requeridos", "error");
-			return;
-		}
-
-		let formData =  new FormData();
-		formData.append('id_location', idLocationSelected.val());
-		formData.append('mCPhone', $('#mCPhone').val());
-		formData.append('mCName', $('#mCName').val());
-		formData.append('mCContactType', $('#mCContactType').val());
-		formData.append('mCEstatus', $('#mCEstatus').val());
-		formData.append('option', 'saveContact');
-		try {
-			$.ajax({
-				url        : `${base_url}/${baseController}`,
-				type       : 'POST',
-				data       : formData,
-				cache      : false,
-				contentType: false,
-				processData: false,
-			})
-			.done(function(response) {
-				if(response.success=='true'){
-					swal(`${response.message}`, "", "success");
-					$('.swal-button-container').hide();
-					$('#modal-contacto').modal('hide');
-					setTimeout(function(){
-						swal.close();
-					}, 1500);
-				}
-			}).fail(function(e) {
-				console.log("Opps algo salio mal",e);
-			});
-		} catch (error) {
-			console.error(error);
-		}
-	});
-
 	$('#btn-send-messages').click(function(){
 		selectMessages();
 	});

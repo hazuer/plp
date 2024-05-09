@@ -45,6 +45,10 @@
 	$('#btn-inspect').click(function(){
 		window.location.href = `${base_url}/views/inspect.php`;
 	});
+
+	$('#btn-list-contact').click(function(){
+		window.location.href = `${base_url}/views/contacts.php`;
+	});
 });
 
 

@@ -45,6 +45,7 @@ switch ($_REQUEST['option']) {
 						setcookie($key, $value, time() + $cookieDuration, "/"); // Caduca en 8 horas
 
 					}
+					setcookie('uLocation', $_SESSION["uLocationDefault"], time() + $cookieDuration, "/"); // Caduca en 8 horas
 				}
 
 				echo json_encode($result);
@@ -58,15 +59,12 @@ switch ($_REQUEST['option']) {
 	case 'logoff':
 		session_unset();
 		session_destroy();
-		// Caducar la cookie 'uId'
+		//destro cookies
 		setcookie('uId', '', time() - 3600, '/');
-		// Caducar la cookie 'uName'
 		setcookie('uName', '', time() - 3600, '/');
-		// Caducar la cookie 'uLocationDefault'
 		setcookie('uLocationDefault', '', time() - 3600, '/');
-		// Caducar la cookie 'uActive'
+		setcookie('uLocation', '', time() - 3600, '/');
 		setcookie('uActive', '', time() - 3600, '/');
-		// Caducar la cookie 'uMarker'
 		setcookie('uMarker', '', time() - 3600, '/');
 
 		header('Location: '.BASE_URL.'/admin');

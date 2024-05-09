@@ -228,7 +228,6 @@ $templateMsj=$user[0]['template'];
 		</div>
 		<?php
 		include('modal/folio.php');
-		include('modal/contact.php');
 		include('modal/template.php');
 		include('modal/package.php');
 		include('modal/messages.php');

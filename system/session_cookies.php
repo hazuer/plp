@@ -4,7 +4,7 @@ defined('_VALID_MOS') or die('Restricted access');
 if(!isset($_SESSION["uActive"])){
 	// check if exist cookie
 	if (isset($_COOKIE['uActive'])) {
-		echo "reasignado session";
+		echo "<h1>reasignado session</h1>";
 		$_SESSION["uId"]    = $_COOKIE['uId'] ?? null;
 		$_SESSION["uName"]  = $_COOKIE['uName'] ?? null;
 		$_SESSION["uLocation"]= $_COOKIE['uLocation'] ?? null;
@@ -18,10 +18,8 @@ if(!isset($_SESSION["uActive"])){
 }
 
 if(isset($_SESSION['uLocation'])){
-	setcookie('uLocation', $_SESSION['uLocation'], time() + 3600, '/');
 	$_SESSION['uLocation'] = $_SESSION['uLocation'];
 }else{
-	setcookie('uLocationDefault', $_SESSION['uLocationDefault'], time() + 3600, '/');
 	$_SESSION['uLocation'] = $_SESSION['uLocationDefault'];
 }
-$desc_loc = ($_SESSION['uLocation']==1)? ' - Tlaquiltenango':' - Zacatepec';
+$desc_loc = ($_SESSION['uLocation']==1)? ' - Tla':' - Zac';

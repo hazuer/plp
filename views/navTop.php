@@ -31,6 +31,9 @@ if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 			<button id="btn-report" type="button" class="btn-sm btn-primary" title="Reportes">
 				<i class="fa fa-bar-chart fa-lg" aria-hidden="true"></i>
 			</button>
+			<button id="btn-list-contact" type="button" class="btn-sm btn-primary" title="Lista de Contactos">
+				<i class="fa fa-users fa-lg" aria-hidden="true"></i>
+			</button>
 			<input style="width:100px;" type="text" class="form-control" value="<?php echo $_SESSION['uName']; ?>" value="" disabled="">
 			<select name="option-location" id="option-location" class="form-control" <?php echo $selectDisabled; ?> >
 				<option value="1" <?php echo ($_SESSION['uLocation']==1) ? 'selected': ''; ?> >Tlaquiltenango</option>
@@ -41,9 +44,6 @@ if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 			?>
 			<button id="btn-folio" type="button" class="btn-sm btn-warning" title="Configurar folio">
 				<i class="fa fa-hashtag fa-lg" aria-hidden="true"></i>
-			</button>
-			<button id="btn-contacto" type="button" class="btn-sm btn-warning" title="Agregar contacto">
-				<i class="fa fa-user fa-lg" aria-hidden="true"></i>
 			</button>
 			<button id="btn-template" type="button" class="btn-sm btn-warning" title="Plantillas">
 				<i class="fa fa-file-text-o fa-lg" aria-hidden="true"></i>

@@ -29,7 +29,7 @@
     let base_url = '<?php echo BASE_URL;?>';
 </script>
 <?php 
-var_dump($_SESSION);
+/*var_dump($_SESSION);
 echo "<hr>";
-var_dump($_COOKIE);
+var_dump($_COOKIE);*/
 ?>

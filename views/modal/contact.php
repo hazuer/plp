@@ -8,6 +8,10 @@
                 </button>
             </div>
             <div class="modal-body">
+                <div class="form-group">
+                        <input type="text" name="mCid_contact" id="mCid_contact" value="" >
+                        <input type="text" name="mCaction" id="mCaction" value="" >
+                </div>
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
