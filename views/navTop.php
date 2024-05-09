@@ -51,7 +51,7 @@ if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 			<button id="btn-add-package" type="button" class="btn-success btn-sm" title="Nuevo paquete">
 				<i class="fa fa-cube fa-lg" aria-hidden="true"></i>
 			</button>
-			<?php if($host!='buildingsolutionspro.net'){?>
+			<?php if($host!='paqueterialospinos.com'){?>
 			<button id="btn-bot" type="button" class="btn-sm btn-primary" title="Bot">
 				<i class="fa fa-simplybuilt fa-lg" aria-hidden="true"></i>
 			</button>
