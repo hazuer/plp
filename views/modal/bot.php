@@ -29,8 +29,9 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="mBEstatus"><b>Estatus del Paquete:</b></label>
-                            <select name="mBEstatus" id="mBEstatus" class="form-control" disabled>
+                            <select name="mBEstatus" id="mBEstatus" class="form-control">
                                     <option value="1">Nuevo</option>
+                                    <option value="2">Mensaje Enviado (Recordatorio)</option>
                             </select>
                         </div>
                     </div>

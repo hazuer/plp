@@ -420,6 +420,7 @@ switch ($_POST['option']) {
 
 		$id_location   = $_POST['id_location'];
 		$idContactType = $_POST['idContactType'];
+		$idEstatus     = $_POST['idEstatus'];
 		$messagebot    = $_POST['messagebot'];
 		$plb  = $_POST['phonelistbot'];
 		
@@ -453,13 +454,23 @@ client.on("qr", (qr) => {
 });
 client.on("ready", async () => {
 	console.log("Client is ready!");
-	let iconBot= `🤖 `;
 	let db = new Database("false")
 	const id_location = '.$id_location.';
+	const id_estatus = '.$idEstatus.';
 	const n_user_id='.$_SESSION["uId"].'
 	const numbers = ['.$phonelistbot.'];
 	const message = `'.$messagebot.'`;
+	let iconBot= `🤖 `;
+	let tipoMessage =`Nuevo`;
+	if(id_estatus==2){
+		iconBot= `🕙 `;
+		tipoMessage=`Recordatorio`
+	}
 	// Mostrar números del arreglo en pantalla
+	console.log("--------------------------------------");
+	console.log(`Formato del mensaje: ${tipoMessage}`);
+	console.log(message);
+	console.log("--------------------------------------");
 	console.log("Números de teléfono a los que se enviará el mensaje:");
 	numbers.forEach((number, index) => {
 	  console.log(`${index + 1}. ${number}`);
@@ -468,47 +479,63 @@ client.on("ready", async () => {
 	rl.question("Desea continuar? (s/n): ",  async (answer) => {
 	  if (answer.toLowerCase() === "s") {
 		let ids =  0;
-		let folios = 0;
 		for (let i = 0; i < numbers.length; i++) {
 			const number = numbers[i];
 			const sql =`SELECT 
 			cc.phone,
+			cc.id_contact_type,
 			GROUP_CONCAT(p.id_package) AS ids,
 			GROUP_CONCAT(\'*(\',p.folio,\')-\',p.tracking,\'*\' SEPARATOR \'\n\') AS folioGuias 
 			FROM package p 
 			INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
 			WHERE 
 			p.id_location IN (${id_location}) 
-			AND p.id_status IN (1) 
+			AND p.id_status IN (${id_estatus}) 
 			AND cc.phone IN(${number})
 			GROUP BY cc.phone`
 			const data = await db.processDBQueryUsingPool(sql)
 			const rst = JSON.parse(JSON.stringify(data))
 			ids = rst[0] ? rst[0].ids : 0;
-			folioGuias = rst[0] ? rst[0].folioGuias : 0;
+			let idContactType = rst[0] ? rst[0].id_contact_type : 0;
+			let folioGuias = rst[0] ? rst[0].folioGuias : 0;
 			let fullMessage = `${iconBot} ${message}`;
 			if(ids!=0){
 				fullMessage = `${iconBot} ${message} \n*(Folio)-Guía:*\n${folioGuias}`;
 			}
 	
 			let sid ="";
-			let statusPackage = 1;
+			let newStatusPackage = 1;
+			let id_contact_type = 3;
 			try {
-				const number_details = await client.getNumberId(number); // get mobile number details
-				if (number_details) {
-					await client.sendMessage(number_details._serialized, fullMessage); // send message
-					sid =`Mensaje enviado con éxito a, ${number}`
-					statusPackage = 2
-				} else {
-					sid = `${number}, Número de móvil no registrado`
-					statusPackage = 6
-				}
-				if (i < numbers.length - 1) {
-					await sleep(2000); // tiempo de espera en segundos entre cada envío
+				if(idContactType==2){ //WhatsApp
+					const chatId = "521"+number+ "@c.us";
+					await client.sendMessage(chatId, fullMessage);
+					sid =`Mensaje enviado con éxito a, ${number} WhatsApp`
+					newStatusPackage = 2
+					id_contact_type=2;
+				}else{
+					const number_details = await client.getNumberId(number); // get mobile number details
+					if (number_details) {
+						await client.sendMessage(number_details._serialized, fullMessage); // send message
+						sid =`Mensaje enviado con éxito a, ${number}`
+						newStatusPackage = 2
+						if(ids!=0){
+							const sqlUpdateTypeContact = `UPDATE cat_contact 
+							SET id_contact_type=2 
+							WHERE id_location=${id_location} AND phone=\'${number}\' AND id_contact_type=1`
+							await db.processDBQueryUsingPool(sqlUpdateTypeContact)
+						}
+					} else {
+						sid = `${number}, Número de móvil no registrado`
+						newStatusPackage = 6
+					}
+					if (i < numbers.length - 1) {
+						await sleep(2000); // tiempo de espera en segundos entre cada envío
+					}
 				}
 			} catch (error) {
 				sid =`Ocurrió un error al procesar el número, ${number}`
-				statusPackage = 6
+				newStatusPackage = 6
 			}
 			console.log(sid);
 			if(ids!=0){
@@ -519,11 +546,11 @@ client.on("ready", async () => {
 					const sqlSaveNotification = `INSERT INTO notification 
 					(id_location,n_date,n_user_id,message,id_contact_type,sid,id_package) 
 					VALUES 
-					(${id_location},\'${nDate}\',${n_user_id},\'${message} \n*(Folio)-Guía:*\n${folioGuias}\',2,\'${sid}\',${id_package})`
+					(${id_location},\'${nDate}\',${n_user_id},\'${message} \n*(Folio)-Guía:*\n${folioGuias}\',${id_contact_type},\'${sid}\',${id_package})`
 					await db.processDBQueryUsingPool(sqlSaveNotification)
 	
 					const sqlUpdatePackage = `UPDATE package SET 
-					n_date = \'${nDate}\', n_user_id = \'${n_user_id}\', id_status=${statusPackage} 
+					n_date = \'${nDate}\', n_user_id = \'${n_user_id}\', id_status=${newStatusPackage} 
 					WHERE id_package IN (${id_package})`
 					await db.processDBQueryUsingPool(sqlUpdatePackage)
 				}

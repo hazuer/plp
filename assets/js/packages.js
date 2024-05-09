@@ -654,6 +654,7 @@ $(document).ready(function() {
 	$('#btn-bot').click(function(){
 		$('#mBListTelefonos').val('');
 		$('#modal-bot-title').html('Crear Chatbot 🤖');
+		$('#mBEstatus').val(1);
 		$('#mBIdLocation').val(idLocationSelected.val());
 		$('#modal-bot').modal({backdrop: 'static', keyboard: false}, 'show');
 		let msj=`${templateMsj}`;
@@ -673,6 +674,7 @@ $(document).ready(function() {
 		let formData = new FormData();
 		formData.append('id_location', idLocationSelected.val());
 		formData.append('idContactType', 2);
+		formData.append('idEstatus', $('#mBEstatus').val());
 		formData.append('messagebot', $('#mBMessage').val());
 		formData.append('phonelistbot', $('#mBListTelefonos').val());
 		formData.append('option', 'bot');
