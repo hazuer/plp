@@ -297,6 +297,7 @@ $(document).ready(function() {
 				uMarker = $('#id_marcador').val();
 				let timex = 1500;
 				if(response.message=='Paquete listo para Agrupar'){
+					$('audio#togroup')[0].play();
 					swal(`${response.message}`, `${response.dataJson}`, "success");
 					timex = 4000;
 				}else{
@@ -337,6 +338,7 @@ $(document).ready(function() {
 				}
 			}
 			if(response.success=='false'){
+				$('audio#wrong')[0].play();
 				swal("Atención!", `${response.message}`, "info");
 				$('.swal-button-container').hide();
 				setTimeout(function(){

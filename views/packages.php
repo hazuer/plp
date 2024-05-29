@@ -72,7 +72,7 @@ CASE
 END AS diasTrans,
 cc.contact_name receiver,
 cs.id_status,
-IF(cs.id_status=6,'color:#FFA500;', '') colorErrorMessage,
+IF(cs.id_status=6,'color:#DC143C;', '') colorErrorMessage,
 cs.status_desc,
 p.note,
 IF(p.n_date is null,'', CONCAT('el ',DATE_FORMAT(p.n_date, '%Y-%m-%d'))) n_date,

@@ -60,7 +60,7 @@ require_once('system/configuration.php');
             <h1 class="text-white display-3 mb-5">Consultar Guía</h1>
             <div class="mx-auto" style="width: 100%; max-width: 600px;">
                 <div class="input-group">
-                    <input id="tracking" type="text" class="form-control border-light" style="padding: 30px;" placeholder="Ingresa Número de Guía" autofocus autocomplete="off" value="">
+                    <input id="tracking" type="text" class="form-control border-light" style="padding: 30px;" placeholder="Ingresa Número de Guía J&T" autofocus autocomplete="off" value="">
                     <div class="input-group-append">
                         <button id="btn-search" class="btn btn-primary px-3">Buscar</button>
                     </div>
@@ -90,6 +90,29 @@ require_once('system/configuration.php');
     </div>
     <!-- About End -->
 
+    <div class="container-fluid bg-secondary my-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-5">
+                    <img class="img-fluid w-100" src="<?php echo BASE_URL;?>/assets/img/feature.jpg" alt="">
+                </div>
+                <div class="col-lg-7 py-5 py-lg-0">
+                    <h6 class="text-primary text-uppercase font-weight-bold">Servicio de envío internacional</h6>
+                    <h1 class="mb-4">¿Te urge enviar algo a los Estados Unidos?</h1>
+                    <p class="mb-4">¿Necesitas que los envíos lleguen rápido? En Paquetería Los Pinos contamos con un servicio de envío internacional con entrega en <b>24 o 48 horas</b>, donde podrás enviar:</p>
+                    <ul class="list-inline">
+                        <li><h6><i class="far fa-dot-circle text-primary mr-3"></i>Cecina, Queso, Barbacoa, Carne de puerco</h6></li>
+                        <li><h6><i class="far fa-dot-circle text-primary mr-3"></i>Medicina natural y de patente, Hierbas secas</h6></li>
+                        <li><h6><i class="far fa-dot-circle text-primary mr-3"></i>Pan de muerto, Semillas, Mole, Dulces</h6></li>
+                        <li><h6><i class="far fa-dot-circle text-primary mr-3"></i>Documentos, Oro, Plata</h6></li>
+                        <li><h6><i class="far fa-dot-circle text-primary mr-3"></i>Y mucho más ... </h6></li>
+                        <li><h6><i class="far fa-dot-circle text-primary mr-3"></i>Rápido, Seguro y Eficaz</h6></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer Start -->
     <div class="container-fluid bg-dark text-white mt-5 py-5 px-sm-3 px-md-5">
         <div class="row pt-5">
@@ -98,17 +121,19 @@ require_once('system/configuration.php');
                     <div class="col-md-6 mb-5">
                         <h3 class="text-primary mb-4">Sucursal - Tlaquiltenango</h3>
                         <p><i class="fa fa-map-marker-alt mr-2"></i>Nicolás Bravo 203, Gabriel Tepepa, 62980 Tlaquiltenango, Mor.</p>
-                        <p><i class="fa fa-clock" aria-hidden="true"></i> Horario de Lunes a Sábado de 09:00am a 05:00pm</p>
-                        <p><i class="fa fa-phone-alt mr-2"></i>+52 777 123 4567</p>
-                        <p><i class="fa fa-envelope mr-2"></i>cirilo@paqueterialospinos.com</p>
+                        <p><i class="fa fa-clock" aria-hidden="true"></i> Horario de Lunes a Viernes de 09:00am a 05:00pm</p>
+                        <p><i class="fa fa-clock" aria-hidden="true"></i> Sábados: Horario variado</p>
+                        <p><i class="fa fa-phone-alt mr-2"></i><a href="tel:+5217341326995">+52 1 734 132 6995</a></p>
+                        <p><i class="fa fa-envelope mr-2"></i><a href="mailto:ciriloa@paqueterialospinos.com">ciriloa@paqueterialospinos.com</a></p>
                     </div>
 
                     <div class="col-md-6 mb-5">
                         <h3 class="text-primary mb-4">Sucursal - Zacatepec</h3>
                         <p><i class="fa fa-map-marker-alt mr-2"></i>Francisco I. Madero 6, Centro, 62780 Zacatepec de Hidalgo, Mor.</p>
-                        <p><i class="fa fa-clock" aria-hidden="true"></i> Horario de Lunes a Sábado de 09:00am a 05:00pm</p>
-                        <p><i class="fa fa-phone-alt mr-2"></i>+52 777 123 4567</p>
-                        <p><i class="fa fa-envelope mr-2"></i>josue@paqueterialospinos.com</p>
+                        <p><i class="fa fa-clock" aria-hidden="true"></i> Horario de Lunes a Viernes de 09:00am a 05:00pm</p>
+                        <p><i class="fa fa-clock" aria-hidden="true"></i> Sábados de 09:00am a 02:00pm</p>
+                        <p><i class="fa fa-phone-alt mr-2"></i><a href="tel:+5217341109763">+52 1 734 110 9763</a></p>
+                        <p><i class="fa fa-envelope mr-2"></i><a href="mailto:josuea@paqueterialospinos.com">josuea@paqueterialospinos.com</a></p>
                     </div>
                 </div>
             </div>
@@ -119,7 +144,7 @@ require_once('system/configuration.php');
             <div class="col-lg-6 text-center text-md-left mb-3 mb-md-0">
                 <p class="m-0 text-white">&copy; <a href="#">www.paqueterialospinos.com</a> All Rights Reserved. 
 				<!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-				Designed by <a href="https://htmlcodex.com">HTML Codex</a>
+				Designed by <a href="https://htmlcodex.com" target="_blank">HTML Codex</a>
                 </p>
             </div>
         </div>
