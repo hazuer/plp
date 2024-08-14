@@ -83,24 +83,26 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row" id="div-status">
-                        <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="note"><b>Notas:</b></label>
+                                <input type="note" class="form-control" name="note" id="note" value="" autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6" id="div-status">
                             <div class="form-group">
                                 <label for="id_status"><b>Estatus:</b></label>
                                 <select name="id_status" id="id_status" class="form-control">
                                     <option value="1">Nuevo</option>
                                     <option value="2">Mensaje Enviado</option>
                                     <option value="4">Devuelto</option>
-                                    <option value="5">Eliminado</option>
+                                    <option value="5">Confirmado</option>
                                     <option value="6">Error al enviar mensaje</option>
                                     <option value="7">Contactado</option>
                                 </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="note"><b>Nota:</b></label>
-                                <input type="note" class="form-control" name="note" id="note" value="" autocomplete="off">
                             </div>
                         </div>
                     </div>

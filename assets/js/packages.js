@@ -42,7 +42,7 @@ $(document).ready(function() {
 		],
 		"columnDefs": [
 			{"orderable": false,'targets': 0,'checkboxes': {'selectRow': true}},
-			{ "targets": [0,3,7,9,10], "visible"   : false, "searchable": false, "orderable": false},
+			{ "targets": [3,7,9,10], "visible"   : false, "searchable": false, "orderable": false},
 			{ "orderable": false,"targets": 11 }, // last
 			// { "width": "40%", "targets": [1,2] }
 		],
@@ -655,7 +655,7 @@ $(document).ready(function() {
 
 	$('#btn-bot').click(function(){
 		$('#mBListTelefonos').val('');
-		$('#modal-bot-title').html('Crear Chatbot 🤖');
+		$('#modal-bot-title').html('Chatbot Envío de Mensajes 🤖');
 		$('#mBEstatus').val(1);
 		$('#mBIdLocation').val(idLocationSelected.val());
 		$('#modal-bot').modal({backdrop: 'static', keyboard: false}, 'show');
@@ -792,7 +792,7 @@ $(document).ready(function() {
 		let fechaFormateada = getCurrentDate();
 		$('#msyncp-date-release').val(fechaFormateada);
 
-		$('#modal-sync-package-title').html('Synchronize J&T and Released Packages');
+		$('#modal-sync-package-title').html('Sincronizar J&T y Paquetes Liberados');
 		$('#modal-sync-package').modal({backdrop: 'static', keyboard: false}, 'show');
 	});
 
@@ -924,6 +924,217 @@ $(document).ready(function() {
 			console.error(error);
 		}
 }
+
+	$("#confirmg").click(function(e){
+		//let rowsConfirm     = '';
+		let rows_selected   = table.column(0).checkboxes.selected();
+		let tRows           = 0;
+		let isValid         = true;
+		let noValidTracking = [];
+		let phoneUser       = [];
+		let userName        = [];
+		let folios        = [];
+
+		$.each(rows_selected, function(index, rowId){
+			tRows++;
+			 // Obtener el índice de la fila
+			 let rowIndex = table.row('#row_id_' + rowId).index();
+			 // Obtener el valor de la columna 7 para la fila actual usando el índice
+			 let rowData = table.row(rowIndex).data(); // Obtener los datos de la fila
+			 let status = rowData.id_status; // Obtener el valor de la columna 7
+			// Verificar si el estatus es 2 o 7
+			if (status !== '2' && status !== '7') {
+				isValid = false; // Marcar como inválido si no cumple con el criterio 
+				noValidTracking.push(rowData.tracking); // Agregar el tracking no válido al array
+			}
+			phoneUser.push(rowData.phone);
+			userName.push(rowData.receiver);
+			folios.push(rowData.folio);
+		});
+
+		if (tRows === 0) {
+			swal("Error al confirmar!", "Debes seleccionar las guías para confirmar", "error");
+			return false;
+		}
+
+		if (!isValid) {
+			let noValidTrackingList = noValidTracking.join(',');
+			swal("Error al confirmar!", "Solo se permite confirmar paquetes con estatus:\nMensaje Enviado\nContactado\n\nGuías no válidas para confirmar:\n" + noValidTrackingList, "error");
+			return false;
+		}
+
+		// same phone 7341287415
+		if (!allPhonesEqual(phoneUser)) {
+			swal("Error al confirmar!", "Todos los paquetes deben tener el mismo número de teléfono para confirmar", "error");
+			return false;
+		}
+
+		let rowsConfirm = rows_selected.join(",");
+		//console.log('continue:::',rowsConfirm);
+		let tpaquetes = tRows;
+		let tphone    = phoneUser[0];
+		let tname     = userName[0];
+		let tids      = rowsConfirm;
+		// Ordenar el arreglo de forma ascendente
+		folios.sort(function(a, b) {
+			return a - b;
+		});
+		let lsFolios = folios.join(',');
+		swal({
+			title: `Confirmar Paquetes 👍`,
+			text: `Total:${tpaquetes} Paquetes\nTélefono:${tphone}\nDesinatario:${tname}\nFolios:${lsFolios}\n\nEstá seguro ?`,
+			icon: "info",
+			buttons: true,
+			dangerMode: false,
+		})
+		.then((weContinue) => {
+		  if (weContinue) {
+
+			let formData = new FormData();
+			formData.append('id_location', idLocationSelected.val());
+			formData.append('idsx', tids);
+			formData.append('option', 'pullConfirm');
+			try {
+				$.ajax({
+					url        : `${base_url}/${baseController}`,
+					type       : 'POST',
+					data       : formData,
+					cache      : false,
+					contentType: false,
+					processData: false,
+				})
+				.done(function(response) {
+					if(response.success==='true'){
+						swal('Éxito', response.message, "success");
+						setTimeout(function(){
+							swal.close();
+							window.location.reload();
+						}, 3500);
+					}else {
+						swal('Atención', response.message, "warning");
+					}
+					$('.swal-button-container').hide();
+				});
+			} catch (error) {
+				console.log("Opps algo salio mal",error);
+			}
+		  } else {
+			return false;
+		  }
+		});
+
+		e.preventDefault();
+	});
+
+	function allPhonesEqual(phoneArray) {
+		if (phoneArray.length === 0) {
+			return true; // Si el array está vacío, consideramos que todos son iguales (o podrías manejar esto como un caso especial)
+		}
+		let firstPhone = phoneArray[0]; // Obtener el primer número de teléfono
+		// Comparar cada número de teléfono con el primero
+		return phoneArray.every(phone => phone === firstPhone);
+	}
+
+	$("#releaseg").click(function(e){
+		let rows_selected   = table.column(0).checkboxes.selected();
+		let tRows           = 0;
+		let isValid         = true;
+		let noValidTracking = [];
+		let phoneUser       = [];
+		let userName        = [];
+		let folios          = [];
+
+		$.each(rows_selected, function(index, rowId){
+			tRows++;
+			 let rowIndex = table.row('#row_id_' + rowId).index();
+			 let rowData = table.row(rowIndex).data(); // Obtener los datos de la fila
+			 let status = rowData.id_status;
+			// Verificar si el estatus es 2 o 7
+			//console.log(rowId,status);
+			if (status !== '2' && status !== '5' && status !== '7') {
+				isValid = false; // Marcar como inválido si no cumple con el criterio 
+				noValidTracking.push(rowData.tracking); // Agregar el tracking no válido al array
+			}
+			phoneUser.push(rowData.phone);
+			userName.push(rowData.receiver);
+			folios.push(rowData.folio);
+		});
+
+		if (tRows === 0) {
+			swal("Error al liberar!", "Debes seleccionar las guías para liberar", "error");
+			return false;
+		}
+
+		if (!isValid) {
+			let noValidTrackingList = noValidTracking.join(',');
+			swal("Error al liberar!", "Solo se permite liberar paquetes con estatus:\nMensaje Enviado\nContactado\nConfirmado\n\nGuías no válidas para liberar:\n" + noValidTrackingList, "error");
+			return false;
+		}
+
+		// same phone 7341287415
+		if (!allPhonesEqual(phoneUser)) {
+			swal("Error al liberar!", "Todos los paquetes deben tener el mismo número de teléfono para liberar", "error");
+			return false;
+		}
+
+		let rowsRelease = rows_selected.join(",");
+		console.log(':::continue:::',rowsRelease);
+		//return;
+		let tpaquetes = tRows;
+		let tphone    = phoneUser[0];
+		let tname     = userName[0];
+		let tids      = rowsRelease;
+		// Ordenar el arreglo de forma ascendente
+		folios.sort(function(a, b) {
+			return a - b;
+		});
+		let lsFolios = folios.join(',');
+		swal({
+			title: `Liberar Paquetes 📦`,
+			text: `Total:${tpaquetes} Paquetes\nTélefono:${tphone}\nDesinatario:${tname}\nFolios:${lsFolios}\n\nEstá seguro ?`,
+			icon: "info",
+			buttons: true,
+			dangerMode: false,
+		})
+		.then((weContinue) => {
+		  if (weContinue) {
+
+			let formData = new FormData();
+			formData.append('id_location', idLocationSelected.val());
+			formData.append('idsx', tids);
+			formData.append('option', 'pullRealise');
+			try {
+				$.ajax({
+					url        : `${base_url}/${baseController}`,
+					type       : 'POST',
+					data       : formData,
+					cache      : false,
+					contentType: false,
+					processData: false,
+				})
+				.done(function(response) {
+					if(response.success==='true'){
+						swal('Éxito', response.message, "success");
+						setTimeout(function(){
+							swal.close();
+							window.location.reload();
+						}, 3500);
+					}else {
+						swal('Atención', response.message, "warning");
+					}
+					$('.swal-button-container').hide();
+				});
+			} catch (error) {
+				console.log("Opps algo salio mal",error);
+			}
+		  } else {
+			return false;
+		  }
+		});
+
+		e.preventDefault();
+	});
+
 });
 
 function updateColors(selectedColor) {
@@ -948,4 +1159,3 @@ function updateColors(selectedColor) {
     select.style.backgroundColor = selectedColor;
     select.style.color = 'white'; // Cambiar el color del texto para que sea visible
 }
-

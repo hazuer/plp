@@ -66,6 +66,7 @@ uc.user registro,
 p.tracking,
 cc.phone,
 p.folio,
+p.marker,
 cc.contact_name receiver,
 cs.status_desc,
 DATE_FORMAT(p.n_date, '%Y-%m-%d') n_date,
@@ -123,7 +124,7 @@ $packages = $db->select($sql);
 								<option value="2" <?php echo ($rFstatus==2) ? 'selected': ''; ?>>Mensaje Enviado</option>
 								<option value="3" <?php echo ($rFstatus==3) ? 'selected': ''; ?>>Entregado</option>
 								<option value="4" <?php echo ($rFstatus==4) ? 'selected': ''; ?>>Devuelto</option>
-								<option value="5" <?php echo ($rFstatus==5) ? 'selected': ''; ?>>Deleted</option>
+								<option value="5" <?php echo ($rFstatus==5) ? 'selected': ''; ?>>Confirmado</option>
 								<option value="6" <?php echo ($rFstatus==6) ? 'selected': ''; ?>>Error al enviar mensaje</option>
 								<option value="7" <?php echo ($rFstatus==7) ? 'selected': ''; ?>>Contactado</option>
 							</select>
@@ -212,7 +213,7 @@ $packages = $db->select($sql);
 						<td><?php echo $d['c_date']; ?></td>
 						<td><?php echo $d['registro']; ?></td>
 						<td><?php echo $d['tracking']; ?></td>
-						<td><?php echo $d['folio']; ?></td>
+						<td style="font-weight: bold; color: <?php echo $d['marker']; ?>;"><?php echo $d['folio']; ?></td>
 						<td><?php echo $d['phone']; ?></td>
 						<td><?php echo $d['receiver']; ?></td>
 						<td><?php echo $d['status_desc']; ?></td>

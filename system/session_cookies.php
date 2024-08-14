@@ -22,4 +22,4 @@ if(isset($_SESSION['uLocation'])){
 }else{
 	$_SESSION['uLocation'] = $_SESSION['uLocationDefault'];
 }
-$desc_loc = ($_SESSION['uLocation']==1)? ' - Tla':' - Zac';
+$desc_loc = ($_SESSION['uLocation']==1)? ' - CDI Tlaquiltenango':' - CDI Zacatepec';

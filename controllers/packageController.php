@@ -87,7 +87,7 @@ switch ($_POST['option']) {
 
 			switch ($action) {
 				case 'update':
-					if($data['id_status'] == 4 || $data['id_status'] == 5){
+					if($data['id_status'] == 4 ){
 						$data['d_date']     = date("Y-m-d H:i:s");
 						$data['d_user_id']  = $_SESSION["uId"];
 					}
@@ -123,7 +123,7 @@ switch ($_POST['option']) {
 							WHERE 1 
 							AND cc.phone IN('$phone')
 							AND p.id_location IN ($id_location)
-							AND p.id_status IN(1,2,6,7) ORDER BY p.folio DESC";
+							AND p.id_status IN(1,2,5,6,7) ORDER BY p.folio DESC";
 							$rstCanBeAgrouped = $db->select($sqlCanBeAgrouped);
 							$totalPaquetesAgrouped = count($rstCanBeAgrouped);
 
@@ -297,7 +297,6 @@ switch ($_POST['option']) {
 						$message  = 'No es posible liberar un paquete sin contactar al destinatario';
 						break;
 					case 4:
-					case 5:
 						$success  = 'false';
 						$message  = 'El paquete ya no esta disponible';
 						break;
@@ -306,6 +305,7 @@ switch ($_POST['option']) {
 						$message  = 'El paquete ya fue entregado';
 						break;
 					case 2:
+					case 5:
 					case 7:
 						$success  = 'true';
 						$message  = 'Paquete Liberado';
@@ -439,7 +439,14 @@ switch ($_POST['option']) {
 		$phonelistbot = implode(",", $numeros_de_telefono);
 
 		$nameFile = "chat_bot";
-		$jsfile_content = 'const qrcode = require("qrcode-terminal");
+		$jsfile_content = '
+console.log("    ____           __  __                               ____           ");
+console.log("   / __ )__  __   / / / /___ _____  __  ______ _____   /  _/____ ____ _");
+console.log("  / __  / / / /  / /_/ / __ `/_  / / / / / _  \\/ ___/   / // __  \\/ __ `/");
+console.log(" / /_/ / /_/ /  / __  / /_/ / / /_/ /_/ /  __/ /     _/ // / / / /_/ / ");
+console.log("/_____/\\___, /  /_/ /_/\\___,_/ /___/\\___,_/\\____/_/     /___/_/ /_/\\___,  (.)");
+console.log("      /____/                                                  /____/   ");
+const qrcode = require("qrcode-terminal");
 const moment = require("moment-timezone");
 const { Client } = require("whatsapp-web.js");
 const Database = require("./database.js")
@@ -460,11 +467,21 @@ client.on("ready", async () => {
 	const n_user_id='.$_SESSION["uId"].'
 	const numbers = ['.$phonelistbot.'];
 	const message = `'.$messagebot.'`;
-	let iconBot= `🤖 `;
-	let tipoMessage =`Nuevo`;
-	if(id_estatus==2){
-		iconBot= `🕙 `;
-		tipoMessage=`Recordatorio`
+	let iconBot= ``;
+	let tipoMessage =``;
+	switch (id_estatus) {
+		case 1:
+			iconBot= `🤖 `;
+			tipoMessage =`Nuevo`;
+		break;
+		case 2:
+			iconBot= `🔔 `;
+			tipoMessage =`Recordatorio Mensajes Enviados`;
+		break;
+		case 3:
+			iconBot= `📢 `;
+			tipoMessage =`Recordatorio Paquetes Confirmados`;
+		break;
 	}
 	// Mostrar números del arreglo en pantalla
 	console.log("--------------------------------------");
@@ -510,14 +527,14 @@ client.on("ready", async () => {
 				if(idContactType==2){ //WhatsApp
 					const chatId = "521"+number+ "@c.us";
 					await client.sendMessage(chatId, fullMessage);
-					sid =`Mensaje enviado con éxito a, ${number} WhatsApp`
+					sid =`${i + 1} - Mensaje enviado con éxito a, ${number} WhatsApp`
 					newStatusPackage = 2
 					id_contact_type=2;
 				}else{
 					const number_details = await client.getNumberId(number); // get mobile number details
 					if (number_details) {
 						await client.sendMessage(number_details._serialized, fullMessage); // send message
-						sid =`Mensaje enviado con éxito a, ${number}`
+						sid =`${i + 1} - Mensaje enviado con éxito a, ${number}`
 						newStatusPackage = 2
 						if(ids!=0){
 							const sqlUpdateTypeContact = `UPDATE cat_contact 
@@ -641,13 +658,13 @@ function sleep(ms) {
 		   	INNER JOIN cat_status cs ON cs.id_status=p.id_status 
 		   	WHERE p.id_package IN ($idsx) 
 			AND p.id_location IN ($id_location) 
-			AND p.id_status IN (2,7)";
+			AND p.id_status IN (2,5,7)";
 			$checkRelease = $db->select($sql);
 			$totalPaqueteDisponibles = count($checkRelease);
 
 			if($totPaqPorLiberar==$totalPaqueteDisponibles){
 				$success="true";
-				$message="Paquetes liberados";
+				$message="$totPaqPorLiberar Paquetes Liberados";
 				$data['id_status']  = 3; //Liberado
 				$data['d_date']     = date("Y-m-d H:i:s");
 				$data['d_user_id']  = $_SESSION["uId"];
@@ -658,14 +675,14 @@ function sleep(ms) {
 				INNER JOIN cat_status cs ON cs.id_status=p.id_status 
 				WHERE p.id_package IN ($idsx) 
 				AND p.id_location IN ($id_location) 
-				AND p.id_status NOT IN (2,7)";
+				AND p.id_status NOT IN (2,5,7)";
 				$noAvailable = $db->select($sql);
 				$success="error";
 				$mensaje="No es posible liberar el grupo de paquetes, por favor verifica el estatus de los paquetes:\n";
 				foreach ($noAvailable as $resultado) {
 					$mensaje .= "Folio:" . $resultado['folio'] . ", Estatus:" . $resultado['status_desc'] . "\n";
 				}
-				$message = $mensaje. "\nNota:Solo paquetes con estatus:mensaje enviado o contactado pueden ser liberados.";
+				$message = $mensaje. "\nNota:Solo paquetes con estatus:mensaje enviado, contactado o confirmado pueden ser liberados.";
 			}
 
 			$result = [
@@ -856,7 +873,7 @@ function sleep(ms) {
 
 			$type_mode = $_POST['type_mode'];
 			$nameTypeMode='ocurre';
-			$listEstatus='1, 2, 4, 5, 6, 7'; //except entregado
+			$listEstatus='1, 2, 4, 6, 7'; //except entregado y confirmado
 			if($type_mode=='auto'){
 				$nameTypeMode='auto_servicio';
 				$listEstatus='1, 2, 3, 4, 5, 6, 7'; // al estatus
@@ -972,5 +989,67 @@ function sleep(ms) {
 			];
 			echo json_encode($result);
 		break;
+
+		case 'pullConfirm':
+			$result   = [];
+			$success  = 'false';
+			$dataJson = [];
+			$message  = 'Error confirmar el pull de paquetes';
+			$id_location = $_POST['id_location'];
+			$idsx    = $_POST['idsx'];
+			$listIds = explode(",", $idsx);
+			$totPaqPorConfirmar = count($listIds);
+			try {
+				$sql="SELECT p.id_package,p.id_status,p.folio,cs.status_desc,note 
+				   FROM package p 
+				   INNER JOIN cat_status cs ON cs.id_status=p.id_status 
+				   WHERE p.id_package IN ($idsx) 
+				AND p.id_location IN ($id_location) 
+				AND p.id_status IN (2,7)";
+				$checkRelease = $db->select($sql);
+				$totalPaqueteDisponibles = count($checkRelease);
+
+				if($totPaqPorConfirmar==$totalPaqueteDisponibles){
+					$success="true";
+					$message="$totPaqPorConfirmar Paquetes Confirmados";
+					$data['id_status']  = 5; //Confirmado
+					$rst = $db->update('package',$data," `id_package` IN ($idsx)");
+					foreach ($checkRelease as $rdata) {
+						$separator = ($rdata['note']=='') ?  '':', ';
+						$dUpN['note'] = $rdata['note'].$separator.'Confirmó '.$_SESSION["uName"].' el día '.date("Y-m-d H:i");
+						$idnotex=$rdata['id_package'];
+						$db->update('package',$dUpN," `id_package` IN ($idnotex)");
+					}
+				}else{
+					$sql="SELECT p.id_status,p.folio,cs.status_desc 
+					FROM package p 
+					INNER JOIN cat_status cs ON cs.id_status=p.id_status 
+					WHERE p.id_package IN ($idsx) 
+					AND p.id_location IN ($id_location) 
+					AND p.id_status NOT IN (2,7)";
+					$noAvailable = $db->select($sql);
+					$success="error";
+					$mensaje="No es posible confirmar el grupo de paquetes, por favor verifica el estatus de los paquetes:\n";
+					foreach ($noAvailable as $resultado) {
+						$mensaje .= "Folio:" . $resultado['folio'] . ", Estatus:" . $resultado['status_desc'] . "\n";
+					}
+					$message = $mensaje. "\nNota:Solo paquetes con estatus:mensaje enviado o contactado pueden ser confirmados.";
+				}
+
+				$result = [
+					'success'  => $success,
+					'dataJson' => [],
+					'message'  => $message
+				];
+			} catch (Exception $e) {
+				$result = [
+					'success'  => $success,
+					'dataJson' => $dataJson,
+					'message'  => $message.": ".$e->getMessage()
+				];
+			}
+
+			echo json_encode($result);
+			break;
 
 }

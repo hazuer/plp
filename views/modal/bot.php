@@ -32,6 +32,7 @@
                             <select name="mBEstatus" id="mBEstatus" class="form-control">
                                     <option value="1">Nuevo</option>
                                     <option value="2">Mensaje Enviado (Recordatorio)</option>
+                                    <option value="5">Confirmados (Recordatorio)</option>
                             </select>
                         </div>
                     </div>
@@ -55,7 +56,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button id="btn-bot-command" type="button" class="btn btn-success" title="Bot">Bot</button>
+                <button id="btn-bot-command" type="button" class="btn btn-success" title="Crear">Crear</button>
                 <button type="button" class="btn btn-danger" title="Cerrar" data-dismiss="modal">Cerrar</button>
             </div>
         </div>

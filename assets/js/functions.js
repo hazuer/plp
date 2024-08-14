@@ -42,13 +42,22 @@
 		window.location.href = `${base_url}/views/reports.php`;
 	});
 
-	$('#btn-inspect').click(function(){
-		window.location.href = `${base_url}/views/inspect.php`;
+	$('#btn-handler').click(function(){
+		window.location.href = `${base_url}/views/handler.php`;
 	});
 
 	$('#btn-list-contact').click(function(){
 		window.location.href = `${base_url}/views/contacts.php`;
 	});
+
+	$('#btn-chart').click(function(){
+		window.location.href = `${base_url}/views/chart.php`;
+	});
+
+	$(function () {
+		$('[data-toggle="tooltip"]').tooltip()
+	})
+	  
 });
 
 

@@ -19,19 +19,19 @@ if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 <div class="row">
 	<div class="col-md-12">
 		<div class="btn-group" role="group">
-			<button id="logoff" type="button" class="btn-sm btn-danger"  title="Cerrar sesión">
+			<button id="logoff" type="button" class="btn-sm btn-danger" data-toggle="tooltip" data-placement="top" title="Cerrar sesión">
 				<i class="fa fa-power-off fa-lg" aria-hidden="true" style="color:#ffc107;"></i>
 			</button>
-			<button id="home" type="button" class="btn-sm btn-primary"  title="Paquetes">
+			<button id="home" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Paquetes">
 				<i class="fa fa-cubes fa-lg" aria-hidden="true"></i>
 			</button>
-			<button id="btn-inspect" type="button" class="btn-sm btn-primary"  title="Usuarios y Paquetes Pendientes de Entrega">
-				<i class="fa fa-crosshairs fa-lg" aria-hidden="true"></i>
-			</button>
-			<button id="btn-report" type="button" class="btn-sm btn-primary" title="Reportes">
+			<button id="btn-report" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Reportes">
 				<i class="fa fa-bar-chart fa-lg" aria-hidden="true"></i>
 			</button>
-			<button id="btn-list-contact" type="button" class="btn-sm btn-primary" title="Lista de Contactos">
+			<button id="btn-chart" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Porcentaje de Entrega">
+				<i class="fa fa-pie-chart fa-lg" aria-hidden="true"></i>
+			</button>
+			<button id="btn-list-contact" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Lista de Contactos">
 				<i class="fa fa-users fa-lg" aria-hidden="true"></i>
 			</button>
 			<input style="width:100px;" type="text" class="form-control" value="<?php echo $_SESSION['uName']; ?>" value="" disabled="">
@@ -42,27 +42,30 @@ if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 			<?php
 			if($paginaInUse=="packages"){
 			?>
-			<button id="btn-folio" type="button" class="btn-sm btn-warning" title="Configurar folio">
+			<button id="btn-folio" type="button" class="btn-sm btn-warning" data-toggle="tooltip" data-placement="top" title="Configurar Folio">
 				<i class="fa fa-hashtag fa-lg" aria-hidden="true"></i>
 			</button>
-			<button id="btn-template" type="button" class="btn-sm btn-warning" title="Plantillas">
+			<button id="btn-template" type="button" class="btn-sm btn-warning" data-toggle="tooltip" data-placement="top" title="Plantillas de Mensajes">
 				<i class="fa fa-file-text-o fa-lg" aria-hidden="true"></i>
 			</button>
-			<button id="btn-add-package" type="button" class="btn-success btn-sm" title="Nuevo paquete">
+			<button id="btn-add-package" type="button" class="btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Nuevo Paquete">
 				<i class="fa fa-cube fa-lg" aria-hidden="true"></i>
 			</button>
 			<?php if($host!='paqueterialospinos.com'){?>
-			<button id="btn-bot" type="button" class="btn-sm btn-primary" title="Bot">
+			<button id="btn-bot" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Chatbot Envío de Mensajes">
 				<i class="fa fa-simplybuilt fa-lg" aria-hidden="true"></i>
 			</button>
+			<button id="btn-handler" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Envío Manual de Mensajes">
+				<i class="fa fa-hand-o-up fa-lg" aria-hidden="true"></i>
+			</button>
 			<?php }?>
-			<button id="btn-release-package" type="button" class="btn-sm btn-success" title="Entrega de paquetes">
+			<button id="btn-release-package" type="button" class="btn-sm btn-success" data-toggle="tooltip" data-placement="top" title="Entrega de Paquetes">
 				<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i>
 			</button>
-			<button id="btn-sync" type="button" class="btn-sm btn-success" title="Sync">
+			<button id="btn-sync" type="button" class="btn-sm btn-success" data-toggle="tooltip" data-placement="top" title="Sincronizar Paquetes">
 				<i class="fa fa-refresh fa-lg" aria-hidden="true"></i>
 			</button>
-			<button id="btn-ocurre" type="button" class="btn-sm btn-success" title="Crear Códigos de Barras">
+			<button id="btn-ocurre" type="button" class="btn-sm btn-success" data-toggle="tooltip" data-placement="top" title="Crear Códigos de Barras">
 				<i class="fa fa-barcode fa-lg" aria-hidden="true"></i>
 			</button>
 			<?php }?>

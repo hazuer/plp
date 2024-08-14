@@ -84,7 +84,7 @@ LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact
 LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
 WHERE 1 
 AND p.id_location IN ($id_location)
-AND p.id_status IN(1,2,6,7)";
+AND p.id_status IN(1,2,5,6,7)";
 $packages = $db->select($sql);
 
 $sqlTemp ="SELECT template FROM cat_template WHERE id_location IN ($id_location) LIMIT 1";
@@ -108,6 +108,8 @@ $templateMsj=$user[0]['template'];
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
 		<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+		<link type="text/css" href="<?php echo BASE_URL;?>/assets/css/dataTables.checkboxes.css" rel="stylesheet" />
+		<script type="text/javascript" src="<?php echo BASE_URL;?>/assets/js/dataTables.checkboxes.min.js"></script>
 		<style>
 			@media only screen and (max-width: 768px) {
 				table.dataTable {
@@ -161,8 +163,8 @@ $templateMsj=$user[0]['template'];
 
       		<?php if(empty($packages)): ?>
 				<div class="alert alert-info" role="alert" style="text-align: center;">
-					No hay paquetes en la ubicacion seleccionada, haz clik en el boton nuevo paquete <br>
-					<button id="btn-first-package" type="button" class="btn-success btn-sm" title="Nuevo paquete">
+					No hay paquetes en la ubicación seleccionada, haz clik en el boton nuevo paquete <br>
+					<button id="btn-first-package" type="button" class="btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Nuevo paquete">
 						<i class="fa fa-cube fa-lg" aria-hidden="true"></i>
 					</button>
 				</div
@@ -183,12 +185,19 @@ $templateMsj=$user[0]['template'];
 								<th>status_desc</th>
 								<th>note</th>
 								<th>id_contact</th>
-								<th>Opciones</th>
+								<th style="text-align: center; width:20%;">
+									<button type="button" id="confirmg" name="confirmg" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Confirmar de Forma Grupal">
+										<i class="fa fa-flag-o fa-lg" aria-hidden="true"></i>
+									</button>
+									<button type="button" id="releaseg" name="releaseg" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Liberar de Forma Grupal">
+										<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i>
+									</button>
+								</th>
 							</tr>
 						</thead>
 						<tbody>
 							<?php foreach($packages as $d): ?>
-								<tr style="<?php echo $d['styleCtrlDays']; ?>">
+								<tr id="<?php echo 'row_id_'.$d['id_package']; ?>" style="<?php echo $d['id_status'] == 5 ? 'background-color:#A2D9A2' : $d['styleCtrlDays']; ?>" title="">
 								<td><?php echo $d['id_package']; ?></td>
 								<td><?php echo $d['tracking']; ?></td>
 								<td><?php echo $d['phone']; ?></td>
@@ -198,22 +207,23 @@ $templateMsj=$user[0]['template'];
 								<td><?php echo $d['receiver']; ?></td>
 								<td><?php echo $d['id_status']; ?></td>
 								<td style="<?php echo $d['colorErrorMessage']; ?>" ><?php echo $d['diasTrans']; ?> <?php echo $d['status_desc']; ?> <?php echo $d['n_date']; ?> <?php if($d['t_sms_sent']!=0){ ?>
-								<span class="badge badge-pill badge-info" style="cursor: pointer;" id="btn-details-p" title="Ver"><?php echo $d['t_sms_sent']; ?></span>
+								<span class="badge badge-pill badge-info" style="cursor: pointer;" id="btn-details-p" data-toggle="tooltip" data-placement="top" title="Leer Mensaje"><?php echo $d['t_sms_sent']; ?></span>
 							<?php
-							} ?></td>
+							} if($d['note']){?><span class="badge badge-pill badge-default" style="cursor: pointer;" data-toggle="tooltip" data-placement="top" title="<?php echo $d['note'];?>"><i class="fa fa-sticky-note-o" aria-hidden="true"></i> </span><?php }?>
+							</td>
 								<td><?php echo $d['note']; ?></td>
 								<td><?php echo $d['id_contact']; ?></td>
 								<td style="text-align: center;">
 									<div class="row">
 										<div class="col-md-6">
-										<?php if($d['id_status']==2 || $d['id_status']==7){ ?>
-											<span class="badge badge-pill badge-success" style="cursor: pointer;" id="btn-tbl-liberar" title="Liberar">
+										<?php if($d['id_status']==2 || $d['id_status']==5 || $d['id_status']==7){ ?>
+											<span class="badge badge-pill badge-success" style="cursor: pointer;" id="btn-tbl-liberar" data-toggle="tooltip" data-placement="top" title="Liberar">
 												<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i>
 											</span>
 										<?php }?>
 										</div>
 										<div class="col-md-6">
-											<span class="badge badge-pill badge-info" style="cursor: pointer;" id="btn-records" title="Editar">
+											<span class="badge badge-pill badge-info" style="cursor: pointer;" id="btn-records" data-toggle="tooltip" data-placement="top" title="Editar">
 												<i class="fa fa-edit fa-lg" aria-hidden="true"></i>
 											</span>
 										</div>
