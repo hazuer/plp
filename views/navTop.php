@@ -25,6 +25,9 @@ if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 			<button id="home" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Paquetes">
 				<i class="fa fa-cubes fa-lg" aria-hidden="true"></i>
 			</button>
+			<button id="btn-grouped" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Usuarios y Paquetes Agrupados">
+				<i class="fa fa-crosshairs fa-lg" aria-hidden="true"></i>
+			</button>
 			<button id="btn-report" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Reportes">
 				<i class="fa fa-bar-chart fa-lg" aria-hidden="true"></i>
 			</button>

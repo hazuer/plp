@@ -21,6 +21,10 @@
 		window.location.href = `${base_url}/views/packages.php`;
 	});
 
+	$('#btn-grouped').click(function(){
+		window.location.href = `${base_url}/views/grouped.php`;
+	});
+
 	$('#option-location').on('change', function() {
 		let formData = new FormData();
 		formData.append('id_location',$('#option-location').val());

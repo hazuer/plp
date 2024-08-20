@@ -113,7 +113,7 @@ $templateMsj=$user[0]['template'];
 		<style>
 			@media only screen and (max-width: 768px) {
 				table.dataTable {
-					font-size: 11px; /* Reducción del tamaño de letra en un 25% */
+					font-size: 10px; /* Reducción del tamaño de letra en un 25% */
 				}
 			}
 			.label-info {
@@ -186,10 +186,10 @@ $templateMsj=$user[0]['template'];
 								<th>note</th>
 								<th>id_contact</th>
 								<th style="text-align: center; width:20%;">
-									<button type="button" id="confirmg" name="confirmg" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Confirmar de Forma Grupal">
+									<button type="button" id="confirmg" name="confirmg" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Confirmar Guías Seleccionadas">
 										<i class="fa fa-flag-o fa-lg" aria-hidden="true"></i>
 									</button>
-									<button type="button" id="releaseg" name="releaseg" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Liberar de Forma Grupal">
+									<button type="button" id="releaseg" name="releaseg" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Liberar Guías Seleccionadas">
 										<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i>
 									</button>
 								</th>
@@ -207,9 +207,9 @@ $templateMsj=$user[0]['template'];
 								<td><?php echo $d['receiver']; ?></td>
 								<td><?php echo $d['id_status']; ?></td>
 								<td style="<?php echo $d['colorErrorMessage']; ?>" ><?php echo $d['diasTrans']; ?> <?php echo $d['status_desc']; ?> <?php echo $d['n_date']; ?> <?php if($d['t_sms_sent']!=0){ ?>
-								<span class="badge badge-pill badge-info" style="cursor: pointer;" id="btn-details-p" data-toggle="tooltip" data-placement="top" title="Leer Mensaje"><?php echo $d['t_sms_sent']; ?></span>
+								<span class="badge badge-pill badge-info" style="cursor: pointer;" id="btn-details-p" title="Leer Mensaje"><?php echo $d['t_sms_sent']; ?></span>
 							<?php
-							} if($d['note']){?><span class="badge badge-pill badge-default" style="cursor: pointer;" data-toggle="tooltip" data-placement="top" title="<?php echo $d['note'];?>"><i class="fa fa-sticky-note-o" aria-hidden="true"></i> </span><?php }?>
+							} if($d['note']){?><span class="badge badge-pill badge-default" style="cursor: pointer;" class="btn btn-success btn-sm" data-toggle="tooltip" title="<?php echo $d['note'];?>"><i class="fa fa-sticky-note-o" aria-hidden="true"></i> </span><?php }?>
 							</td>
 								<td><?php echo $d['note']; ?></td>
 								<td><?php echo $d['id_contact']; ?></td>
@@ -217,13 +217,13 @@ $templateMsj=$user[0]['template'];
 									<div class="row">
 										<div class="col-md-6">
 										<?php if($d['id_status']==2 || $d['id_status']==5 || $d['id_status']==7){ ?>
-											<span class="badge badge-pill badge-success" style="cursor: pointer;" id="btn-tbl-liberar" data-toggle="tooltip" data-placement="top" title="Liberar">
+											<span class="badge badge-pill badge-success" style="cursor: pointer;" id="btn-tbl-liberar" class="btn btn-success btn-sm" data-toggle="tooltip" title="Liberar">
 												<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i>
 											</span>
 										<?php }?>
 										</div>
 										<div class="col-md-6">
-											<span class="badge badge-pill badge-info" style="cursor: pointer;" id="btn-records" data-toggle="tooltip" data-placement="top" title="Editar">
+											<span class="badge badge-pill badge-info" style="cursor: pointer;" id="btn-records" title="Editar">
 												<i class="fa fa-edit fa-lg" aria-hidden="true"></i>
 											</span>
 										</div>

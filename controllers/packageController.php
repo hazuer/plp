@@ -527,14 +527,14 @@ client.on("ready", async () => {
 				if(idContactType==2){ //WhatsApp
 					const chatId = "521"+number+ "@c.us";
 					await client.sendMessage(chatId, fullMessage);
-					sid =`${i + 1} - Mensaje enviado con éxito a, ${number} WhatsApp`
+					sid =`Mensaje enviado con éxito a, ${number} WhatsApp`
 					newStatusPackage = 2
 					id_contact_type=2;
 				}else{
 					const number_details = await client.getNumberId(number); // get mobile number details
 					if (number_details) {
 						await client.sendMessage(number_details._serialized, fullMessage); // send message
-						sid =`${i + 1} - Mensaje enviado con éxito a, ${number}`
+						sid =`Mensaje enviado con éxito a, ${number}`
 						newStatusPackage = 2
 						if(ids!=0){
 							const sqlUpdateTypeContact = `UPDATE cat_contact 
@@ -554,7 +554,7 @@ client.on("ready", async () => {
 				sid =`Ocurrió un error al procesar el número, ${number}`
 				newStatusPackage = 6
 			}
-			console.log(sid);
+			console.log(`${i + 1} - ${sid}`);
 			if(ids!=0){
 				const listIds = ids.split(",");
 				const nDate = moment().tz("America/Mexico_City").format("YYYY-MM-DD HH:mm:ss");
