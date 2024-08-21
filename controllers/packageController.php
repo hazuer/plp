@@ -529,6 +529,9 @@ client.on("ready", async () => {
 					await client.sendMessage(chatId, fullMessage);
 					sid =`Mensaje enviado con éxito a, ${number} WhatsApp`
 					newStatusPackage = 2
+					if(id_estatus==5){
+						newStatusPackage=5;
+					}
 					id_contact_type=2;
 				}else{
 					const number_details = await client.getNumberId(number); // get mobile number details
@@ -536,6 +539,9 @@ client.on("ready", async () => {
 						await client.sendMessage(number_details._serialized, fullMessage); // send message
 						sid =`Mensaje enviado con éxito a, ${number}`
 						newStatusPackage = 2
+						if(id_estatus==5){
+							newStatusPackage=5;
+						}
 						if(ids!=0){
 							const sqlUpdateTypeContact = `UPDATE cat_contact 
 							SET id_contact_type=2 

@@ -209,7 +209,7 @@ $templateMsj=$user[0]['template'];
 								<td style="<?php echo $d['colorErrorMessage']; ?>" ><?php echo $d['diasTrans']; ?> <?php echo $d['status_desc']; ?> <?php echo $d['n_date']; ?> <?php if($d['t_sms_sent']!=0){ ?>
 								<span class="badge badge-pill badge-info" style="cursor: pointer;" id="btn-details-p" title="Leer Mensaje"><?php echo $d['t_sms_sent']; ?></span>
 							<?php
-							} if($d['note']){?><span class="badge badge-pill badge-default" style="cursor: pointer;" class="btn btn-success btn-sm" data-toggle="tooltip" title="<?php echo $d['note'];?>"><i class="fa fa-sticky-note-o" aria-hidden="true"></i> </span><?php }?>
+							} if($d['note']){?><span class="badge badge-pill badge-default" style="cursor: pointer;" title="<?php echo $d['note'];?>"><i class="fa fa-sticky-note-o" aria-hidden="true"></i> </span><?php }?>
 							</td>
 								<td><?php echo $d['note']; ?></td>
 								<td><?php echo $d['id_contact']; ?></td>
@@ -217,7 +217,7 @@ $templateMsj=$user[0]['template'];
 									<div class="row">
 										<div class="col-md-6">
 										<?php if($d['id_status']==2 || $d['id_status']==5 || $d['id_status']==7){ ?>
-											<span class="badge badge-pill badge-success" style="cursor: pointer;" id="btn-tbl-liberar" class="btn btn-success btn-sm" data-toggle="tooltip" title="Liberar">
+											<span class="badge badge-pill badge-success" style="cursor: pointer;" id="btn-tbl-liberar" title="Liberar">
 												<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i>
 											</span>
 										<?php }?>
