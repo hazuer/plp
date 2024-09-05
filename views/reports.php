@@ -208,7 +208,7 @@ $packages = $db->select($sql);
 				<tbody>
 					<?php foreach($packages as $d): ?>
 						<tr>
-						<td><?php echo $d['id_package']; ?></td>
+						<td title="Ver Historial" id="id-logger" style="cursor: pointer; text-decoration: underline;"><?php echo $d['id_package']; ?></td>
 						<td><?php echo $d['location_desc']; ?></td>
 						<td><?php echo $d['c_date']; ?></td>
 						<td><?php echo $d['registro']; ?></td>
@@ -235,6 +235,7 @@ $packages = $db->select($sql);
 		</div>
 		<?php
 		include('modal/sms-report.php');
+		include('modal/logger.php');
 		?>
 	</body>
 </html>

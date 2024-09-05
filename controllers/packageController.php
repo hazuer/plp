@@ -93,6 +93,7 @@ switch ($_POST['option']) {
 					}
 					$id       = $_POST['id_package'];
 					$success  = 'true';
+					saveLog($id,$data['id_status'],'Cambio de Estatus',true);
 					$dataJson = $db->update('package',$data," `id_package` = $id");
 					$message  = 'Actualizado';
 				break;
@@ -137,7 +138,8 @@ switch ($_POST['option']) {
 								}
 								$msjFolios = rtrim($msjFolios, ', ');
 							}
-							$db->insert('package',$data);
+							$new_id_package = $db->insert('package',$data);
+							saveLog($new_id_package,1,'Nuevo registro de paquete');
 
 							$success  = 'true';
 							$dataJson = $msjFolios;
@@ -367,6 +369,44 @@ switch ($_POST['option']) {
 			WHERE 
 			n.id_package IN($id_package) 
 			ORDER  BY n.n_date DESC";
+		$success  = 'true';
+		$dataJson = $db->select($sql);
+		$message  = 'ok';
+		$result = [
+			'success'  => $success,
+			'dataJson' => $dataJson,
+			'message'  => $message
+		];
+		} catch (Exception $e) {
+			$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $message.": ".$e->getMessage()
+			];
+		}
+		echo json_encode($result);
+	break;
+
+	case 'getRecordsHistory':
+		try {
+		$result   = [];
+		$success  = 'false';
+		$dataJson = [];
+		$message  = 'Error al consultar el historial';
+		$id_package   = $_POST['id_package'];
+		$sql="SELECT 
+			l.datelog,
+			u.user name_user,
+			ns.status_desc new_status,
+			os.status_desc old_status,
+			l.desc_mov 
+			FROM logger l 
+			INNER JOIN users u ON u.id = l.id_user 
+			INNER JOIN cat_status ns ON ns.id_status = l.new_id_status 
+			INNER JOIN cat_status os ON os.id_status = l.old_id_status 
+			WHERE 
+			l.id_package IN($id_package) 
+			ORDER BY l.id_log DESC";
 		$success  = 'true';
 		$dataJson = $db->select($sql);
 		$message  = 'ok';
@@ -1058,4 +1098,25 @@ function sleep(ms) {
 			echo json_encode($result);
 			break;
 
+}
+
+function saveLog($id_package,$new_id_status,$desc_mov,$currentStatus=false){
+	global $db;
+
+	$old_id_status = 1;
+	if($currentStatus){
+		$sqlGetCurrentStatus="SELECT id_status old_id_status FROM package WHERE id_package IN ($id_package)";
+		$records = $db->select($sqlGetCurrentStatus);
+		$old_id_status = $records[0]['old_id_status'];
+	}
+
+	$dataLog['id_log']        = null;
+	$dataLog['datelog']       = date("Y-m-d H:i:s");
+	$dataLog['id_package']    = $id_package;
+	$dataLog['id_user']       = $_SESSION["uId"];
+	$dataLog['new_id_status'] = $new_id_status;
+	$dataLog['old_id_status'] = $old_id_status;
+	$dataLog['desc_mov']      = $desc_mov;
+	#$dataLog['ip']            = $ip;
+	$db->insert('logger',$dataLog);
 }

@@ -49,6 +49,61 @@ $(document).ready(function() {
 		loadSmsDetail(row.id_package);
 	});
 
+	$(`#tbl-reports tbody`).on( `click`, `#id-logger`, function () {
+		let row = table.row( $(this).closest('tr') ).data();
+		console.log(row);
+		loadHistory(row.id_package,row.guia);
+	});
+
+	async function loadHistory(id_package,guia) {
+		let listLogs = await getRecordsHistory(id_package,guia);
+		createTableLog(listLogs,guia);
+
+		$('#modal-logger').modal({backdrop: 'static', keyboard: false}, 'show');
+	}
+
+	function createTableLog(data,guia) {
+		$('#tbl-logger').empty();
+		let c=1;
+		let phoneTitle = guia;
+		$.each(data.dataJson, function(index, item) {
+			let row = `<tr>
+				<td><b>${c}</b></td>
+				<td>${item.datelog}</td>
+				<td>${item.name_user}</td>
+				<td>${item.new_status}</td>
+				<td>${item.old_status}</td>
+				<td>${item.desc_mov}</td>
+			</tr>`;
+			$('#tbl-logger').append(row);
+			c++;
+		});
+		$('#modal-logger-title').html(`Historial de Movientos Guía ${phoneTitle}`);
+	}
+
+	async function getRecordsHistory(id_package) {
+		let list = [];
+		let formData =  new FormData();
+		formData.append('id_package', id_package);
+		formData.append('option','getRecordsHistory');
+		try {
+			const response = await $.ajax({
+				url: `${base_url}/${baseController}`,
+				type: 'POST',
+				data: formData,
+				cache: false,
+				contentType: false,
+				processData: false
+			});
+			if(response.success=='true'){
+				list = response;
+			}
+		} catch (error) {
+			console.error(error);
+		}
+		return list;
+	}
+
 	async function loadSmsDetail(id_package) {
 		let listSms = await getRecordsSms(id_package);
 		createTableSmsSent(listSms);
