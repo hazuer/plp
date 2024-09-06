@@ -93,7 +93,7 @@ switch ($_POST['option']) {
 					}
 					$id       = $_POST['id_package'];
 					$success  = 'true';
-					saveLog($id,$data['id_status'],'Cambio de Estatus',true);
+					saveLog($id,$data['id_status'],'Cambio de Estatus/Modificación',true);
 					$dataJson = $db->update('package',$data," `id_package` = $id");
 					$message  = 'Actualizado';
 				break;
@@ -278,6 +278,7 @@ switch ($_POST['option']) {
 		$message  = 'Error liberar el paquete';
 		$id_location = $_POST['id_location'];
 		$tracking    = $_POST['tracking'];
+		$desc_mov    = $_POST['desc_mov'];
 		$jsonPakage = $_POST['listPackageRelease'];
 		try {
 
@@ -315,6 +316,7 @@ switch ($_POST['option']) {
 						$data['id_status']  = 3; //Liberado
 						$data['d_date']     = date("Y-m-d H:i:s");
 						$data['d_user_id']  = $_SESSION["uId"];
+						saveLogByTracking($tracking,$data['id_status'],$desc_mov,true);
 						$rst = $db->update('package',$data," `tracking` = '$tracking'");
 						$listPackageRelease   = json_decode($jsonPakage, true);
 						$inList = implode(", ", $listPackageRelease);
@@ -611,6 +613,12 @@ client.on("ready", async () => {
 					VALUES 
 					(${id_location},\'${nDate}\',${n_user_id},\'${message} \n*(Folio)-Guía:*\n${folioGuias}\',${id_contact_type},\'${sid}\',${id_package})`
 					await db.processDBQueryUsingPool(sqlSaveNotification)
+
+					const sqlLogger = `INSERT INTO logger 
+					(datelog, id_package, id_user, new_id_status, old_id_status, desc_mov) 
+					VALUES 
+					(\'${nDate}\', ${id_package}, ${n_user_id}, ${newStatusPackage}, ${id_estatus}, \'Envío de Mensaje WhatsApp\')`
+					await db.processDBQueryUsingPool(sqlLogger)
 	
 					const sqlUpdatePackage = `UPDATE package SET 
 					n_date = \'${nDate}\', n_user_id = \'${n_user_id}\', id_status=${newStatusPackage} 
@@ -695,7 +703,8 @@ function sleep(ms) {
 		$dataJson = [];
 		$message  = 'Error liberar el pull de paquetes';
 		$id_location = $_POST['id_location'];
-		$idsx    = $_POST['idsx'];
+		$idsx        = $_POST['idsx'];
+		$desc_mov    = $_POST['desc_mov'];
 		$listIds = explode(",", $idsx);
 		$totPaqPorLiberar = count($listIds);
 		try {
@@ -714,6 +723,9 @@ function sleep(ms) {
 				$data['id_status']  = 3; //Liberado
 				$data['d_date']     = date("Y-m-d H:i:s");
 				$data['d_user_id']  = $_SESSION["uId"];
+				foreach ($listIds as $i => $idpkg) {
+					saveLog($idpkg,$data['id_status'],$desc_mov,true);
+				}
 				$rst = $db->update('package',$data," `id_package` IN ($idsx)");
 			}else{
 				$sql="SELECT p.id_status,p.folio,cs.status_desc 
@@ -794,6 +806,7 @@ function sleep(ms) {
 						$upData['n_date']    = $nDate;
 						$upData['n_user_id'] = $uidbt;
 						$upData['id_status'] = 2;
+						saveLog($id_package,$upData['id_status'],'Envío de Mensaje Manual',true);
 						$db->update('package',$upData," `id_package` IN($id_package)");
 					}
 
@@ -907,24 +920,32 @@ function sleep(ms) {
 			echo json_encode($result);
 		break;
 
-		case 'ocurre':
-			if(isset($_SESSION['uLocation'])){
-				$_SESSION['uLocation'] = $_SESSION['uLocation'];
-			}else{
-				$_SESSION['uLocation'] = $_SESSION['uLocationDefault'];
-			}
-			$id_location = $_SESSION['uLocation'];
-			$typeLocation='tlaqui';
+		case 'createBarcode':
+
+			$id_location  = $_POST['id_location'];
+			$typeLocation ='tlaqui';
 			if($id_location==2){$typeLocation='zaca';}
 
-			$type_mode = $_POST['type_mode'];
-			$nameTypeMode='ocurre';
-			$listEstatus='1, 2, 4, 6, 7'; //except entregado y confirmado
-			if($type_mode=='auto'){
-				$nameTypeMode='auto_servicio';
-				$listEstatus='1, 2, 3, 4, 5, 6, 7'; // al estatus
+			$nameTypeMode = '';
+			$listEstatus  = '';
+			$dateBetween  = '';
+			switch ($_POST['type_mode']) {
+				case 'auto':
+					$nameTypeMode='auto_servicio';
+					$listEstatus='1, 2, 3, 4, 5, 6, 7'; // al estatus
+					$dateBetween = "AND p.c_date BETWEEN '".date('Y-m-d')." 00:00:00' AND '".date('Y-m-d')." 23:59:59' ";
+					break;
+				case 'ocurre':
+					$nameTypeMode='ocurre';
+					$listEstatus='1, 2, 6, 7'; //except entregado / confirmado / devuelto
+					$dateBetween = "AND p.c_date BETWEEN '".date('Y-m-d')." 00:00:00' AND '".date('Y-m-d')." 23:59:59' ";
+					break;
+				case 'full':
+					$nameTypeMode='full';
+					$listEstatus='1, 2, 6, 7'; //except entregado / confirmado / devuelto
+					$dateBetween= "";
+					break;
 			}
-
 
 			$result = [
 				'success'   => false,
@@ -934,21 +955,19 @@ function sleep(ms) {
 			// Incluir la biblioteca PHPBarcode
 			require_once('barcode.php');
 
-			$sql ="SELECT
-			p.tracking
-			FROM
-				package p
-			LEFT JOIN cat_contact cc ON cc.id_contact = p.id_contact
-			LEFT JOIN cat_status cs ON cs.id_status = p.id_status
-			LEFT JOIN users uc ON uc.id = p.c_user_id
-			LEFT JOIN cat_location cl ON cl.id_location = p.id_location
-			LEFT JOIN users un ON un.id = p.n_user_id
-			LEFT JOIN users ud ON ud.id = p.d_user_id
-			WHERE
-				1
-				AND p.id_location IN ($id_location)
-				AND p.id_status IN ($listEstatus)
-				AND p.c_date BETWEEN '".date('Y-m-d')." 00:00:00' AND '".date('Y-m-d')." 23:59:59'
+			$sql ="SELECT 
+				p.tracking 
+			FROM 
+				package p 
+			LEFT JOIN cat_contact cc ON cc.id_contact = p.id_contact 
+			LEFT JOIN cat_status cs ON cs.id_status = p.id_status 
+			LEFT JOIN users uc ON uc.id = p.c_user_id 
+			LEFT JOIN cat_location cl ON cl.id_location = p.id_location 
+			LEFT JOIN users un ON un.id = p.n_user_id 
+			LEFT JOIN users ud ON ud.id = p.d_user_id 
+			WHERE 1 
+				AND p.id_location IN ($id_location) 
+				AND p.id_status IN ($listEstatus) $dateBetween 
 			ORDER BY p.id_package DESC";
 			$codigos = $db->select($sql);
 
@@ -956,7 +975,7 @@ function sleep(ms) {
 			// Iterar sobre cada código y generar el código de barras correspondiente
 			$c=1;
 			foreach ($codigos as $data) {
-				$codigo= $data['tracking'];
+				$codigo = $data['tracking'];
 				// Nombre del archivo para guardar el código de barras
 				$nombreImagen = $c.'_'.$codigo . '.png';
 
@@ -997,7 +1016,6 @@ function sleep(ms) {
 			foreach ($archivos as $archivo) {
 				unlink($archivo);
 			}
-
 
 			echo json_encode($result);
 		break;
@@ -1059,6 +1077,9 @@ function sleep(ms) {
 					$success="true";
 					$message="$totPaqPorConfirmar Paquetes Confirmados";
 					$data['id_status']  = 5; //Confirmado
+					foreach ($listIds as $i => $idpkg) {
+						saveLog($idpkg,$data['id_status'],'Confirmación de Paquete por Selección',true);
+					}
 					$rst = $db->update('package',$data," `id_package` IN ($idsx)");
 					foreach ($checkRelease as $rdata) {
 						$separator = ($rdata['note']=='') ?  '':', ';
@@ -1105,9 +1126,7 @@ function saveLog($id_package,$new_id_status,$desc_mov,$currentStatus=false){
 
 	$old_id_status = 1;
 	if($currentStatus){
-		$sqlGetCurrentStatus="SELECT id_status old_id_status FROM package WHERE id_package IN ($id_package)";
-		$records = $db->select($sqlGetCurrentStatus);
-		$old_id_status = $records[0]['old_id_status'];
+		$old_id_status = getCurrentStatus($id_package);
 	}
 
 	$dataLog['id_log']        = null;
@@ -1119,4 +1138,20 @@ function saveLog($id_package,$new_id_status,$desc_mov,$currentStatus=false){
 	$dataLog['desc_mov']      = $desc_mov;
 	#$dataLog['ip']            = $ip;
 	$db->insert('logger',$dataLog);
+}
+
+function getCurrentStatus($id_package){
+	global $db;
+	$sqlGetCurrentStatus="SELECT id_status old_id_status FROM package WHERE id_package IN ($id_package)";
+	$records           = $db->select($sqlGetCurrentStatus);
+	$id_status_current = $records[0]['old_id_status'];
+	return $id_status_current;
+}
+
+function saveLogByTracking($tracking,$id_status,$desc_mov,$flag){
+	global $db;
+	$sqlGetIdPackage   ="SELECT id_package FROM package WHERE tracking IN ('$tracking')";
+	$records           = $db->select($sqlGetIdPackage);
+	$id_package = $records[0]['id_package'];
+	saveLog($id_package,$id_status,$desc_mov,$flag);
 }

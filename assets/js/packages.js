@@ -117,6 +117,7 @@ $(document).ready(function() {
 			formData.append('tracking',guia);
 			formData.append('listPackageRelease', JSON.stringify(listPackageRelease));
 			formData.append('option','releasePackage');
+			formData.append('desc_mov','Liberación de Paquete Manual');
 			$.ajax({
 				url: `${base_url}/${baseController}`,
 				type       : 'POST',
@@ -538,6 +539,7 @@ $(document).ready(function() {
 			formData.append('tracking',guia);
 			formData.append('listPackageRelease', JSON.stringify(listPackageRelease));
 			formData.append('option','releasePackage');
+			formData.append('desc_mov','Liberación de Paquete Escáner Modal');
 			$.ajax({
 				url: `${base_url}/${baseController}`,
 				type       : 'POST',
@@ -846,13 +848,17 @@ $(document).ready(function() {
 			icon: "info",
 			buttons: {
 				opcion1: {
-					text: "Punto de Autoservicio",
+					text: "Autoservicio",
 					value: "opcion1",
 				},
 				opcion2: {
-					text: "Modo Ocurre",
+					text: "Ocurre",
 					value: "opcion2",
 				},
+				opcion3: {
+					text: "Full",
+					value: "opcion3",
+				}
 			},
 			dangerMode: false,
 		})
@@ -864,6 +870,9 @@ $(document).ready(function() {
 				case "opcion2":
 						createBarCode('ocurre');
 					break;
+				case "opcion3":
+						createBarCode('full');
+					break;
 			}
 		});
 	});
@@ -872,7 +881,7 @@ $(document).ready(function() {
 		let formData =  new FormData();
 		formData.append('id_location', idLocationSelected.val());
 		formData.append('type_mode', mode);
-		formData.append('option', 'ocurre');
+		formData.append('option', 'createBarcode');
 		try {
 			$.ajax({
 				url        : `${base_url}/${baseController}`,
@@ -1078,8 +1087,6 @@ $(document).ready(function() {
 		}
 
 		let rowsRelease = rows_selected.join(",");
-		console.log(':::continue:::',rowsRelease);
-		//return;
 		let tpaquetes = tRows;
 		let tphone    = phoneUser[0];
 		let tname     = userName[0];
@@ -1103,6 +1110,7 @@ $(document).ready(function() {
 			formData.append('id_location', idLocationSelected.val());
 			formData.append('idsx', tids);
 			formData.append('option', 'pullRealise');
+			formData.append('desc_mov', 'Liberación de Paquete por Selección');
 			try {
 				$.ajax({
 					url        : `${base_url}/${baseController}`,

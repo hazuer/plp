@@ -58,6 +58,7 @@ $(document).ready(function() {
 			formData.append('id_location', idLocationSelected.val());
 			formData.append('idsx', tids);
 			formData.append('option', 'pullRealise');
+			formData.append('desc_mov', 'Liberación de Paquete por Agrupamiento');
 			try {
 				$.ajax({
 					url        : `${base_url}/${baseController}`,
