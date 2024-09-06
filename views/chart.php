@@ -33,7 +33,7 @@ $id_location = $_SESSION['uLocation'];
 			<?php
 				include '../views/navTop.php';
 			?>
-			<h3>Porcentaje de Entrega Últimos 3 Meses <?php echo $desc_loc;?></h3>
+			<h3>Porcentaje de Entrega <?php echo date('F');?> <?php echo $desc_loc;?></h3>
 			<hr>
 		
 	<?php 
@@ -48,20 +48,19 @@ $end_date = date('Y-m-' . min($current_day, $last_day_of_month)); // Ajusta al d
 #$start = new DateTime(date('Y-m-01')); // Primer día del mes actual
 // Crear un objeto DateTime con la fecha actual
 $start = new DateTime();
-// Restar tres meses a la fecha actual
-$start->modify('-3 months');
+// Restar meses a la fecha actual
+$start->modify('0 months');
 // Opcionalmente, establecer el primer día del mes resultante
 $start->modify('first day of this month');
 // Formatear la fecha para mostrarla o usarla en el formato que necesites
-$last3months=$start->format('Y-m-d'); 
+$lastMonth=$start->format('Y-m-d'); 
 
-$start = new DateTime(date($last3months)); // Primer día del mes actual
+$start = new DateTime(date($lastMonth)); // Primer día del mes actual
 $end = new DateTime($end_date); // Último día del mes actual con el día actual del mes
 
-
 $c=0;
-// Bucle desde la fecha de inicio hasta la fecha de fin
-				
+// Bucle desde la fecha de y/ hasta la fecha de fin
+
     ?>
     <?php
 for ($date = $start; $date <= $end; $date->modify('+1 day')) {
@@ -146,7 +145,7 @@ $ultimoD = date('Y-m-' . min($diaHoy, $ultimoDiaMes)); // Ajusta al día actual 
 
 // Convertir las fechas a objetos DateTime
 #$diaInicial = new DateTime(date('Y-m-01')); // Primer día del mes actual
-$diaInicial = new DateTime(date('2024-03-01')); // Primer día del mes actual
+$diaInicial = new DateTime(date('Y-m-01')); // 'Y' es el año actual, 'm' es el mes actual y '01' es el primer día
 $diaFinal = new DateTime($ultimoD); // Último día del mes actual con el día actual del mes
 
 
@@ -173,9 +172,8 @@ GROUP BY
 ORDER BY 
     p.id_status";
  $rst=$db->select($sql2);
- 
- 
-        $tpm = 0;
+
+    $tpm = 0;
 
     // Recorrer el arreglo y sumar los valores de 'count'
     foreach ($rst as $item) {
@@ -184,13 +182,12 @@ ORDER BY
 
    // Crear la tabla HTML
 echo "<table class='table table-striped table-bordered nowrap table-hover' cellspacing='0' style='width:100%'>";
-echo "<tr><th colspan='3'>Resumen del mes de ".date('F').", Total: ".$tpm." paquetes ".$desc_loc."</th></tr>";
+echo "<tr><th colspan='3'>Resumen del mes de ".date('F')." ".$desc_loc."<br>Periodo del ".$fini." al ".$ffin."<br>Total: ".$tpm." paquetes </th></tr>";
 echo "<tr><th>Estatus</th><th>Total</th><th>Porcentaje</th></tr>";
 
 
 // Recorrer el arreglo y generar las filas de la tabla
 foreach ($rst as $row) {
-    
     $p= round(((100/$tpm)*$row["count"]),2);
     echo "<tr>";
     echo "<td>" . $row["status_desc"] . "</td>";

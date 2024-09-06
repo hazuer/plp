@@ -936,14 +936,15 @@ function sleep(ms) {
 					$dateBetween = "AND p.c_date BETWEEN '".date('Y-m-d')." 00:00:00' AND '".date('Y-m-d')." 23:59:59' ";
 					break;
 				case 'ocurre':
-					$nameTypeMode='ocurre';
-					$listEstatus='1, 2, 6, 7'; //except entregado / confirmado / devuelto
-					$dateBetween = "AND p.c_date BETWEEN '".date('Y-m-d')." 00:00:00' AND '".date('Y-m-d')." 23:59:59' ";
+					$nameTypeMode = 'ocurre';
+					$listEstatus  = '1, 2, 7'; // Nuevo / Mensaje Enviado / Contactado
+					#$dateBetween = "AND p.c_date BETWEEN '".date('Y-m-d')." 00:00:00' AND '".date('Y-m-d')." 23:59:59' ";
+					$dateBetween  = "";
 					break;
-				case 'full':
-					$nameTypeMode='full';
-					$listEstatus='1, 2, 6, 7'; //except entregado / confirmado / devuelto
-					$dateBetween= "";
+				case 'anomalia':
+					$nameTypeMode = 'anomalia';
+					$listEstatus  = '6'; //Mensaje de error
+					$dateBetween  = "";
 					break;
 			}
 

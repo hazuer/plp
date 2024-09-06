@@ -856,7 +856,7 @@ $(document).ready(function() {
 					value: "opcion2",
 				},
 				opcion3: {
-					text: "Full",
+					text: "Anomalia",
 					value: "opcion3",
 				}
 			},
@@ -871,7 +871,7 @@ $(document).ready(function() {
 						createBarCode('ocurre');
 					break;
 				case "opcion3":
-						createBarCode('full');
+						createBarCode('anomalia');
 					break;
 			}
 		});
