@@ -938,7 +938,6 @@ function sleep(ms) {
 				$folio       = $d['folio'];
 
 				$url = "https://official.jtjms-mx.com/official/logisticsTracking/v3/getDetailByWaybillNo?waybillNo=".$waybillNo."&langType=ES&phoneVerify=".$phoneVerify;
-				#$url ="https://official.jtjms-mx.com/official/logisticsTracking/v3/getDetailByWaybillNo?waybillNo=JMX300064944499&langType=ES&phoneVerify=2464";
 
 				$curl = curl_init($url);
 				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);

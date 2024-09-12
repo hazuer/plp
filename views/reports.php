@@ -186,6 +186,8 @@ $packages = $db->select($sql);
 				</div>
 			</form>
 			<hr>
+			</div>
+			<div class="col-md-12 px-4">
 			<table id="tbl-reports" class="table table-striped table-bordered nowrap table-hover" cellspacing="0" style="width:100%">
 				<thead>
 					<tr>
