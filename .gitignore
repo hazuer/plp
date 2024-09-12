@@ -2,3 +2,5 @@ nodejs/node_modules
 nodejs/chat_bot.js
 system/configuration.php
 views/modal/handler.php
+evidence/
+

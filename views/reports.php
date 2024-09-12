@@ -74,7 +74,8 @@ un.user sms_by_user,
 (SELECT count(n.id_notification) FROM notification n WHERE n.id_package in(p.id_package)) t_sms_sent,
 p.d_date,
 ud.user user_libera,
-p.note 
+p.note,
+(SELECT count(e.id_evidence) FROM evidence e WHERE e.id_package IN(p.id_package)) t_evidence 
 FROM package p 
 LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
 LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
@@ -203,6 +204,7 @@ $packages = $db->select($sql);
 						<th>fecha_liberacion</th>
 						<th>libero</th>
 						<th>note</th>
+						<th>evidence</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -228,6 +230,14 @@ $packages = $db->select($sql);
 						<td><?php echo $d['d_date']; ?></td>
 						<td><?php echo $d['user_libera']; ?></td>
 						<td><?php echo $d['note']; ?></td>
+						<td>
+							<?php if($d['t_evidence']!=0){ ?>
+								<span class="badge badge-pill badge-warning" style="cursor: pointer;" id="btn-evidence" title="Evidencia(s)">
+									<?php echo $d['t_evidence']; ?> <i class="fa fa-file-image-o fa-lg" aria-hidden="true"></i>
+								</span>
+							<?php
+							} ?>
+						</td>
 						</tr>
 					<?php endforeach; ?>
 				</tbody>
@@ -236,6 +246,7 @@ $packages = $db->select($sql);
 		<?php
 		include('modal/sms-report.php');
 		include('modal/logger.php');
+		include('modal/evidence.php');
 		?>
 	</body>
 </html>

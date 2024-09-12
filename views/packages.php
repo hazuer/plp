@@ -76,9 +76,10 @@ IF(cs.id_status=6,'color:#DC143C;', '') colorErrorMessage,
 cs.status_desc,
 p.note,
 IF(p.n_date is null,'', CONCAT('el ',DATE_FORMAT(p.n_date, '%Y-%m-%d'))) n_date,
-(SELECT count(n.id_notification) FROM notification n WHERE n.id_package in(p.id_package)) t_sms_sent,
+(SELECT count(n.id_notification) FROM notification n WHERE n.id_package IN(p.id_package)) t_sms_sent,
 p.id_contact,
-p.marker 
+p.marker,
+(SELECT count(e.id_evidence) FROM evidence e WHERE e.id_package IN(p.id_package)) t_evidence 
 FROM package p 
 LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
 LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
@@ -215,17 +216,25 @@ $templateMsj=$user[0]['template'];
 								<td><?php echo $d['id_contact']; ?></td>
 								<td style="text-align: center;">
 									<div class="row">
-										<div class="col-md-6">
+										<div class="col-md-4">
 										<?php if($d['id_status']==2 || $d['id_status']==5 || $d['id_status']==7){ ?>
 											<span class="badge badge-pill badge-success" style="cursor: pointer;" id="btn-tbl-liberar" title="Liberar">
 												<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i>
 											</span>
 										<?php }?>
 										</div>
-										<div class="col-md-6">
+										<div class="col-md-4">
 											<span class="badge badge-pill badge-info" style="cursor: pointer;" id="btn-records" title="Editar">
 												<i class="fa fa-edit fa-lg" aria-hidden="true"></i>
 											</span>
+										</div>
+										<div class="col-md-4">
+											<?php if($d['t_evidence']!=0){ ?>
+												<span class="badge badge-pill badge-warning" style="cursor: pointer;" id="btn-evidence" title="Evidencia(s)">
+													<i class="fa fa-file-image-o fa-lg" aria-hidden="true"></i>
+												</span>
+											<?php
+											}?>
 										</div>
 									</div>
 								</td>
@@ -244,6 +253,7 @@ $templateMsj=$user[0]['template'];
 		include('modal/sync.php');
 		include('modal/bot.php');
 		include('modal/sms-report.php');
+		include('modal/evidence.php');
 		?>
 	</body>
 </html>

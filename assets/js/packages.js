@@ -283,6 +283,8 @@ $(document).ready(function() {
 		formData.append('action',action.val());
 		formData.append('option','savePackage');
 		formData.append('note',$('#note').val());
+		let file = $('#evidence')[0].files[0];  // Obtén el archivo del input
+		formData.append('evidence', file);  // Añade el archivo al FormData
 
 		$.ajax({
 			url        : `${base_url}/${baseController}`,
@@ -710,6 +712,67 @@ $(document).ready(function() {
 		let row = table.row( $(this).closest('tr') ).data();
 		loadSmsDetail(row.id_package);
 	});
+
+	$(`#tbl-packages tbody`).on( `click`, `#btn-evidence`, function () {
+		let row = table.row( $(this).closest('tr') ).data();
+		loadEvidences(row.id_package);
+	});
+
+	async function loadEvidences(id_package) {
+		let listEvidence = await getRecordsEvidence(id_package);
+		createTableEvidence(listEvidence);
+		$('#modal-evidence').modal({backdrop: 'static', keyboard: false}, 'show');
+	}
+
+	async function getRecordsEvidence(id_package) {
+		let list = [];
+		let formData =  new FormData();
+		formData.append('id_package', id_package);
+		formData.append('option','getRecordsEvidence');
+		try {
+			const response = await $.ajax({
+				url: `${base_url}/${baseController}`,
+				type: 'POST',
+				data: formData,
+				cache: false,
+				contentType: false,
+				processData: false
+			});
+			if(response.success=='true'){
+				list = response;
+			}
+		} catch (error) {
+			console.error(error);
+		}
+		return list;
+	}
+
+	function createTableEvidence(data) {
+		$('#tbl-evidence').empty();
+		let c=1;
+		let titleGuia='';
+		
+		$.each(data.dataJson, function(index, item) {
+			titleGuia    = item.tracking;
+			let item_path = item.path;
+
+			let clean_path   = item_path.replace(/^\.\.\//, '');
+			let encoded_path = encodeURI(clean_path);
+			let full_url     = `${base_url}/${encoded_path}`;
+
+			let row = `<tr>
+				<td><b>${c}</b></td>
+				<td>${item.date_e}</td>
+				<td>${item.user}</td>
+				<td style="text-align:center;"><a href="${full_url}" target="_blank" data-toggle="tooltip" data-placement="top" title="Click para ver imagen completa">
+				<img src="${full_url}" width="150" height="150">
+			  </a></td>
+			</tr>`;
+			$('#tbl-evidence').append(row);
+			c++;
+		});
+		$('#modal-evidence-title').html(`Evidencia(s) Guía ${titleGuia}`);
+	}
 
 	async function loadSmsDetail(id_package) {
 		let listSms = await getRecordsSms(id_package);

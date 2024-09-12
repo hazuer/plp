@@ -34,6 +34,9 @@ if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 			<button id="btn-chart" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Porcentaje de Entrega">
 				<i class="fa fa-pie-chart fa-lg" aria-hidden="true"></i>
 			</button>
+			<button id="btn-map" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Map">
+				<i class="fa fa-th fa-lg" aria-hidden="true"></i>
+			</button>
 			<button id="btn-list-contact" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Lista de Contactos">
 				<i class="fa fa-users fa-lg" aria-hidden="true"></i>
 			</button>

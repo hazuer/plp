@@ -34,14 +34,13 @@
                                 <label for="id_marcador"><b>Marcador:</b></label>
                                     <select name="id_marcador" id="id_marcador" class="form-control">
                                     <option value="black" <?php if($_SESSION["uMarker"]=='black'){echo "selected ";} ?> style="background-color:black;">Negro</option>
-                                    <option value="red"  <?php if($_SESSION["uMarker"]=='red'){echo "selected ";} ?>style="background-color:red;">Rojo</option>
-                                    <option value="blue"  <?php if($_SESSION["uMarker"]=='blue'){echo "selected ";} ?>style="background-color:blue;">Azul</option>
-                                    <option value="green"  <?php if($_SESSION["uMarker"]=='green'){echo "selected ";} ?>style="background-color:green;">Verde</option>
+                                    <option value="red" <?php if($_SESSION["uMarker"]=='red'){echo "selected ";} ?>style="background-color:red;">Rojo</option>
+                                    <option value="blue" <?php if($_SESSION["uMarker"]=='blue'){echo "selected ";} ?>style="background-color:blue;">Azul</option>
+                                    <option value="green" <?php if($_SESSION["uMarker"]=='green'){echo "selected ";} ?>style="background-color:green;">Verde</option>
                                 </select>
                             </div>
                         </div>
                     </div>
-
 
                     <div class="row">
                         <div class="col-md-6">
@@ -91,8 +90,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6" id="div-status">
+                    <div class="row" id="div-status">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="id_status"><b>Estatus:</b></label>
                                 <select name="id_status" id="id_status" class="form-control">
@@ -104,6 +103,10 @@
                                     <option value="7">Contactado</option>
                                 </select>
                             </div>
+                        </div>
+                        <div class="col-md-6" >
+                            <label for="evidence"><b>Evidencia:</b></label>
+                            <input type="file" id="evidence" name="evidence" accept="image/*" id="fileInput">
                         </div>
                     </div>
                 </form>

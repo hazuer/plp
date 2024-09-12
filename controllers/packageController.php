@@ -87,11 +87,59 @@ switch ($_POST['option']) {
 
 			switch ($action) {
 				case 'update':
+					$id       = $_POST['id_package'];
+					$errorLoadImg=null;
+					if (isset($_FILES['evidence'])) {
+						$pathLocation = '';
+						switch ($data['id_location']) {
+							case 1:
+								$pathLocation = 'tlaquiltenango';
+							break;
+							default:
+								$pathLocation = 'zacatepec';
+							break;
+						}
+
+						$file = $_FILES['evidence'];
+						$allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+						$fileType = mime_content_type($file['tmp_name']);
+
+						if (in_array($fileType, $allowedTypes)) {
+							$uploadDir        = '../evidence/'.$pathLocation.'/';
+							$fileExtension    = pathinfo($file['name'], PATHINFO_EXTENSION);
+							$originalFileName = pathinfo($file['name'], PATHINFO_FILENAME);
+							$prefixIdPackage  = $id;
+							$newFileName      = $prefixIdPackage . '_' . uniqid() .'_'. $originalFileName . '.' . $fileExtension;
+							$uploadFile       = $uploadDir . $newFileName;
+
+							if (move_uploaded_file($file['tmp_name'], $uploadFile)) {
+								$evidence['id_package']  = $id;
+								$evidence['id_user']     = $_SESSION["uId"];;
+								$evidence['path']        = $uploadFile;
+								$evidence['id_location'] = $data['id_location'];
+								$db->insert('evidence',$evidence);
+								saveLog($id,$data['id_status'],'Carga de evidencia '.$newFileName,true);
+							} else {
+								$errorLoadImg = "Hubo un error al subir la imagen";
+							}
+						} else {
+							$errorLoadImg = "Solo se permiten archivos de imagen (JPG, PNG, GIF)";
+						}
+					}
+					if(isset($errorLoadImg)){
+						$resultLoadImg = [
+							'success'  => 'false',
+							'dataJson' => [],
+							'message'  => $errorLoadImg
+						];
+						echo json_encode($resultLoadImg);
+						die();
+					}
+
 					if($data['id_status'] == 4 ){
 						$data['d_date']     = date("Y-m-d H:i:s");
 						$data['d_user_id']  = $_SESSION["uId"];
 					}
-					$id       = $_POST['id_package'];
 					$success  = 'true';
 					saveLog($id,$data['id_status'],'Cambio de Estatus/Modificación',true);
 					$dataJson = $db->update('package',$data," `id_package` = $id");
@@ -371,6 +419,43 @@ switch ($_POST['option']) {
 			WHERE 
 			n.id_package IN($id_package) 
 			ORDER  BY n.n_date DESC";
+		$success  = 'true';
+		$dataJson = $db->select($sql);
+		$message  = 'ok';
+		$result = [
+			'success'  => $success,
+			'dataJson' => $dataJson,
+			'message'  => $message
+		];
+		} catch (Exception $e) {
+			$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $message.": ".$e->getMessage()
+			];
+		}
+		echo json_encode($result);
+	break;
+
+	case 'getRecordsEvidence':
+		try {
+		$result   = [];
+		$success  = 'false';
+		$dataJson = [];
+		$message  = 'Error al consultar evidencias';
+		$id_package   = $_POST['id_package'];
+		$sql="SELECT 
+		e.date_e,
+		e.`path`,
+		p.tracking,
+		u.`user` 
+		FROM 
+		evidence e 
+		INNER JOIN users u ON u.id  = e.id_user  
+		INNER JOIN package p  ON p.id_package = e.id_package 
+		WHERE
+			e.id_package IN($id_package) 
+		ORDER BY e.id_evidence DESC ";
 		$success  = 'true';
 		$dataJson = $db->select($sql);
 		$message  = 'ok';

@@ -58,6 +58,10 @@
 		window.location.href = `${base_url}/views/chart.php`;
 	});
 
+	$('#btn-map').click(function(){
+		window.location.href = `${base_url}/views/map.php`;
+	});
+
 	$(function () {
 		$('[data-toggle="tooltip"]').tooltip()
 	})
