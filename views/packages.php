@@ -172,6 +172,8 @@ $templateMsj=$user[0]['template'];
 			<?php else: ?>
 				<form id="frm-package">
 				<h3>Paquetes <?php echo $desc_loc;?></h3>
+		</div>
+		<div class="col-md-12 px-4">
 					<table id="tbl-packages" class="table table-striped table-bordered nowrap table-hover" cellspacing="0" style="width:100%">
 						<thead>
 							<tr>
@@ -243,8 +245,8 @@ $templateMsj=$user[0]['template'];
 						</tbody>
 					</table>
 				</form>
+			</div>
 			<?php endif; ?>
-		</div>
 		<?php
 		include('modal/folio.php');
 		include('modal/template.php');
