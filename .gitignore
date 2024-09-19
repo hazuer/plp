@@ -1,6 +1,4 @@
-nodejs/node_modules
-nodejs/chat_bot.js
-system/configuration.php
+nodejs/
 views/modal/handler.php
 evidence/
-
+system/configuration.php
