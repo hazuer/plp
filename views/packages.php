@@ -102,66 +102,12 @@ $templateMsj=$user[0]['template'];
 		let uMarker =`<?php echo $_SESSION["uMarker"];?>`;
 		</script>
 		<script src="<?php echo BASE_URL;?>/assets/js/packages.js"></script>
-		<script src="<?php echo BASE_URL;?>/assets/js/functions.js"></script>
-		<link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css" rel="stylesheet">
-		<script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
-		<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
-		<link type="text/css" href="<?php echo BASE_URL;?>/assets/css/dataTables.checkboxes.css" rel="stylesheet" />
-		<script type="text/javascript" src="<?php echo BASE_URL;?>/assets/js/dataTables.checkboxes.min.js"></script>
-		<style>
-			@media only screen and (max-width: 768px) {
-				table.dataTable {
-					font-size: 10px; /* Reducción del tamaño de letra en un 25% */
-				}
-			}
-			.label-info {
-				padding: 0.2em 0.6em 0.3em;
-				font-size: 15px;
-				font-weight: 700;
-				line-height: 1;
-				color: #fff;
-				text-align: center;
-				white-space: nowrap;
-				vertical-align: baseline;
-				border-radius: 0.25em;
-				color: white;
-				background-color: #5bc0de;
-			}
-
-			#coincidencias {
-				position: absolute;
-				top: calc(100% + 7px); /* Posición debajo del campo #phone */
-				left: 0;
-				width: 100%;
-				max-height: 200px; /* Altura máxima para evitar el desplazamiento */
-				overflow-y: auto; /* Mostrar barra de desplazamiento vertical si es necesario */
-				background-color: white; /* Color de fondo */
-				border: 1px solid #ccc; /* Borde */
-				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra */
-				z-index: 1000; /* Z-index para que se superponga a otros elementos */
-			}
-
-			#coincidencias p {
-				padding: 10px;
-				margin: 0;
-				cursor: pointer; /* Cambiar el cursor al pasar sobre los elementos de la lista */
-			}
-
-			#coincidencias p:hover {
-				background-color: #ADD8E6; /* Cambiar el color de fondo al pasar el cursor */
-			}
-
-		</style>
 	</head>
 	<body>
 		<div class="main">
 			<?php
 				include '../views/navTop.php';
 			?>
-
       		<?php if(empty($packages)): ?>
 				<div class="alert alert-info" role="alert" style="text-align: center;">
 					No hay paquetes en la ubicación seleccionada, haz clik en el boton nuevo paquete <br>
@@ -256,6 +202,7 @@ $templateMsj=$user[0]['template'];
 		include('modal/bot.php');
 		include('modal/sms-report.php');
 		include('modal/evidence.php');
+		include('footer.php');
 		?>
 	</body>
 </html>

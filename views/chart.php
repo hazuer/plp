@@ -20,13 +20,6 @@ $id_location = $_SESSION['uLocation'];
 	<head>
 		<?php include '../views/header.php'; ?>
 		<script src="<?php echo BASE_URL;?>/assets/js/reports.js"></script>
-		<script src="<?php echo BASE_URL;?>/assets/js/functions.js"></script>
-		<link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css" rel="stylesheet">
-		<script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
-		<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
 	</head>
 	<body>
 		<div class="main">
@@ -73,28 +66,28 @@ for ($date = $start; $date <= $end; $date->modify('+1 day')) {
 
     // Consulta SQL
     $sql = "SELECT 
-                p.id_status, 
-                s.status_desc, 
-                COUNT(*) AS count,
-                SUM(CASE 
-                    WHEN DATE(p.c_date) = DATE(p.d_date) THEN 1 
-                    ELSE 0 
-                END) AS same_day_delivery,
-                SUM(CASE 
-                    WHEN DATE(p.c_date) != DATE(p.d_date) THEN 1 
-                    ELSE 0 
-                END) AS different_day_delivery
-            FROM 
-                package p
-            JOIN 
-                cat_status s ON p.id_status = s.id_status
-            WHERE 
-                p.c_date BETWEEN '$start_datetime' AND '$end_datetime'
-                AND p.id_location IN ($id_location)
-            GROUP BY 
-                p.id_status, s.status_desc
-            ORDER BY 
-                p.id_status";
+        p.id_status, 
+        s.status_desc, 
+        COUNT(*) AS count,
+        SUM(CASE 
+            WHEN DATE(p.c_date) = DATE(p.d_date) THEN 1 
+            ELSE 0 
+        END) AS same_day_delivery,
+        SUM(CASE 
+            WHEN DATE(p.c_date) != DATE(p.d_date) THEN 1 
+            ELSE 0 
+        END) AS different_day_delivery
+    FROM 
+        package p
+    JOIN 
+        cat_status s ON p.id_status = s.id_status
+    WHERE 
+        p.c_date BETWEEN '$start_datetime' AND '$end_datetime'
+        AND p.id_location IN ($id_location)
+    GROUP BY 
+        p.id_status, s.status_desc
+    ORDER BY 
+        p.id_status";
 
     // Ejecutar la consulta
     $result = $db->select($sql);
@@ -108,33 +101,31 @@ for ($date = $start; $date <= $end; $date->modify('+1 day')) {
         $total_count += intval($item['count']); // Convertir a entero antes de sumar
     }
         
-        echo "<table class='table table-striped table-bordered nowrap table-hover' cellspacing='0' style='width:100%'>
-        <tr><td colspan='6'>Paquetes registrados el día $current_date, Total:<b> ".$total_count." (100%)</b></td></tr>";
-             foreach ($result as $row) {
-                 $p= round(((100/$total_count)*$row["count"]),1);
-                 if($row["id_status"]==3){
-                     $pmd=round(((100/$row["count"])*$row["same_day_delivery"]),1);
-                     $pdd=round(((100/$row["count"])*$row["different_day_delivery"]),1);
-                        echo "<tr>
-                        <td>".$row["status_desc"]."(s)</td>
-                        <td>".$row["count"]." (".$p."%)</td>
-                        <td>Entregados mismo día</td>
-                        <td>".$row["same_day_delivery"]." (".$pmd."%)</td>
-                        <td>Entregados después del día </td>
-                        <td>".$row["different_day_delivery"]." (".$pdd."%)</td></tr>";
-                 }else{
-                         echo "<tr><td>".$row["status_desc"]."(s)</td><td>".$row["count"]." (".$p."%)</tr>";
-                 }
-
-}echo "</table>";
-       
+    echo "<table class='table table-striped table-bordered nowrap table-hover' cellspacing='0' style='width:100%'>
+    <tr><td colspan='6'>Paquetes registrados el día $current_date, Total:<b> ".$total_count." (100%)</b></td></tr>";
+    foreach ($result as $row) {
+        $p= round(((100/$total_count)*$row["count"]),1);
+        if($row["id_status"]==3){
+            $pmd=round(((100/$row["count"])*$row["same_day_delivery"]),1);
+            $pdd=round(((100/$row["count"])*$row["different_day_delivery"]),1);
+            echo "<tr>
+            <td>".$row["status_desc"]."(s)</td>
+            <td>".$row["count"]." (".$p."%)</td>
+            <td>Entregados mismo día</td>
+            <td>".$row["same_day_delivery"]." (".$pmd."%)</td>
+            <td>Entregados después del día </td>
+            <td>".$row["different_day_delivery"]." (".$pdd."%)</td></tr>";
+        }else{
+                echo "<tr><td>".$row["status_desc"]."(s)</td><td>".$row["count"]." (".$p."%)</tr>";
+        }
+    }
+echo "</table>";
     } else {
          echo "<table class='table table-striped table-bordered nowrap table-hover' cellspacing='0' style='width:100%'>
         <tr><td>Día $current_date, sin registro de paquetes</td></tr>
         </table>";
     }
 }
-
 
 // Obtener el día actual del mes
 $diaHoy = date('j');
@@ -148,30 +139,28 @@ $ultimoD = date('Y-m-' . min($diaHoy, $ultimoDiaMes)); // Ajusta al día actual 
 $diaInicial = new DateTime(date('Y-m-01')); // 'Y' es el año actual, 'm' es el mes actual y '01' es el primer día
 $diaFinal = new DateTime($ultimoD); // Último día del mes actual con el día actual del mes
 
-
 $fini = $diaInicial->format('Y-m-d');
-$f1 = $fini . ' 00:00:00';
+$f1   = $fini . ' 00:00:00';
 
 $ffin = $diaFinal->format('Y-m-d');
-$f2 = $ffin . ' 23:59:59';
-
+$f2   = $ffin . ' 23:59:59';
 
 $sql2="SELECT 
     p.id_status, 
     s.status_desc, 
     COUNT(*) AS count 
-FROM 
-    package p 
-JOIN 
-    cat_status s ON p.id_status = s.id_status 
-WHERE 
-    p.c_date BETWEEN '$f1' AND '$f2' 
-    AND p.id_location IN ($id_location) 
-GROUP BY  
-    p.id_status, s.status_desc 
-ORDER BY 
-    p.id_status";
- $rst=$db->select($sql2);
+    FROM 
+        package p 
+    JOIN 
+        cat_status s ON p.id_status = s.id_status 
+    WHERE 
+        p.c_date BETWEEN '$f1' AND '$f2' 
+        AND p.id_location IN ($id_location) 
+    GROUP BY  
+        p.id_status, s.status_desc 
+    ORDER BY 
+        p.id_status";
+ $rst = $db->select($sql2);
 
     $tpm = 0;
 
@@ -185,7 +174,6 @@ echo "<table class='table table-striped table-bordered nowrap table-hover' cells
 echo "<tr><th colspan='3'>Resumen del mes de ".date('F')." ".$desc_loc."<br>Periodo del ".$fini." al ".$ffin."<br>Total: ".$tpm." paquetes </th></tr>";
 echo "<tr><th>Estatus</th><th>Total</th><th>Porcentaje</th></tr>";
 
-
 // Recorrer el arreglo y generar las filas de la tabla
 foreach ($rst as $row) {
     $p= round(((100/$tpm)*$row["count"]),2);
@@ -195,11 +183,12 @@ foreach ($rst as $row) {
     echo "<td>" . $p . "%</td>";
     echo "</tr>";
 }
-
 echo "</table>";
 
-					?>
-		</div>
-
+	?>
+	</div>
+    <?php
+    include('footer.php');
+    ?>
 	</body>
 </html>

@@ -2,7 +2,6 @@
 session_start();
 define( '_VALID_MOS', 1 );
 
-
 require_once('../system/configuration.php');
 require_once('../system/DB.php');
 $db = new DB(HOST,USERNAME,PASSWD,DBNAME,PORT,SOCKET);
@@ -17,9 +16,9 @@ $id_location = $_SESSION['uLocation'];
 		<?php include '../views/header.php'; ?>
 		<script>
     	let templateMsj =`<?php echo $templateMsj;?>`;
+		let uMarker =`<?php echo $_SESSION["uMarker"];?>`;
 		</script>
 		<script src="<?php echo BASE_URL;?>/assets/js/packages.js"></script>
-		<script src="<?php echo BASE_URL;?>/assets/js/functions.js"></script>
 		<style>
 			.mensaje {
 				color: gray;
@@ -89,7 +88,11 @@ $id_location = $_SESSION['uLocation'];
 				});
             });
         });
-		
+
     </script>
+	<?php
+	include('modal/package.php');
+	include('footer.php');
+	?>
 	</body>
 </html>

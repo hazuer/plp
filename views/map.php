@@ -20,13 +20,6 @@ $id_location = $_SESSION['uLocation'];
 	<head>
 		<?php include '../views/header.php'; ?>
 		<script src="<?php echo BASE_URL;?>/assets/js/reports.js"></script>
-		<script src="<?php echo BASE_URL;?>/assets/js/functions.js"></script>
-		<link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css" rel="stylesheet">
-		<script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
-		<script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
 	</head>
 	<body>
 		<div class="main">
@@ -71,31 +64,34 @@ $id_location = $_SESSION['uLocation'];
     }
 ?>
 
-<div class="row">
-    <?php foreach ($groupedPackages as $initial => $packages): ?>
-			<div class="col-6 col-md-1"></div>
-			<div class="col-6 col-md-2" style="border: 1px solid black; min-height: 150px; background-color: lightblue; margin-bottom: 15px;">
-				<div class="row">
-				    <div class="col-4"></div>
-					<div class="col-4" style="text-align:center;">
-						<h3><?php echo $initial; ?></h3>
-					</div>
-					<div class="col-4" style="text-align:right;">
-						<?php echo count($packages); ?>
-					</div>
+	<div class="row">
+		<?php foreach ($groupedPackages as $initial => $packages): ?>
+		<div class="col-6 col-md-1"></div>
+		<div class="col-6 col-md-2" style="border: 1px solid black; min-height: 150px; background-color: lightblue; margin-bottom: 15px;">
+			<div class="row">
+				<div class="col-4"></div>
+				<div class="col-4" style="text-align:center;">
+					<h3><?php echo $initial; ?></h3>
 				</div>
-				<div class="row">
-					<?php foreach ($packages as $package): ?>
-						<div class="col-md-3" data-toggle="tooltip" data-placement="top" title="<?php echo $package['tracking'];?>-<?php echo $package['receiver'];?>">
-                            <span style="color:<?php echo $package['marker'];?>">
-                                <b><?php echo $package['folio']; ?></b>
-                            </span>
-						</div>
-					<?php endforeach; ?>
+				<div class="col-4" style="text-align:right;">
+					<?php echo count($packages); ?>
 				</div>
 			</div>
-    <?php endforeach; ?>
-</div>
+			<div class="row">
+				<?php foreach ($packages as $package): ?>
+					<div class="col-md-3" data-toggle="tooltip" data-placement="top" title="<?php echo $package['tracking'];?>-<?php echo $package['receiver'];?>">
+						<span style="color:<?php echo $package['marker'];?>">
+							<b><?php echo $package['folio']; ?></b>
+						</span>
+					</div>
+				<?php endforeach; ?>
+			</div>
+		</div>
+		<?php endforeach; ?>
+	</div>
+	<?php
+    include('footer.php');
+    ?>
 	</body>
 </html>
 

@@ -57,7 +57,7 @@ if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 			<button id="btn-add-package" type="button" class="btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Nuevo Paquete">
 				<i class="fa fa-cube fa-lg" aria-hidden="true"></i>
 			</button>
-			<?php if($host!='paqueterialospinos.com'){?>
+			<?php if($host==NAME_HOST_LOCAL){?>
 			<button id="btn-bot" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Chatbot Envío de Mensajes">
 				<i class="fa fa-simplybuilt fa-lg" aria-hidden="true"></i>
 			</button>

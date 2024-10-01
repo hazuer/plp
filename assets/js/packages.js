@@ -283,7 +283,11 @@ $(document).ready(function() {
 		formData.append('action',action.val());
 		formData.append('option','savePackage');
 		formData.append('note',$('#note').val());
-		let file = $('#evidence')[0].files[0];  // Obtén el archivo del input
+		let file = null;
+		const evidenceElement = document.getElementById('evidence');
+		if (evidenceElement) {
+			file = evidenceElement.files[0] ?? null;
+		}
 		formData.append('evidence', file);  // Añade el archivo al FormData
 
 		$.ajax({
