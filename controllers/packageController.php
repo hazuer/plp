@@ -364,6 +364,33 @@ switch ($_POST['option']) {
 						$data['id_status']  = 3; //Liberado
 						$data['d_date']     = date("Y-m-d H:i:s");
 						$data['d_user_id']  = $_SESSION["uId"];
+						if (!empty($_POST['imgEvidence'])) {
+							switch ($id_location) {
+								case 1:
+									$pathLocation = 'tlaquiltenango';
+								break;
+								default:
+									$pathLocation = 'zacatepec';
+								break;
+							}
+							$imageData = $_POST['imgEvidence'];
+							$imageData = str_replace('data:image/png;base64,', '', $imageData);
+							$imageData = str_replace(' ', '+', $imageData);
+							$decodedImage = base64_decode($imageData);
+							$nameFile = $tracking.'_'. uniqid(). '.png';
+							$filePath = '../evidence/'.$pathLocation.'/'.$nameFile;
+							file_put_contents($filePath, $decodedImage);
+							saveLogByTracking($tracking,$data['id_status'],'Evidencia de entrega '.$nameFile,true);
+							$sqlGetIdPackage   ="SELECT id_package FROM package WHERE tracking IN ('$tracking')";
+							$records           = $db->select($sqlGetIdPackage);
+							$id_pkg = $records[0]['id_package'];
+
+							$evidence['id_package']  = $id_pkg;
+							$evidence['id_user']     = $_SESSION["uId"];;
+							$evidence['path']        = $filePath;
+							$evidence['id_location'] = $id_location;
+							$db->insert('evidence',$evidence);
+						}
 						saveLogByTracking($tracking,$data['id_status'],$desc_mov,true);
 						$rst = $db->update('package',$data," `tracking` = '$tracking'");
 						$listPackageRelease   = json_decode($jsonPakage, true);
@@ -808,7 +835,36 @@ function sleep(ms) {
 				$data['id_status']  = 3; //Liberado
 				$data['d_date']     = date("Y-m-d H:i:s");
 				$data['d_user_id']  = $_SESSION["uId"];
+
+				$pathLocation = null;
+				$nameFile     = null;
+				$filePath     = null;
+				switch ($id_location) {
+					case 1:
+						$pathLocation = 'tlaquiltenango';
+					break;
+					default:
+						$pathLocation = 'zacatepec';
+					break;
+				}
+				if (!empty($_POST['imgEvidence'])) {
+					$imageData = $_POST['imgEvidence'];
+					$imageData = str_replace('data:image/png;base64,', '', $imageData);
+					$imageData = str_replace(' ', '+', $imageData);
+					$decodedImage = base64_decode($imageData);
+					$nameFile = 'Pull_Evidence_'. uniqid(). '.png';
+					$filePath = '../evidence/'.$pathLocation.'/'.$nameFile;
+					file_put_contents($filePath, $decodedImage);
+				}
 				foreach ($listIds as $i => $idpkg) {
+					if (!empty($_POST['imgEvidence'])) {
+						saveLog($idpkg,$data['id_status'],'Evidencia de entrega '.$nameFile,true);
+						$evidence['id_package']  = $idpkg;
+						$evidence['id_user']     = $_SESSION["uId"];;
+						$evidence['path']        = $filePath;
+						$evidence['id_location'] = $id_location;
+						$db->insert('evidence',$evidence);
+					}
 					saveLog($idpkg,$data['id_status'],$desc_mov,true);
 				}
 				$rst = $db->update('package',$data," `id_package` IN ($idsx)");

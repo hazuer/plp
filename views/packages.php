@@ -202,6 +202,8 @@ $templateMsj=$user[0]['template'];
 		include('modal/bot.php');
 		include('modal/sms-report.php');
 		include('modal/evidence.php');
+		include('modal/photo-confirmed.php');
+		include('modal/pull-photo.php');
 		include('footer.php');
 		?>
 	</body>

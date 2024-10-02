@@ -97,36 +97,93 @@ $(document).ready(function() {
 		loadPackageForm(row);
 	});
 
-	$(`#tbl-packages tbody`).on( `click`, `#btn-tbl-liberar`, function () {
-		let  listPackageRelease=[];
-		let row = table.row( $(this).closest('tr') ).data();
-			swal({
-			title: `Folio:${row.folio} - ${row.receiver}`,
-			text: `Desea liberar la guía ${row.tracking}?`,
-			icon: "info",
-			buttons: true,
-			dangerMode: false,
-		})
-		.then((weContinue) => {
-		  if (weContinue) {
-			let guia = row.tracking;
-			listPackageRelease.push(`'${guia}'`);
+	function takeEvidence(row) {
+		$('#modal-photo-confirmed-title').html(`Evidencia de Entrega ${row.tracking}`);
+		$('#modal-photo-confirmed').modal({backdrop: 'static', keyboard: false}, 'show');
+		$('#btn-photo-save').hide();
+		const video = document.getElementById('video');
+		const canvas = document.getElementById('canvas');
+		const snapButton = document.getElementById('snap');
+		const stopButton = document.getElementById('stop');
+		let stream;
+		const context = canvas.getContext('2d');
+		context.clearRect(0, 0, canvas.width, canvas.height);
 
-			let formData = new FormData();
-			formData.append('id_location',idLocationSelected.val());
-			formData.append('tracking',guia);
-			formData.append('listPackageRelease', JSON.stringify(listPackageRelease));
-			formData.append('option','releasePackage');
-			formData.append('desc_mov','Liberación de Paquete Manual');
-			$.ajax({
-				url: `${base_url}/${baseController}`,
-				type       : 'POST',
-				data       : formData,
-				cache      : false,
-				contentType: false,
-				processData: false,
+		navigator.mediaDevices.enumerateDevices().then((devices) => {
+			const videoDevices = devices.filter(device => device.kind === 'videoinput');
+			const rearCamera = videoDevices.find(device => 
+				device.label.toLowerCase().includes('back') || 
+				device.label.toLowerCase().includes('rear')
+			);
+			const constraints = {
+				video: {
+					deviceId: rearCamera ? rearCamera.deviceId : videoDevices[0].deviceId
+				}
+			};
+
+		return navigator.mediaDevices.getUserMedia(constraints);
+		}).then((mediaStream) => {
+			stream = mediaStream;
+			video.srcObject = stream;
 		})
-		.done(function(response) {
+		.catch((err) => {
+			console.error("Error al acceder a la cámara: ", err);
+		});
+
+		snapButton.addEventListener("click", () => {
+			$('#btn-photo-save').show();
+			const context = canvas.getContext('2d');
+      		context.drawImage(video, 0, 0, canvas.width, canvas.height);
+		});
+
+		stopButton.addEventListener("click", () => {
+			if (stream) {
+				const tracks = stream.getTracks();
+				tracks.forEach(track => track.stop());
+				video.srcObject = null;
+				console.log("Cámara detenida.");
+			}
+		});
+
+		const snapButtonRealese = document.getElementById('btn-photo-save');
+		snapButtonRealese.addEventListener("click", () => {
+			const context = canvas.getContext('2d');
+      		context.drawImage(video, 0, 0, canvas.width, canvas.height);
+			const imageData = canvas.toDataURL('image/png');
+			if (stream) {
+				const tracks = stream.getTracks();
+				tracks.forEach(track => track.stop());
+				video.srcObject = null;
+				console.log("Cámara detenida.");
+			}
+			$('#modal-photo-confirmed').modal('hide');
+			ajaxRealese(row,imageData);
+		});
+	}
+
+	function ajaxRealese(row,imgEvidence){
+		let  listPackageRelease=[];
+		let guia = row.tracking;
+		listPackageRelease.push(`'${guia}'`);
+		let formData = new FormData();
+		formData.append('id_location',idLocationSelected.val());
+		formData.append('tracking',guia);
+		formData.append('listPackageRelease', JSON.stringify(listPackageRelease));
+		formData.append('option','releasePackage');
+		formData.append('imgEvidence',imgEvidence);
+		formData.append('desc_mov','Liberación de Paquete Manual');
+		$.ajax({
+			url: `${base_url}/${baseController}`,
+			type       : 'POST',
+			data       : formData,
+			cache      : false,
+			contentType: false,
+			processData: false,
+			beforeSend : function() {
+				showSwal();
+				$('.swal-button-container').hide();
+			}
+		}).done(function(response) {
 			if(response.success==='true'){
 				swal(guia, response.message, "success");
 			}else {
@@ -141,9 +198,26 @@ $(document).ready(function() {
 		}).fail(function(e) {
 			console.log("Opps algo salio mal",e);
 		});
-		  } else {
-			return false;
-		  }
+	}
+
+	$(`#tbl-packages tbody`).on( `click`, `#btn-tbl-liberar`, function () {
+		let row = table.row( $(this).closest('tr') ).data();
+			swal({
+			title: `Folio:${row.folio} - ${row.receiver}`,
+			text: `Desea liberar la guía ${row.tracking}?`,
+			icon: "info",
+			buttons: true,
+			dangerMode: false,
+		}).then((weContinue) => {
+		  if (weContinue) {
+				if (row.id_status == 5) {
+					takeEvidence(row);
+				} else {
+					ajaxRealese(row, '');
+				}
+			} else {
+				return false;
+			}
 		});
 	});
 
@@ -1119,6 +1193,7 @@ $(document).ready(function() {
 		let phoneUser       = [];
 		let userName        = [];
 		let folios          = [];
+		let arrayStatus     = [];
 
 		$.each(rows_selected, function(index, rowId){
 			tRows++;
@@ -1134,6 +1209,7 @@ $(document).ready(function() {
 			phoneUser.push(rowData.phone);
 			userName.push(rowData.receiver);
 			folios.push(rowData.folio);
+			arrayStatus.push(rowData.id_status);
 		});
 
 		if (tRows === 0) {
@@ -1172,43 +1248,118 @@ $(document).ready(function() {
 		})
 		.then((weContinue) => {
 		  if (weContinue) {
-
-			let formData = new FormData();
-			formData.append('id_location', idLocationSelected.val());
-			formData.append('idsx', tids);
-			formData.append('option', 'pullRealise');
-			formData.append('desc_mov', 'Liberación de Paquete por Selección');
-			try {
-				$.ajax({
-					url        : `${base_url}/${baseController}`,
-					type       : 'POST',
-					data       : formData,
-					cache      : false,
-					contentType: false,
-					processData: false,
-				})
-				.done(function(response) {
-					if(response.success==='true'){
-						swal('Éxito', response.message, "success");
-						setTimeout(function(){
-							swal.close();
-							window.location.reload();
-						}, 3500);
-					}else {
-						swal('Atención', response.message, "warning");
-					}
-					$('.swal-button-container').hide();
-				});
-			} catch (error) {
-				console.log("Opps algo salio mal",error);
+			if (arrayStatus.includes('5')) {
+				tkEvi(tids,tphone);
+			} else {
+				releasePullPhoto(tids, '');
 			}
 		  } else {
 			return false;
 		  }
 		});
-
 		e.preventDefault();
 	});
+
+
+	function tkEvi(tids,tphone) {
+		$('#modal-pull-photo-title').html(`Evidencia de Entrega ${tphone}`);
+		$('#modal-pull-photo').modal({backdrop: 'static', keyboard: false}, 'show');
+		$('#btn-photo-pull-save').hide();
+		const video = document.getElementById('video-pull');
+		const canvas = document.getElementById('canvas-pull');
+		const snapButton = document.getElementById('snap-pull');
+		const stopButton = document.getElementById('stop-pull');
+		let stream;
+		const context = canvas.getContext('2d');
+		context.clearRect(0, 0, canvas.width, canvas.height);
+
+		navigator.mediaDevices.enumerateDevices().then((devices) => {
+			const videoDevices = devices.filter(device => device.kind === 'videoinput');
+			const rearCamera = videoDevices.find(device => 
+				device.label.toLowerCase().includes('back') || 
+				device.label.toLowerCase().includes('rear')
+			);
+			const constraints = {
+				video: {
+					deviceId: rearCamera ? rearCamera.deviceId : videoDevices[0].deviceId
+				}
+			};
+
+		return navigator.mediaDevices.getUserMedia(constraints);
+		}).then((mediaStream) => {
+			stream = mediaStream;
+			video.srcObject = stream;
+		}).catch((err) => {
+			console.error("Error al acceder a la cámara: ", err);
+		});
+
+		snapButton.addEventListener("click", () => {
+			$('#btn-photo-pull-save').show();
+			const context = canvas.getContext('2d');
+      		context.drawImage(video, 0, 0, canvas.width, canvas.height);
+		});
+
+		stopButton.addEventListener("click", () => {
+			if (stream) {
+				const tracks = stream.getTracks();
+				tracks.forEach(track => track.stop());
+				video.srcObject = null;
+				console.log("Cámara detenida.");
+			}
+		});
+
+		const snapButtonRealese = document.getElementById('btn-photo-pull-save');
+		snapButtonRealese.addEventListener("click", () => {
+			const context = canvas.getContext('2d');
+      		context.drawImage(video, 0, 0, canvas.width, canvas.height);
+			const imageData = canvas.toDataURL('image/png');
+			if (stream) {
+				const tracks = stream.getTracks();
+				tracks.forEach(track => track.stop());
+				video.srcObject = null;
+				console.log("Cámara detenida.");
+			}
+			$('#modal-pull-photo').modal('hide');
+			releasePullPhoto(tids,imageData);
+		});
+	}
+
+	function releasePullPhoto(tids,imgEvidence){
+		let formData = new FormData();
+		formData.append('id_location', idLocationSelected.val());
+		formData.append('idsx', tids);
+		formData.append('imgEvidence',imgEvidence);
+		formData.append('option', 'pullRealise');
+		formData.append('desc_mov', 'Liberación de Paquete por Selección');
+		try {
+			$.ajax({
+				url        : `${base_url}/${baseController}`,
+				type       : 'POST',
+				data       : formData,
+				cache      : false,
+				contentType: false,
+				processData: false,
+				beforeSend : function() {
+					showSwal();
+					$('.swal-button-container').hide();
+				}
+			})
+			.done(function(response) {
+				if(response.success==='true'){
+					swal('Éxito', response.message, "success");
+					setTimeout(function(){
+						swal.close();
+						window.location.reload();
+					}, 3500);
+				}else {
+					swal('Atención', response.message, "warning");
+				}
+				$('.swal-button-container').hide();
+			});
+		} catch (error) {
+			console.log("Opps algo salio mal",error);
+		}
+	}
 
 });
 

@@ -51,9 +51,9 @@
 				contentType: false,
 				processData: false,
                 beforeSend : function() {
-					showSwal();
-					$('.swal-button-container').hide();
-				}
+                    showSwal();
+                    $('.swal-button-container').hide();
+                }
             })
             .done(function(response) {
                 if(response.success==='true'){
