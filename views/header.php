@@ -29,10 +29,10 @@
 <link type="text/css" href="<?php echo BASE_URL;?>/assets/css/dataTables.checkboxes.css" rel="stylesheet" />
 <script type="text/javascript" src="<?php echo BASE_URL;?>/assets/js/dataTables.checkboxes.min.js"></script>
 
-<link href="<?php echo BASE_URL;?>/assets/css/styles.css" rel="stylesheet">
+<link href="<?php echo BASE_URL;?>/assets/css/styles.css?version=<?php echo time(); ?>" rel="stylesheet">
 <script src="<?php echo BASE_URL;?>/assets/js/sweetalert.min.js"></script>
 <script>
     let base_url = '<?php echo BASE_URL;?>';
 </script>
 
-<script src="<?php echo BASE_URL;?>/assets/js/functions.js"></script>
+<script src="<?php echo BASE_URL;?>/assets/js/functions.js?version=<?php echo time(); ?>"></script>

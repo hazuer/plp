@@ -101,7 +101,51 @@ $templateMsj=$user[0]['template'];
     	let templateMsj =`<?php echo $templateMsj;?>`;
 		let uMarker =`<?php echo $_SESSION["uMarker"];?>`;
 		</script>
-		<script src="<?php echo BASE_URL;?>/assets/js/packages.js"></script>
+		<script src="<?php echo BASE_URL;?>/assets/js/packages.js?version=<?php echo time(); ?>"></script>
+		<style>
+    		@media only screen and (max-width: 768px) {
+                table.dataTable td:nth-child(4),
+                table.dataTable th:nth-child(4) {
+                    display: none;
+                }
+                #lbl-title-location {
+                    display: none;
+                }
+            }
+        </style>
+        <script>
+    function truncateText() {
+        const table = document.getElementById('tbl-packages');
+        const rows = table.getElementsByTagName('tr');
+        
+        for (let i = 1; i < rows.length; i++) { // Empezamos desde 1 para omitir el encabezado
+            const cells = rows[i].getElementsByTagName('td');
+            if (cells.length > 6) { // Asegúrate de que hay al menos 7 columnas
+                const cell = cells[6]; // La columna 7 tiene un índice de 6
+                const text = cell.innerText;
+
+                // Si el texto es más largo que 20 caracteres, truncarlo
+                if (text.length > 20) {
+                    cell.innerText = text.substring(0, 20) + '...'; // Añadir "..." al final
+                }
+            }
+        }
+    }
+
+    // Ejecutar la función al cargar la página
+    window.onload = function() {
+        if (window.innerWidth <= 768) {
+            truncateText();
+        }
+    };
+
+    // También ejecuta la función al redimensionar la ventana
+    window.onresize = function() {
+        if (window.innerWidth <= 768) {
+            truncateText();
+        }
+    };
+</script>
 	</head>
 	<body>
 		<div class="main">
@@ -117,7 +161,7 @@ $templateMsj=$user[0]['template'];
 				</div
 			<?php else: ?>
 				<form id="frm-package">
-				<h3>Paquetes <?php echo $desc_loc;?></h3>
+				<h3 id="lbl-title-location">Paquetes <?php echo $desc_loc;?></h3>
 		</div>
 		<div class="col-md-12 px-4">
 					<table id="tbl-packages" class="table table-striped table-bordered nowrap table-hover" cellspacing="0" style="width:100%">
@@ -192,6 +236,9 @@ $templateMsj=$user[0]['template'];
 					</table>
 				</form>
 			</div>
+			<audio id="sound-snap" style="display: none;">
+				<source src="<?php echo BASE_URL;?>/assets/snap.mp3" type="audio/mpeg">
+			</audio>
 			<?php endif; ?>
 		<?php
 		include('modal/folio.php');

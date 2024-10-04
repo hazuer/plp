@@ -9,17 +9,12 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-md-12" style="text-align: center;">
-                        <video id="video" width="320" height="240" autoplay></video>
-                    </div>
+                    <video id="video" with="1024" height="819" autoplay></video>
                 </div>
                 <div class="row">
-                    <div class="col-md-12" style="text-align: center;">
-                        <canvas id="canvas" width="320" height="240"></canvas>
-                    </div>
+                    <canvas id="canvas" with="1024" height="819"></canvas>
                 </div>
             <div class="modal-footer">
-                <button id="snap" type="button" class="btn btn-primary"><i class="fa fa-camera" aria-hidden="true"></i></button>
                 <button id="btn-photo-save" type="button" class="btn btn-success" title="Liberar">Liberar</button>
             </div>
         </div>

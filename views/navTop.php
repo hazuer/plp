@@ -1,4 +1,3 @@
-<br>
 <?php
 $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https://" : "http://";
 // Host
@@ -40,38 +39,65 @@ if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 			<button id="btn-list-contact" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Lista de Contactos">
 				<i class="fa fa-users fa-lg" aria-hidden="true"></i>
 			</button>
-			<input style="width:100px;" type="text" class="form-control" value="<?php echo $_SESSION['uName']; ?>" value="" disabled="">
-			<select name="option-location" id="option-location" class="form-control" <?php echo $selectDisabled; ?> >
+			<input id="display-user" style="width:100px;" type="text" class="form-control d-none d-md-inline" value="<?php echo $_SESSION['uName']; ?>" value="" disabled="">
+
+			<div class="dropdown d-md-none">
+                <button class="btn-sm btn-primary dropdown-toggle" type="button" id="mobileMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Opc
+				</button>
+                <div class="dropdown-menu" aria-labelledby="mobileMenuButton">
+					<!-- Elementos agrupados en el menú desplegable -->
+					<button id="btn-folio-1" class="dropdown-item" id="btn-grouped">
+						<i class="fa fa-hashtag fa-lg" aria-hidden="true"></i> Configurar Folio
+					</button>
+					<button id="btn-template-1" class="dropdown-item" id="btn-grouped">
+						<i class="fa fa-file-text-o fa-lg" aria-hidden="true"></i> Plantillas de Mensajes
+					</button>
+					<button id="btn-add-package-1" class="dropdown-item" id="btn-grouped">
+						<i class="fa fa-cube fa-lg" aria-hidden="true"></i> Nuevo Paquete
+					</button>
+					<button id="btn-release-package-1" class="dropdown-item" id="btn-grouped">
+						<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i> Entrega de Paquetes
+					</button>
+					<button id="btn-sync-1" class="dropdown-item" id="btn-grouped">
+						<i class="fa fa-refresh fa-lg" aria-hidden="true"></i> Sincronizar Paquetes
+					</button>
+					<button id="btn-ocurre-1" class="dropdown-item" id="btn-grouped">
+						<i class="fa fa-barcode fa-lg" aria-hidden="true"></i> Crear Códigos de Barras
+					</button>
+                </div>
+            </div>
+			<select name="option-location" id="option-location" class="form-control d-none d-md-inline" <?php echo $selectDisabled; ?> >
 				<option value="1" <?php echo ($_SESSION['uLocation']==1) ? 'selected': ''; ?> >Tlaquiltenango</option>
 				<option value="2" <?php echo ($_SESSION['uLocation']==2) ? 'selected': ''; ?> >Zacatepec</option>
 			</select>
 			<?php
 			if($paginaInUse=="packages"){
 			?>
-			<button id="btn-folio" type="button" class="btn-sm btn-warning" data-toggle="tooltip" data-placement="top" title="Configurar Folio">
+			<button id="btn-folio" type="button" class="btn-sm btn-warning d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Configurar Folio">
 				<i class="fa fa-hashtag fa-lg" aria-hidden="true"></i>
 			</button>
-			<button id="btn-template" type="button" class="btn-sm btn-warning" data-toggle="tooltip" data-placement="top" title="Plantillas de Mensajes">
+			<button id="btn-template" type="button" class="btn-sm btn-warning d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Plantillas de Mensajes">
 				<i class="fa fa-file-text-o fa-lg" aria-hidden="true"></i>
 			</button>
-			<button id="btn-add-package" type="button" class="btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Nuevo Paquete">
+			<button id="btn-add-package" type="button" class="btn-success btn-sm d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Nuevo Paquete">
 				<i class="fa fa-cube fa-lg" aria-hidden="true"></i>
 			</button>
 			<?php if($host==NAME_HOST_LOCAL){?>
-			<button id="btn-bot" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Chatbot Envío de Mensajes">
+			<button id="btn-bot" type="button" class="btn-sm btn-primary d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Chatbot Envío de Mensajes">
 				<i class="fa fa-simplybuilt fa-lg" aria-hidden="true"></i>
 			</button>
-			<button id="btn-handler" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Envío Manual de Mensajes">
+			<button id="btn-handler" type="button" class="btn-sm btn-primary d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Envío Manual de Mensajes">
 				<i class="fa fa-hand-o-up fa-lg" aria-hidden="true"></i>
 			</button>
 			<?php }?>
-			<button id="btn-release-package" type="button" class="btn-sm btn-success" data-toggle="tooltip" data-placement="top" title="Entrega de Paquetes">
+			<button id="btn-release-package" type="button" class="btn-sm btn-success d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Entrega de Paquetes">
 				<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i>
 			</button>
-			<button id="btn-sync" type="button" class="btn-sm btn-success" data-toggle="tooltip" data-placement="top" title="Sincronizar Paquetes">
+			<button id="btn-sync" type="button" class="btn-sm btn-success d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Sincronizar Paquetes">
 				<i class="fa fa-refresh fa-lg" aria-hidden="true"></i>
 			</button>
-			<button id="btn-ocurre" type="button" class="btn-sm btn-success" data-toggle="tooltip" data-placement="top" title="Crear Códigos de Barras">
+			<button id="btn-ocurre" type="button" class="btn-sm btn-success d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Crear Códigos de Barras">
 				<i class="fa fa-barcode fa-lg" aria-hidden="true"></i>
 			</button>
 			<?php }?>

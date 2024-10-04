@@ -62,7 +62,7 @@ $(document).ready(function() {
 	});
     $("#tbl-packages_filter label").append(clearButton);
 
-	$("#btn-first-package, #btn-add-package").click(function(e){
+	$("#btn-first-package, #btn-add-package,#btn-add-package-1").click(function(e){
 		let fechaFormateada = getCurrentDate();
 		let row = {
 			id_package : 0,
@@ -103,9 +103,16 @@ $(document).ready(function() {
 		$('#btn-photo-save').hide();
 		const video = document.getElementById('video');
 		const canvas = document.getElementById('canvas');
-		const snapButton = document.getElementById('snap');
+		videoSnap = document.getElementById('video');
 		const stopButton = document.getElementById('stop');
 		let stream;
+		const highResWidth = 1024;
+        const highResHeight = 819;
+
+		canvas.width = highResWidth;
+		canvas.height = highResHeight;
+		video.width = highResWidth;
+		video.height = highResHeight;
 		const context = canvas.getContext('2d');
 		context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -129,11 +136,14 @@ $(document).ready(function() {
 		.catch((err) => {
 			console.error("Error al acceder a la cámara: ", err);
 		});
-
-		snapButton.addEventListener("click", () => {
+		
+		let capturedImageData;
+		videoSnap.addEventListener("click", () => {
+		    $('audio#sound-snap')[0].play();
 			$('#btn-photo-save').show();
 			const context = canvas.getContext('2d');
-      		context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      		context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight, 0, 0, canvas.width, canvas.height);
+            capturedImageData = canvas.toDataURL('image/png');
 		});
 
 		stopButton.addEventListener("click", () => {
@@ -147,17 +157,16 @@ $(document).ready(function() {
 
 		const snapButtonRealese = document.getElementById('btn-photo-save');
 		snapButtonRealese.addEventListener("click", () => {
-			const context = canvas.getContext('2d');
-      		context.drawImage(video, 0, 0, canvas.width, canvas.height);
-			const imageData = canvas.toDataURL('image/png');
 			if (stream) {
 				const tracks = stream.getTracks();
 				tracks.forEach(track => track.stop());
 				video.srcObject = null;
 				console.log("Cámara detenida.");
 			}
-			$('#modal-photo-confirmed').modal('hide');
-			ajaxRealese(row,imageData);
+			 if (capturedImageData) {
+                $('#modal-photo-confirmed').modal('hide');
+                ajaxRealese(row, capturedImageData);
+            }
 		});
 	}
 
@@ -501,7 +510,7 @@ $(document).ready(function() {
 
 // ----------------------------------------------------
 
-	$('#btn-folio').click(function(){
+	$('#btn-folio,#btn-folio-1').click(function(){
 		loadModalFolio();
 	});
 
@@ -570,7 +579,7 @@ $(document).ready(function() {
 	//------------------------------------------ release
 	let  listPackageRelease=[];
 
-	$('#btn-release-package').click(function(){
+	$('#btn-release-package,#btn-release-package-1').click(function(){
 		listPackage = [];
 		$('#form-modal-release-package')[0].reset();
 		$('#mrp-id_location').val(idLocationSelected.val());
@@ -676,7 +685,7 @@ $(document).ready(function() {
 	});
 
 	//--------------
-	$('#btn-template').click(function(){
+	$('#btn-template,#btn-template-1').click(function(){
 		loadModalTemplate();
 	});
 	async function loadModalTemplate() {
@@ -903,7 +912,7 @@ $(document).ready(function() {
 	}
 
 
-	$('#btn-sync').click(async function(){
+	$('#btn-sync,#btn-sync-1').click(async function(){
 		showSwal();
 		$('.swal-button-container').hide();
 		let result = await chekout();
@@ -982,7 +991,7 @@ $(document).ready(function() {
 		updateColors(selectedColor);
 	});
 
-	$('#btn-ocurre').click(function(){
+	$('#btn-ocurre,#btn-ocurre-1').click(function(){
 		swal({
 			title: "Crear Códigos de Barras",
 			text: "¿Que Opción Deseas Generar?",
@@ -1267,9 +1276,16 @@ $(document).ready(function() {
 		$('#btn-photo-pull-save').hide();
 		const video = document.getElementById('video-pull');
 		const canvas = document.getElementById('canvas-pull');
-		const snapButton = document.getElementById('snap-pull');
+		const videoSnapButton = document.getElementById('video-pull');
 		const stopButton = document.getElementById('stop-pull');
 		let stream;
+		const highResWidth = 1024;
+        const highResHeight = 819;
+
+		canvas.width = highResWidth;
+		canvas.height = highResHeight;
+		video.width = highResWidth;
+		video.height = highResHeight;
 		const context = canvas.getContext('2d');
 		context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -1281,7 +1297,7 @@ $(document).ready(function() {
 			);
 			const constraints = {
 				video: {
-					deviceId: rearCamera ? rearCamera.deviceId : videoDevices[0].deviceId
+					deviceId: rearCamera ? rearCamera.deviceId : videoDevices[0].deviceId,
 				}
 			};
 
@@ -1293,10 +1309,13 @@ $(document).ready(function() {
 			console.error("Error al acceder a la cámara: ", err);
 		});
 
-		snapButton.addEventListener("click", () => {
+        let capturedImageData;
+		videoSnapButton.addEventListener("click", () => {
+		    $('audio#sound-snap')[0].play();
 			$('#btn-photo-pull-save').show();
 			const context = canvas.getContext('2d');
-      		context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      		context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight, 0, 0, canvas.width, canvas.height);
+            capturedImageData = canvas.toDataURL('image/png'); // Almacenar la imagen capturada
 		});
 
 		stopButton.addEventListener("click", () => {
@@ -1310,17 +1329,16 @@ $(document).ready(function() {
 
 		const snapButtonRealese = document.getElementById('btn-photo-pull-save');
 		snapButtonRealese.addEventListener("click", () => {
-			const context = canvas.getContext('2d');
-      		context.drawImage(video, 0, 0, canvas.width, canvas.height);
-			const imageData = canvas.toDataURL('image/png');
 			if (stream) {
 				const tracks = stream.getTracks();
 				tracks.forEach(track => track.stop());
 				video.srcObject = null;
 				console.log("Cámara detenida.");
 			}
-			$('#modal-pull-photo').modal('hide');
-			releasePullPhoto(tids,imageData);
+			if (capturedImageData) {
+                $('#modal-pull-photo').modal('hide');
+                releasePullPhoto(tids,capturedImageData);
+            }
 		});
 	}
 
