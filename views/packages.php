@@ -100,6 +100,8 @@ $templateMsj=$user[0]['template'];
 		<script>
     	let templateMsj =`<?php echo $templateMsj;?>`;
 		let uMarker =`<?php echo $_SESSION["uMarker"];?>`;
+		let largo = `<?php echo LARGO;?>`;
+		let alto = `<?php echo ALTO;?>`;
 		</script>
 		<script src="<?php echo BASE_URL;?>/assets/js/packages.js?version=<?php echo time(); ?>"></script>
 		<style>

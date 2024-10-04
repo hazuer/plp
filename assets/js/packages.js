@@ -106,8 +106,8 @@ $(document).ready(function() {
 		videoSnap = document.getElementById('video');
 		const stopButton = document.getElementById('stop');
 		let stream;
-		const highResWidth = 1024;
-        const highResHeight = 819;
+		const highResWidth = largo;
+        const highResHeight = alto;
 
 		canvas.width = highResWidth;
 		canvas.height = highResHeight;
@@ -1279,8 +1279,8 @@ $(document).ready(function() {
 		const videoSnapButton = document.getElementById('video-pull');
 		const stopButton = document.getElementById('stop-pull');
 		let stream;
-		const highResWidth = 1024;
-        const highResHeight = 819;
+		const highResWidth = largo;
+        const highResHeight = alto;
 
 		canvas.width = highResWidth;
 		canvas.height = highResHeight;

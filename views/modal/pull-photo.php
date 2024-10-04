@@ -9,10 +9,10 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <video id="video-pull" with="1024" height="819" autoplay></video>
+                    <video id="video-pull" with="<?php echo LARGO;?>" height="<?php echo ALTO;?>" autoplay></video>
                 </div>
                 <div class="row">
-                    <canvas id="canvas-pull" with="1024" height="819"></canvas>
+                    <canvas id="canvas-pull" with="<?php echo LARGO;?>" height="<?php echo ALTO;?>"></canvas>
                 </div>
                 <div class="modal-footer">
                     <button id="btn-photo-pull-save" type="button" class="btn btn-success" title="Liberar">Liberar</button>
