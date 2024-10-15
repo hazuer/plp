@@ -577,6 +577,7 @@ switch ($_POST['option']) {
 		$idEstatus     = $_POST['idEstatus'];
 		$messagebot    = $_POST['messagebot'];
 		$plb  = $_POST['phonelistbot'];
+		$shipId = uniqid();
 		
 		$lineas = explode("\n", $plb);
 
@@ -621,6 +622,7 @@ client.on("ready", async () => {
 	const n_user_id='.$_SESSION["uId"].'
 	const numbers = ['.$phonelistbot.'];
 	const message = `'.$messagebot.'`;
+	const shipId = `'.$shipId.'`;
 	let iconBot= ``;
 	let tipoMessage =``;
 	switch (id_estatus) {
@@ -669,9 +671,13 @@ client.on("ready", async () => {
 			ids = rst[0] ? rst[0].ids : 0;
 			let idContactType = rst[0] ? rst[0].id_contact_type : 0;
 			let folioGuias = rst[0] ? rst[0].folioGuias : 0;
-			let fullMessage = `${iconBot} ${message}`;
+			let fullMessage = `${iconBot} ${message}\nsId:${shipId}`;
 			if(ids!=0){
-				fullMessage = `${iconBot} ${message} \n*(Folio)-Guía:*\n${folioGuias}`;
+				// Verifica si hay contenido y lo divide por las líneas nuevas (\'\n\')
+				let registros = folioGuias ? folioGuias.split(\'\n\').filter(Boolean) : [];
+				// Contar cuántos elementos hay en el array
+				let totalRegistros = registros.length;
+				fullMessage = `${iconBot} ${message} \n*Total:${totalRegistros}*\n*(Folio)-Guía:*\n${folioGuias}\nsId:${shipId}`;
 			}
 	
 			let sid ="";

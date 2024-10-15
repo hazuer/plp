@@ -101,6 +101,7 @@ $(document).ready(function() {
 		$('#modal-photo-confirmed-title').html(`Evidencia de Entrega ${row.tracking}`);
 		$('#modal-photo-confirmed').modal({backdrop: 'static', keyboard: false}, 'show');
 		$('#btn-photo-save').hide();
+		const videoContainer = document.getElementById('video-container');
 		const video = document.getElementById('video');
 		const canvas = document.getElementById('canvas');
 		videoSnap = document.getElementById('video');
@@ -115,6 +116,23 @@ $(document).ready(function() {
 		video.height = highResHeight;
 		const context = canvas.getContext('2d');
 		context.clearRect(0, 0, canvas.width, canvas.height);
+
+		// Establecer estilos para el contenedor del video (marco verde)
+		videoContainer.style.width = "50%"; // 50% del ancho de la pantalla, es decir, 512px en una pantalla de 1024px
+		videoContainer.style.height = "50%"; // 50% del alto, para mantener proporciones cuadradas
+		videoContainer.style.maxWidth = "320px"; // Máximo tamaño 512px
+		videoContainer.style.maxHeight = "320px"; // Máximo tamaño 512px
+		videoContainer.style.border = "2px solid green"; // Borde verde
+		videoContainer.style.display = "flex";
+		videoContainer.style.alignItems = "center";
+		videoContainer.style.justifyContent = "center";
+		videoContainer.style.margin = "0 auto"; // Centrado horizontal
+		videoContainer.style.position = "relative";
+
+		// Ajustar el video dentro del contenedor
+		video.style.width = "100%";
+		video.style.height = "100%";
+		video.style.objectFit = "cover"; // Ajustar video dentro del marco
 
 		navigator.mediaDevices.enumerateDevices().then((devices) => {
 			const videoDevices = devices.filter(device => device.kind === 'videoinput');
@@ -151,6 +169,7 @@ $(document).ready(function() {
 				const tracks = stream.getTracks();
 				tracks.forEach(track => track.stop());
 				video.srcObject = null;
+				videoContainer.style.border = "none";
 				console.log("Cámara detenida.");
 			}
 		});
@@ -161,6 +180,7 @@ $(document).ready(function() {
 				const tracks = stream.getTracks();
 				tracks.forEach(track => track.stop());
 				video.srcObject = null;
+				videoContainer.style.border = "none";
 				console.log("Cámara detenida.");
 			}
 			 if (capturedImageData) {
@@ -1274,6 +1294,8 @@ $(document).ready(function() {
 		$('#modal-pull-photo-title').html(`Evidencia de Entrega ${tphone}`);
 		$('#modal-pull-photo').modal({backdrop: 'static', keyboard: false}, 'show');
 		$('#btn-photo-pull-save').hide();
+		const videoContainer = document.getElementById('video-container-pull');
+
 		const video = document.getElementById('video-pull');
 		const canvas = document.getElementById('canvas-pull');
 		const videoSnapButton = document.getElementById('video-pull');
@@ -1288,6 +1310,23 @@ $(document).ready(function() {
 		video.height = highResHeight;
 		const context = canvas.getContext('2d');
 		context.clearRect(0, 0, canvas.width, canvas.height);
+
+		// Establecer estilos para el contenedor del video (marco verde)
+		videoContainer.style.width = "50%"; // 50% del ancho de la pantalla, es decir, 512px en una pantalla de 1024px
+		videoContainer.style.height = "50%"; // 50% del alto, para mantener proporciones cuadradas
+		videoContainer.style.maxWidth = "320px"; // Máximo tamaño 512px
+		videoContainer.style.maxHeight = "320px"; // Máximo tamaño 512px
+		videoContainer.style.border = "2px solid green"; // Borde verde
+		videoContainer.style.display = "flex";
+		videoContainer.style.alignItems = "center";
+		videoContainer.style.justifyContent = "center";
+		videoContainer.style.margin = "0 auto"; // Centrado horizontal
+		videoContainer.style.position = "relative";
+	
+		// Ajustar el video dentro del contenedor
+		video.style.width = "100%";
+		video.style.height = "100%";
+		video.style.objectFit = "cover"; // Ajustar video dentro del marco
 
 		navigator.mediaDevices.enumerateDevices().then((devices) => {
 			const videoDevices = devices.filter(device => device.kind === 'videoinput');
@@ -1323,6 +1362,7 @@ $(document).ready(function() {
 				const tracks = stream.getTracks();
 				tracks.forEach(track => track.stop());
 				video.srcObject = null;
+				videoContainer.style.border = "none";
 				console.log("Cámara detenida.");
 			}
 		});
@@ -1333,6 +1373,7 @@ $(document).ready(function() {
 				const tracks = stream.getTracks();
 				tracks.forEach(track => track.stop());
 				video.srcObject = null;
+				videoContainer.style.border = "none";
 				console.log("Cámara detenida.");
 			}
 			if (capturedImageData) {
