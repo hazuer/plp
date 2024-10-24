@@ -44,9 +44,13 @@ $(document).ready(function() {
 		let tphone = $(this).data('tphone');
 		let tname = $(this).data('tname');
 		let tids = $(this).data('tids');
+		let tjt = $(this).data('tjt');
+		let timile = $(this).data('timile');
+		let descjt=(tjt>0) ? `Paquetería JT:${tjt}\n`:'';
+		let descimi=(timile>0) ? `Paquetería IMILE:${timile}\n`:'';
 		swal({
-			title: `Total ${tpaquetes} Paquetes`,
-			text: `Télefono: ${tphone}\nNombre: ${tname}\n\nEstá seguro ?`,
+			title: `Paquetes por liberar: ${tpaquetes}`,
+			text: `${descjt}${descimi}Télefono: ${tphone}\nNombre: ${tname}\n\nEstá seguro ?`,
 			icon: "info",
 			buttons: true,
 			dangerMode: false,

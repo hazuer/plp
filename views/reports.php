@@ -1,8 +1,6 @@
 <?php
 session_start();
-
 define( '_VALID_MOS', 1 );
-
 date_default_timezone_set('America/Mexico_City');
 
 require_once('../system/configuration.php');
@@ -13,18 +11,17 @@ require_once('../system/session_cookies.php');
 $id_location = $_SESSION['uLocation'];
 
 $rFstatus = $_POST['rFstatus'] ?? 3;
-#$rFIni    = $_POST['rFIni'] ?? date('Y-m-d', strtotime('-10 days'));
-#$rFFin    = $_POST['rFFin'] ?? date('Y-m-d');
 $rFIni    = $_POST['rFIni'] ?? null;
 $rFFin    = $_POST['rFFin'] ?? null;
 $rGuia    = $_POST['rGuia'] ?? null;
 $rFolio   = $_POST['rFolio'] ?? null;
-$rTelefono   = $_POST['rTelefono'] ?? null;
+$rTelefono = $_POST['rTelefono'] ?? null;
+$rParcel   = $_POST['rParcel'] ?? 99;
 
 $rFIniLib    = $_POST['rFIniLib'] ?? date('Y-m-d');
 $rFFinLib    = $_POST['rFFinLib'] ?? date('Y-m-d');
 
-# $andStatusIn =" AND p.id_status IN (1,2,3,4,5,6,7)";
+$andStatusIn = "";
 if(isset($rFstatus)){
 	if($rFstatus!='99'){
 		$andStatusIn = " AND p.id_status IN ($rFstatus)";
@@ -58,6 +55,15 @@ if(!empty($rFIniLib) && !empty($rFFinLib)){
 	$andFechasLiberacion = " AND p.d_date BETWEEN '$rFIniLib 00:00:00' AND '$rFFinLib 23:59:59'";
 }
 
+$andParcelIn = "";
+if(isset($rParcel)){
+	if($rParcel!=99){
+		$andParcelIn = " AND p.id_cat_parcel IN ($rParcel)";
+	}else{
+		$andParcelIn = " AND p.id_cat_parcel IN (1,2)";
+	}
+}
+
 $sql = "SELECT 
 p.id_package,
 cl.location_desc,
@@ -75,7 +81,8 @@ un.user sms_by_user,
 p.d_date,
 ud.user user_libera,
 p.note,
-(SELECT count(e.id_evidence) FROM evidence e WHERE e.id_package IN(p.id_package)) t_evidence 
+(SELECT count(e.id_evidence) FROM evidence e WHERE e.id_package IN(p.id_package)) t_evidence,
+cp.parcel parcel_desc 
 FROM package p 
 LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
 LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
@@ -83,6 +90,7 @@ LEFT JOIN users uc ON uc.id = p.c_user_id
 LEFT JOIN cat_location cl ON cl.id_location = p.id_location 
 LEFT JOIN users un ON un.id = p.n_user_id 
 LEFT JOIN users ud ON ud.id = p.d_user_id 
+LEFT JOIN cat_parcel cp ON cp.id_cat_parcel = p.id_cat_parcel 
 WHERE 1 
 AND p.id_location IN ($id_location) 
 $andStatusIn 
@@ -91,9 +99,9 @@ $andGuia
 $andFolio 
 $andTelefono 
 $andFechasLiberacion 
+$andParcelIn 
 ORDER BY p.id_package DESC";
 $packages = $db->select($sql);
-//echo $sql;
 ?>
 <!doctype html>
 <html lang = "en">
@@ -152,6 +160,16 @@ $packages = $db->select($sql);
 				<div class="row">
 					<div class="col-md-3">
 						<div class="form-group">
+							<label for="rParcel"><b>Paquetería:</b></label>
+							<select name="rParcel" id="rParcel" class="form-control">
+								<option value="99" <?php echo ($rParcel==99) ? 'selected': ''; ?>>Todas</option>
+								<option value="1" <?php echo ($rParcel==1) ? 'selected': ''; ?>>J&T</option>
+								<option value="2" <?php echo ($rParcel==2) ? 'selected': ''; ?>>IMILE</option>
+							</select>
+						</div>
+					</div>
+					<div class="col-md-3">
+						<div class="form-group">
 							<label for="rTelefono"><b>Télefono:</b></label>
 							<input type="text" class="form-control" name="rTelefono" id="rTelefono" value="<?php echo $rTelefono; ?>" autocomplete="off">
 						</div>
@@ -186,6 +204,7 @@ $packages = $db->select($sql);
 					<tr>
 						<th>id_package</th>
 						<th>location_desc</th>
+						<th>parcel_desc
 						<th>fecha_registro</th>
 						<th>registrado_por</th>
 						<th>guia</th>
@@ -207,6 +226,7 @@ $packages = $db->select($sql);
 						<tr>
 						<td title="Ver Historial" id="id-logger" style="cursor: pointer; text-decoration: underline;"><?php echo $d['id_package']; ?></td>
 						<td><?php echo $d['location_desc']; ?></td>
+						<td><?php echo $d['parcel_desc']; ?></td>
 						<td><?php echo $d['c_date']; ?></td>
 						<td><?php echo $d['registro']; ?></td>
 						<td><?php echo $d['tracking']; ?></td>

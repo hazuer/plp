@@ -17,22 +17,23 @@ $(document).ready(function() {
 		"columns" : [
 			{title: `Id`,               name:`id_package`,       data:`id_package`},      //0
 			{title: `Ubicación`,        name:`location_desc`,    data:`location_desc`},   //1
-			{title: `Fecha Registro`,   name:`fecha_registro`,   data:`fecha_registro`},  //2
-			{title: `Registró`,         name:`registrado_por`,   data:`registrado_por`},  //3
-			{title: `Guía`,             name:`guia`,             data:`guia`},            //4
-			{title: `Folio`,            name:`folio`,            data:`folio`},           //5
-			{title: `Télefono`,         name:`phone`,            data:`phone`},           //6
-			{title: `Destinatario`,     name:`receiver`,         data:`receiver`},        //7
-			{title: `Estatus`,          name:`status_desc`,      data:`status_desc`},     //8
-			{title: `Fecha Mensaje`,    name:`fecha_envio_sms`,  data:`fecha_envio_sms`}, //9
-			{title: `Envió Mensaje`,    name:`sms_enviado_por`,  data:`sms_enviado_por`}, //10
-			{title: `Total Mensaje`,    name:`total_sms`,        data:`total_sms`},       //11
-			{title: `Fecha Entrega`,    name:`fecha_liberacion`, data:`fecha_liberacion`},//12
-			{title: `Entregó`,          name:`libero`,           data:`libero`},          //13
-			{title: `Nota`,             name:`note`,             data:`note`},            //14
-			{title: `Evidencia(s)`,     name:`evidence`,         data:`evidence`}      //15+ 1 last
+			{title: `Paquetería`,       name:`parcel_desc`,      data:`parcel_desc`},     //2
+			{title: `Fecha Registro`,   name:`fecha_registro`,   data:`fecha_registro`},  //3
+			{title: `Registró`,         name:`registrado_por`,   data:`registrado_por`},  //4
+			{title: `Guía`,             name:`guia`,             data:`guia`},            //5
+			{title: `Folio`,            name:`folio`,            data:`folio`},           //6
+			{title: `Télefono`,         name:`phone`,            data:`phone`},           //7
+			{title: `Destinatario`,     name:`receiver`,         data:`receiver`},        //8
+			{title: `Estatus`,          name:`status_desc`,      data:`status_desc`},     //9
+			{title: `Fecha Mensaje`,    name:`fecha_envio_sms`,  data:`fecha_envio_sms`}, //10
+			{title: `Envió Mensaje`,    name:`sms_enviado_por`,  data:`sms_enviado_por`}, //11
+			{title: `Total Mensaje`,    name:`total_sms`,        data:`total_sms`},       //12
+			{title: `Fecha Entrega`,    name:`fecha_liberacion`, data:`fecha_liberacion`},//13
+			{title: `Entregó`,          name:`libero`,           data:`libero`},          //14
+			{title: `Nota`,             name:`note`,             data:`note`},            //15
+			{title: `Evidencia(s)`,     name:`evidence`,         data:`evidence`}      //16+ 1 last
 		],
-        'order': [[12, 'desc']]
+        'order': [[13, 'desc']]
 	});
 
 	//funcion para borrar campo de busqueda
@@ -165,6 +166,7 @@ $(document).ready(function() {
 		$('#rFIniLib').val('');
 		$('#rFFinLib').val('');
 		$('#rGuia').focus();
+		$('#rParcel').val(99);
 	});
 
 	$('#rTelefono').on('input', function() {

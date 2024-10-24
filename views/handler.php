@@ -17,6 +17,7 @@ $id_location = $_SESSION['uLocation'];
 		<script>
     	let templateMsj =`<?php echo $templateMsj;?>`;
 		let uMarker =`<?php echo $_SESSION["uMarker"];?>`;
+		let uIdCatParcel =`<?php echo $_SESSION["uIdCatParcel"];?>`;
 		</script>
 		<script src="<?php echo BASE_URL;?>/assets/js/packages.js"></script>
 		<style>

@@ -79,10 +79,13 @@ IF(p.n_date is null,'', CONCAT('el ',DATE_FORMAT(p.n_date, '%Y-%m-%d'))) n_date,
 (SELECT count(n.id_notification) FROM notification n WHERE n.id_package IN(p.id_package)) t_sms_sent,
 p.id_contact,
 p.marker,
-(SELECT count(e.id_evidence) FROM evidence e WHERE e.id_package IN(p.id_package)) t_evidence 
+(SELECT count(e.id_evidence) FROM evidence e WHERE e.id_package IN(p.id_package)) t_evidence,
+p.id_cat_parcel,
+cp.parcel 
 FROM package p 
 LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
 LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
+LEFT JOIN cat_parcel cp ON cp.id_cat_parcel=p.id_cat_parcel 
 WHERE 1 
 AND p.id_location IN ($id_location)
 AND p.id_status IN(1,2,5,6,7)";
@@ -100,6 +103,7 @@ $templateMsj=$user[0]['template'];
 		<script>
     	let templateMsj =`<?php echo $templateMsj;?>`;
 		let uMarker =`<?php echo $_SESSION["uMarker"];?>`;
+		let uIdCatParcel =`<?php echo $_SESSION["uIdCatParcel"];?>`;
 		let largo = `<?php echo LARGO;?>`;
 		let alto = `<?php echo ALTO;?>`;
 		</script>
@@ -116,56 +120,56 @@ $templateMsj=$user[0]['template'];
             }
         </style>
         <script>
-    function truncateText() {
-        const table = document.getElementById('tbl-packages');
-        const rows = table.getElementsByTagName('tr');
-        
-        for (let i = 1; i < rows.length; i++) { // Empezamos desde 1 para omitir el encabezado
-            const cells = rows[i].getElementsByTagName('td');
-            if (cells.length > 6) { // Asegúrate de que hay al menos 7 columnas
-                const cell = cells[6]; // La columna 7 tiene un índice de 6
-                const text = cell.innerText;
+   		function truncateText() {
+			const table = document.getElementById('tbl-packages');
+			const rows = table.getElementsByTagName('tr');
 
-                // Si el texto es más largo que 20 caracteres, truncarlo
-                if (text.length > 20) {
-                    cell.innerText = text.substring(0, 20) + '...'; // Añadir "..." al final
-                }
-            }
-        }
-    }
+			for (let i = 1; i < rows.length; i++) { // Empezamos desde 1 para omitir el encabezado
+				const cells = rows[i].getElementsByTagName('td');
+				if (cells.length > 6) { // Asegúrate de que hay al menos 7 columnas
+					const cell = cells[6]; // La columna 7 tiene un índice de 6
+					const text = cell.innerText;
 
-    // Ejecutar la función al cargar la página
-    window.onload = function() {
-        if (window.innerWidth <= 768) {
-            truncateText();
-        }
-    };
+					// Si el texto es más largo que 20 caracteres, truncarlo
+					if (text.length > 20) {
+						cell.innerText = text.substring(0, 20) + '...'; // Añadir "..." al final
+					}
+				}
+			}
+		}
 
-    // También ejecuta la función al redimensionar la ventana
-    window.onresize = function() {
-        if (window.innerWidth <= 768) {
-            truncateText();
-        }
-    };
-</script>
+			// Ejecutar la función al cargar la página
+			window.onload = function() {
+				if (window.innerWidth <= 768) {
+					truncateText();
+				}
+			};
+
+			// También ejecuta la función al redimensionar la ventana
+			window.onresize = function() {
+				if (window.innerWidth <= 768) {
+					truncateText();
+				}
+			};
+		</script>
 	</head>
 	<body>
 		<div class="main">
-			<?php
-				include '../views/navTop.php';
-			?>
-      		<?php if(empty($packages)): ?>
-				<div class="alert alert-info" role="alert" style="text-align: center;">
-					No hay paquetes en la ubicación seleccionada, haz clik en el boton nuevo paquete <br>
-					<button id="btn-first-package" type="button" class="btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Nuevo paquete">
-						<i class="fa fa-cube fa-lg" aria-hidden="true"></i>
-					</button>
-				</div
-			<?php else: ?>
-				<form id="frm-package">
-				<h3 id="lbl-title-location">Paquetes <?php echo $desc_loc;?></h3>
+		<?php
+			include '../views/navTop.php';
+		?>
+      	<?php if(empty($packages)): ?>
+			<div class="alert alert-info" role="alert" style="text-align: center;">
+				No hay paquetes en la ubicación seleccionada, haz clik en el boton nuevo paquete <br>
+				<button id="btn-first-package" type="button" class="btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Nuevo paquete">
+					<i class="fa fa-cube fa-lg" aria-hidden="true"></i>
+				</button>
+			</div
 		</div>
-		<div class="col-md-12 px-4">
+		<?php else: ?>
+			<form id="frm-package">
+				<h3 id="lbl-title-location">Paquetes <?php echo $desc_loc;?></h3>
+				<div class="col-md-12 px-4">
 					<table id="tbl-packages" class="table table-striped table-bordered nowrap table-hover" cellspacing="0" style="width:100%">
 						<thead>
 							<tr>
@@ -180,6 +184,8 @@ $templateMsj=$user[0]['template'];
 								<th>status_desc</th>
 								<th>note</th>
 								<th>id_contact</th>
+								<th>id_cat_parcel</th>
+								<th>parcel</th>
 								<th style="text-align: center; width:20%;">
 									<button type="button" id="confirmg" name="confirmg" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Confirmar Guías Seleccionadas">
 										<i class="fa fa-flag-o fa-lg" aria-hidden="true"></i>
@@ -208,6 +214,8 @@ $templateMsj=$user[0]['template'];
 							</td>
 								<td><?php echo $d['note']; ?></td>
 								<td><?php echo $d['id_contact']; ?></td>
+								<td><?php echo $d['id_cat_parcel']; ?></td>
+								<td><?php echo $d['parcel']; ?></td>
 								<td style="text-align: center;">
 									<div class="row">
 										<div class="col-md-4">
@@ -236,24 +244,25 @@ $templateMsj=$user[0]['template'];
 							<?php endforeach; ?>
 						</tbody>
 					</table>
-				</form>
-			</div>
+				</div>
+			</form>
 			<audio id="sound-snap" style="display: none;">
 				<source src="<?php echo BASE_URL;?>/assets/snap.mp3" type="audio/mpeg">
 			</audio>
-			<?php endif; ?>
+
+		<?php endif; ?>
 		<?php
-		include('modal/folio.php');
-		include('modal/template.php');
-		include('modal/package.php');
-		include('modal/release.php');
-		include('modal/sync.php');
-		include('modal/bot.php');
-		include('modal/sms-report.php');
-		include('modal/evidence.php');
-		include('modal/photo-confirmed.php');
-		include('modal/pull-photo.php');
-		include('footer.php');
+			include('modal/folio.php');
+			include('modal/template.php');
+			include('modal/package.php');
+			include('modal/release.php');
+			include('modal/sync.php');
+			include('modal/bot.php');
+			include('modal/sms-report.php');
+			include('modal/evidence.php');
+			include('modal/photo-confirmed.php');
+			include('modal/pull-photo.php');
+			include('footer.php');
 		?>
 	</body>
 </html>

@@ -156,6 +156,7 @@ switch ($_POST['option']) {
 						$data['c_date']      = date("Y-m-d H:i:s");
 						$data['c_user_id']   = $_SESSION["uId"];
 						$data['tracking']    = $_POST['tracking'];
+						$data['id_cat_parcel']  = $_POST['id_cat_parcel'];
 						$sqlCheck = "SELECT COUNT(tracking) total FROM package WHERE tracking IN ('".$data['tracking']."')";
 						$rstCheck = $db->select($sqlCheck);
 						$total = $rstCheck[0]['total'];
@@ -163,6 +164,9 @@ switch ($_POST['option']) {
 							$data['marker']      = $_POST['id_marcador'];
 							$_SESSION["uMarker"] = $data['marker'];
 							setcookie('uMarker', $data['marker'], time() + 3600, '/');
+
+							$_SESSION["uIdCatParcel"] = $_POST['id_cat_parcel'];
+							setcookie('uIdCatParcel', $_POST['id_cat_parcel'], time() + 3600, '/');
 
 							$id_location = $data['id_location'];
 							$sqlCanBeAgrouped = "SELECT p.folio 
@@ -254,9 +258,14 @@ switch ($_POST['option']) {
 
 		$phone       = $_POST['phone'];
 		$id_location = $_POST['id_location'];
+		$idParcel    = $_POST['idParcel'];
+		$criteriaPhone = ($idParcel==1) ? "'%$phone%'" : "'%$phone'";
+		$limit = ($idParcel==1) ? 10 : 20;
+
+
 		try {
 			$success  = 'true';
-			$sqlContact = "SELECT id_contact,contact_name,phone FROM cat_contact WHERE phone LIKE '%$phone%' AND id_location IN($id_location) AND id_contact_status IN(1) ORDER BY contact_name ASC LIMIT 10";
+			$sqlContact = "SELECT id_contact,contact_name,phone FROM cat_contact WHERE phone LIKE ".$criteriaPhone." AND id_location IN($id_location) AND id_contact_status IN(1) ORDER BY contact_name ASC LIMIT ".$limit;
 			$dataJson = $db->select($sqlContact);
 			$message  = 'ok';
 			$result = [
@@ -990,7 +999,8 @@ function sleep(ms) {
 			LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
 			WHERE 1 
 			AND p.id_location IN ($id_location) 
-			AND p.id_status IN(1,2,6,7)";
+			AND p.id_status IN(1,2,6,7)
+			and p.id_cat_parcel IN(1)";
 			$packages = $db->select($sql);
 			foreach($packages as $d){
 				$waybillNo   = $d['tracking'];

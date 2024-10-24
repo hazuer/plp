@@ -43,19 +43,28 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="id_location"><b>Ubicación:</b></label>
                                 <select name="id_location" id="id_location" class="form-control" disabled>
-                                <option value="1">Tlaquiltenango</option>
-                                <option value="2">Zacatepec</option>
-                            </select>
+                                    <option value="1">Tlaquiltenango</option>
+                                    <option value="2">Zacatepec</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="c_date"><b>Fecha:</b></label>
                                 <input type="text" class="form-control" name="c_date" id="c_date" value="" disabled>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="id_cat_parcel"><b>* Paquetería:</b></label>
+                                <select name="id_cat_parcel" id="id_cat_parcel" class="form-control">
+                                    <option value="1">J&T</option>
+                                    <option value="2">IMILE</option>
+                                </select>
                             </div>
                         </div>
                     </div>

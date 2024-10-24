@@ -57,9 +57,26 @@ $packages = $db->select($sql);
 						<td><?php echo $d['phone']; ?></td>
 						<td><?php echo $d['main_name']; ?></td>
 						<td>
-							<span class="badge badge-pill badge-info btn-pull-realise" style="cursor: pointer;" title="Liberar Paquetes" data-tpaquetes="<?php echo $d['total_p']; ?>" data-tphone="<?php echo $d['phone']; ?>" data-tname="<?php echo $d['main_name']; ?>" data-tids="<?php echo $d['ids']; ?>">
-								Liberar <?php echo $d['total_p']; ?> Paquetes
+						<?php 
+							// Dividir el string en un array
+							$array = explode(',', $d['trackings']);
+							// Contadores
+							$countJMX = 0;
+							$countImile = 0;
+
+							// Recorrer el array y contar los que comienzan con "JMX" y los demás
+							foreach ($array as $item) {
+								if (strpos($item, 'JMX') === 0) {
+									$countJMX++;
+								} else {
+									$countImile++;
+								}
+							}
+							?>
+							<span class="badge badge-pill badge-info btn-pull-realise" style="cursor: pointer;" title="Liberar Paquetes" data-tpaquetes="<?php echo $d['total_p']; ?>" data-tphone="<?php echo $d['phone']; ?>" data-tname="<?php echo $d['main_name']; ?>" data-tids="<?php echo $d['ids']; ?>" data-tjt="<?php echo $countJMX; ?>" data-timile="<?php echo $countImile; ?>">
+								<?php if($countJMX>0){echo "JT:".$countJMX.","; }?> <?php if($countImile>0){echo " Imile:".$countImile.","; }?> TOTAL: <?php echo $d['total_p']; ?>
 							</span>
+
 						</td>
 						<td><?php
 							$folios_array = explode(",", $d['folios']);
@@ -67,7 +84,12 @@ $packages = $db->select($sql);
 							$texto_folios_ordenados = implode(",", $folios_array);
 							echo $texto_folios_ordenados; // Mostrar los folios ordenados
 						?></td>
-						<td><?php echo $d['trackings']; ?></td>
+						<td><?php 
+							$guias_array = explode(",", $d['trackings']);
+							rsort($guias_array);
+							$texto_guias_ordenados = implode(",", $guias_array);
+							echo $texto_guias_ordenados; // Mostrar los folios ordenados
+						?></td>
 						<td><?php echo $d['ids']; ?></td>
 						</tr>
 					<?php endforeach; ?>

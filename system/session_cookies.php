@@ -11,6 +11,7 @@ if(!isset($_SESSION["uActive"])){
 		$_SESSION["uLocationDefault"]= $_COOKIE['uLocationDefault'] ?? null;
 		$_SESSION["uActive"]= $_COOKIE['uActive'] ?? null;
 		$_SESSION["uMarker"]= $_COOKIE['uMarker'] ?? null;
+		$_SESSION["uIdCatParcel"]= $_COOKIE['uIdCatParcel'] ?? null;
 	} else {
 		header('Location: '.BASE_URL.'/admin');
 		die();

@@ -35,6 +35,7 @@ switch ($_REQUEST['option']) {
 					$_SESSION["uLocationDefault"] = $user[0]['id_location_default'];
 					$_SESSION["uActive"]   = true;
 					$_SESSION["uMarker"]   = 'black';
+					$_SESSION["uIdCatParcel"] = 1;
 					$result                = ['success' => 'true'];
 
 					// Duración de la cookie en segundos (8 horas)

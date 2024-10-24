@@ -56,9 +56,10 @@ if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 					<button id="btn-add-package-1" class="dropdown-item" id="btn-grouped">
 						<i class="fa fa-cube fa-lg" aria-hidden="true"></i> Nuevo Paquete
 					</button>
-					<button id="btn-release-package-1" class="dropdown-item" id="btn-grouped">
+					<!--<button id="btn-release-package-1" class="dropdown-item" id="btn-grouped">
 						<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i> Entrega de Paquetes
 					</button>
+					-->
 					<button id="btn-sync-1" class="dropdown-item" id="btn-grouped">
 						<i class="fa fa-refresh fa-lg" aria-hidden="true"></i> Sincronizar Paquetes
 					</button>
@@ -91,9 +92,9 @@ if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 				<i class="fa fa-hand-o-up fa-lg" aria-hidden="true"></i>
 			</button>
 			<?php }?>
-			<button id="btn-release-package" type="button" class="btn-sm btn-success d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Entrega de Paquetes">
+			<!-- <button id="btn-release-package" type="button" class="btn-sm btn-success d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Entrega de Paquetes">
 				<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i>
-			</button>
+			</button> -->
 			<button id="btn-sync" type="button" class="btn-sm btn-success d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Sincronizar Paquetes">
 				<i class="fa fa-refresh fa-lg" aria-hidden="true"></i>
 			</button>

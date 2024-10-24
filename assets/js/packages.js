@@ -38,12 +38,14 @@ $(document).ready(function() {
 			{title: `id_status`,    name : `id_status`,    data : `id_status`},   //7
 			{title: `Estatus`,      name : `status_desc`,  data : `status_desc`}, //8
 			{title: `note`,         name : `note`,         data : `note`},        //9
-			{title: `id_contact`,   name : `id_contact`,   data : `id_contact`}   //10 + 1 last
+			{title: `id_contact`,   name : `id_contact`,   data : `id_contact`},   //10
+			{title: `id_cat_parcel`,   name : `id_cat_parcel`,   data : `id_cat_parcel`},   //11
+			{title: `Paquetería`,   name : `parcel`,   data : `parcel`}   //12 + 1 last
 		],
 		"columnDefs": [
 			{"orderable": false,'targets': 0,'checkboxes': {'selectRow': true}},
-			{ "targets": [3,7,9,10], "visible"   : false, "searchable": false, "orderable": false},
-			{ "orderable": false,"targets": 11 }, // last
+			{ "targets": [3,7,9,10,11], "visible"   : false, "searchable": false, "orderable": false},
+			{ "orderable": false,"targets": 13 }, // last
 			// { "width": "40%", "targets": [1,2] }
 		],
 		'select': {
@@ -64,6 +66,7 @@ $(document).ready(function() {
 
 	$("#btn-first-package, #btn-add-package,#btn-add-package-1").click(function(e){
 		let fechaFormateada = getCurrentDate();
+		console.log(uIdCatParcel);
 		let row = {
 			id_package : 0,
 			phone      : '',
@@ -74,6 +77,7 @@ $(document).ready(function() {
 			id_status  : 1,
 			note       : '',
 			id_contact : 0,
+			id_cat_parcel : uIdCatParcel
 		}
 		loadPackageForm(row);
 	});
@@ -255,6 +259,10 @@ $(document).ready(function() {
 		$('#form-modal-package')[0].reset();
 		divStatus.hide();
 
+		let coincidenciasDiv = $('#coincidencias');
+		coincidenciasDiv.empty();
+		coincidenciasDiv.hide();
+
 		id_package.val(row.id_package);
 		$('#id_contact').val(row.id_contact);
 		phone.val(row.phone);
@@ -263,12 +271,14 @@ $(document).ready(function() {
 		receiver.val(row.receiver);
 		tracking.val(row.tracking);
 		id_status.val(row.id_status);
+		$('#id_cat_parcel').val(row.id_cat_parcel);//session
 		$('#note').val(row.note);
 		action.val('new');
 		$('#btn-erase').show();
 		$('#phone').prop('disabled', false);
 		$('#receiver').prop('disabled', false);
 		$('#tracking').prop('disabled', false);
+		$('#id_cat_parcel').prop('disabled', false);
 
 		if(row.id_package!=0){
 			$('#div-keep-modal').hide();
@@ -277,6 +287,8 @@ $(document).ready(function() {
 			titleModal=`Editar Paquete ${row.folio}`;
 			action.val('update');
 			$('#tracking').prop('disabled', true);
+			$('#id_cat_parcel').val(row.id_cat_parcel);
+			$('#id_cat_parcel').prop('disabled', true);
 
 			if(row.id_status!=1){
 				$('#phone').prop('disabled', true);
@@ -325,26 +337,39 @@ $(document).ready(function() {
 		savePackage();
 	});
 
-
 	$('#btn-erase').click(function(){
 		$('#id_contact').val(0);
 		$('#phone').val('');
 		$('#receiver').val('');
 		$('#tracking').val('');
 		$('#phone').focus();
+		let coincidenciasDiv = $('#coincidencias');
+		coincidenciasDiv.empty();
+		coincidenciasDiv.hide();
 	});
 
 	//-----------------------
 	$('#tracking').on('input', function() {
+		console.log('enter');
 		let input = $(this).val().trim(); // Eliminar espacios en blanco al inicio y al final
-		if (input.length === 15 && input.substr(0, 3).toUpperCase() === "JMX") {
-			$('#btn-save').click();
+		if($('#id_cat_parcel').val()==1){
+			if (input.length === 15 && input.substr(0, 3).toUpperCase() === "JMX") {
+				$('#btn-save').click();
+			}else{
+				console.log('Favor de verificar la paqueteria 1');
+				swal("Atención!", "El número de guía no coincide con la paquetería seleccionada.", "error");
+			}
+		}else{
+			if (input.length === 13) {
+				$('#btn-save').click();
+			}else{
+				console.log('Favor de verificar la paqueteria 2');
+				swal("Atención!", "El número de guía no coincide con la paquetería seleccionada.", "error");
+			}
 		}
 	});
 
 	function savePackage() {
-		let decodedText = $('#tracking').val();
-
 		if(phone.val()=='' || receiver.val()=='' || tracking.val()==''){
 			swal("Atención!", "* Campos requeridos", "error");
 			return;
@@ -356,21 +381,52 @@ $(document).ready(function() {
 			return;
 		}
 
-		let t = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
-
-		let regex = /^JMX\d{12}$/;
-		if (t.length !== 15 || !regex.test(t.toUpperCase())) {
-			let mensajeError = "* Código de barras no válido:";
-			if (t.length !== 15) {
-				mensajeError += " Debe tener 15 caracteres";
-			} else {
-				mensajeError += " Formato no válido";
+		let guia = '';
+		if($('#id_cat_parcel').val()==1){
+			console.log('JT validar entrada');
+			let t = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
+			let regex = /^JMX\d{12}$/;
+			if (t.length !== 15 || !regex.test(t.toUpperCase())) {
+				let mensajeError = "* Código de barras no válido:";
+				if (t.length !== 15) {
+					mensajeError += " Debe tener 15 caracteres";
+				} else {
+					mensajeError += " Formato no válido";
+				}
+				swal("Atención!", mensajeError, "error");
+				return;
 			}
-			swal("Atención!", mensajeError, "error");
+			let decodedText = $('#tracking').val();
+			guia = decodedText.substring(0, 3).toUpperCase() + decodedText.substring(3);
+		}else{
+			let t = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
+			const regex = /^\d{13}$/;
+			// La condición ahora verifica si la longitud es distinta de 13 o si el formato no es válido
+			if (t.length !== 13 || !regex.test(t)) {
+				let mensajeError = "* Código de barras no válido:";
+				if (t.length !== 13) {
+					mensajeError += " Debe tener 13 caracteres.";
+				} else {
+					mensajeError += " Solo se permiten números.";
+				}
+				swal("Atención!", mensajeError, "error");
+				return;
+			}
+			console.log('EMILE entrada');
+			guia = t;
+		}
+
+		let file = null;
+		const evidenceElement = document.getElementById('evidence');
+		if (evidenceElement) {
+			file = evidenceElement.files[0] ?? null;
+		}
+		if(id_status.val()=='4' && file === null){
+			swal("Atención!", 'Por favor, proporciona la evidencia de la devolución del paquete', "error");
 			return;
 		}
 
-		let guia = decodedText.substring(0, 3).toUpperCase() + decodedText.substring(3);
+		console.log('continuar',guia);
 
 		let formData = new FormData();
 		formData.append('id_package',id_package.val());
@@ -386,11 +442,7 @@ $(document).ready(function() {
 		formData.append('action',action.val());
 		formData.append('option','savePackage');
 		formData.append('note',$('#note').val());
-		let file = null;
-		const evidenceElement = document.getElementById('evidence');
-		if (evidenceElement) {
-			file = evidenceElement.files[0] ?? null;
-		}
+		formData.append('id_cat_parcel',$('#id_cat_parcel').val());
 		formData.append('evidence', file);  // Añade el archivo al FormData
 
 		$.ajax({
@@ -405,11 +457,12 @@ $(document).ready(function() {
 
 			if(response.success=='true'){
 				uMarker = $('#id_marcador').val();
+				uIdCatParcel = $('#id_cat_parcel').val();
 				let timex = 1500;
 				if(response.message=='Paquete listo para Agrupar'){
 					$('audio#togroup')[0].play();
 					swal(`${response.message}`, `${response.dataJson}`, "success");
-					timex = 4000;
+					timex = 2000;
 				}else{
 					swal(`${response.message}`, "", "success");
 				}
@@ -438,7 +491,7 @@ $(document).ready(function() {
 						return;
 					} else{
 						let timez = 1500;
-						if(response.message=='Paquete listo para Agrupar'){timez = 4000;}
+						if(response.message=='Paquete listo para Agrupar'){timez = 2000;}
 						setTimeout(function(){
 							swal.close();
 							window.location.reload();
@@ -472,14 +525,20 @@ $(document).ready(function() {
 			receiver.focus();
         }
 
-		if (input.length <= 4) {
+		console.log('telefono input',input);
+		let idParcel = $('#id_cat_parcel').val();
+		console.log(idParcel);
+		let limitDigit = (idParcel==1) ? 5 : 3;
+		console.log('limite',limitDigit)
+
+		if (input.length <= limitDigit) {
 			return;
         }
 
         $.ajax({
             url: `${base_url}/${baseController}`, // URL ficticia de la API
             method: 'POST',
-            data: { phone: phoneNumber,id_location:id_location,option:'getContact' },
+            data: { phone: phoneNumber,id_location:id_location,option:'getContact',idParcel:idParcel },
             success: function(data) {
                 let coincidencias = data.dataJson; // Supongamos que la respuesta contiene una lista de coincidencias
                 // Limpiar el contenido del div de coincidencias
@@ -598,7 +657,7 @@ $(document).ready(function() {
 
 	//------------------------------------------ release
 	let  listPackageRelease=[];
-
+/*
 	$('#btn-release-package,#btn-release-package-1').click(function(){
 		listPackage = [];
 		$('#form-modal-release-package')[0].reset();
@@ -613,15 +672,19 @@ $(document).ready(function() {
 			$('#mrp-tracking').focus();
 		}, 600);
 	});
-
+*/
+	/*
 	$('#close-mrp-x,#close-mrp-b').click(function(){
 		window.location.reload();
 	});
-
+	*/
+/*
 	$('#btn-mrp-save').click(function(){
 		saveAndReleasePakage();
 	});
+	*/
 
+	/*
 	function saveAndReleasePakage(){
 		try {
 			let tracking = $('#mrp-tracking').val();
@@ -695,14 +758,17 @@ $(document).ready(function() {
 			console.log("Opps algo salio mal",error);
 		}
 	}
+	*/
 
 	//-----------------------
+	/*
 	$('#mrp-tracking').on('input', function() {
 		let input = $(this).val().trim();
 		if (input.length === 15 && input.substr(0, 3).toUpperCase() === "JMX") {
 			$('#btn-mrp-save').click();
 		}
 	});
+	*/
 
 	//--------------
 	$('#btn-template,#btn-template-1').click(function(){
@@ -1005,10 +1071,16 @@ $(document).ready(function() {
 	}
 
 	updateColors(uMarker);
+	updatePaqueteria(uIdCatParcel);
 
 	document.getElementById("id_marcador").addEventListener("change", function() {
 		let selectedColor = this.value;
 		updateColors(selectedColor);
+	});
+
+	document.getElementById("id_cat_parcel").addEventListener("change", function() {
+		let selectedId = this.value;
+		updatePaqueteria(selectedId);
 	});
 
 	$('#btn-ocurre,#btn-ocurre-1').click(function(){
@@ -1443,4 +1515,15 @@ function updateColors(selectedColor) {
     // Establecer el color de fondo del select
     select.style.backgroundColor = selectedColor;
     select.style.color = 'white'; // Cambiar el color del texto para que sea visible
+}
+
+function updatePaqueteria(selectedId) {
+	console.log('id selecciona updatePaqueteria', selectedId);
+	let select = document.getElementById("id_cat_parcel");
+	for (let i = 0; i < select.options.length; i++) {
+		if (select.options[i].value === selectedId) {
+			select.selectedIndex = i;
+			break;
+		}
+	}
 }

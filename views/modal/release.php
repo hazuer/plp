@@ -1,4 +1,4 @@
-<div class="modal fade" id="modal-release-package" tabindex="-1" role="dialog" aria-labelledby="modal-release-package-title" aria-hidden="true">
+<!--<div class="modal fade" id="modal-release-package" tabindex="-1" role="dialog" aria-labelledby="modal-release-package-title" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -46,7 +46,6 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Los datos se agregarán aquí mediante jQuery -->
                         </tbody>
                         </table>
                         </div>
@@ -60,3 +59,4 @@
         </div>
     </div>
 </div>
+-->
