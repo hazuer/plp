@@ -108,6 +108,8 @@ $templateMsj=$user[0]['template'];
 		let alto = `<?php echo ALTO;?>`;
 		</script>
 		<script src="<?php echo BASE_URL;?>/assets/js/packages.js?version=<?php echo time(); ?>"></script>
+		<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 		<style>
     		@media only screen and (max-width: 768px) {
                 table.dataTable td:nth-child(4),

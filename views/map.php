@@ -63,10 +63,10 @@ require_once('../system/session_cookies.php');
 				<div class="col-6 col-md-1"></div>
 				<div class="col-6 col-md-2" style="border: 1px solid black; min-height: 150px; background-color: lightblue; margin-bottom: 15px;">
 					<div class="row">
-						<div class="col-4" style="text-align:left;">
-							<span style="font-size:22px;"><b><?php echo $initial; ?></b></span>
+						<div class="col-6" style="text-align:right;">
+							<span style="font-size:30px;"><b><?php echo $initial; ?></b></span>
 						</div>
-						<div class="col-8" style="text-align:right;">
+						<div class="col-6" style="text-align:right;">
 							<?php
 							// Contadores
 							$countJMX = 0;
@@ -80,10 +80,9 @@ require_once('../system/session_cookies.php');
 									$countImile++;
 								}
 							}
-
 							if($countJMX>0){echo "JT:".$countJMX.","; }
 							if($countImile>0){echo " IM:".$countImile.","; }
-							echo "T:".count($packages);
+							echo "<b>T:".count($packages)."</b>";
 							?>
 						</div>
 					</div>

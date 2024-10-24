@@ -1107,7 +1107,21 @@ $(document).ready(function() {
 		.then((value) => {
 			switch (value) {
 				case "opcion1":
-						createBarCode('auto');
+					swal({
+						title: "Fecha y Paquertería del Autoservicio",
+						content: createDatePicker(),  // Función para crear el calendario
+						buttons: {
+							confirm: {
+								text: "Aceptar",
+								value: "confirmar"
+							}
+						}
+					}).then((dateValue) => {
+						console.log("Fecha seleccionada:", $('#datepicker').val());
+						console.log("Option:", $('#optionSelect').val());
+						// Aquí puedes hacer algo con la fecha seleccionada
+					});
+						//createBarCode('auto');
 					break;
 				case "opcion2":
 						createBarCode('ocurre');
@@ -1118,6 +1132,52 @@ $(document).ready(function() {
 			}
 		});
 	});
+
+	function createDatePicker() {
+		let calendarDiv = document.createElement('div');
+		
+		// Crear el input para el datepicker
+		let input = document.createElement('input');
+		input.setAttribute('id', 'datepicker');
+		input.setAttribute('readonly', true); // Evitar edición manual
+		calendarDiv.appendChild(input);
+		
+		// Crear el select option
+		let select = document.createElement('select');
+		select.setAttribute('id', 'optionSelect');
+		
+		// Agregar opciones al select
+		let option1 = document.createElement('option');
+		option1.value = 'opcion1';
+		option1.text = 'J&T';
+		
+		let option2 = document.createElement('option');
+		option2.value = 'opcion2';
+		option2.text = 'IMILE';
+		
+		let option3 = document.createElement('option');
+		option3.value = 'opcion3';
+		option3.text = 'TODAS';
+		
+		// Añadir las opciones al select
+		select.appendChild(option1);
+		select.appendChild(option2);
+		select.appendChild(option3);
+		
+		// Agregar el select al div
+		calendarDiv.appendChild(select);
+		
+		// Inicializar el datepicker de jQuery UI
+		setTimeout(function() {
+			$('#datepicker').datepicker({
+				dateFormat: 'yy-mm-dd', // Formato de fecha
+				setDate: new Date(),    // Fecha actual
+			}).datepicker('setDate', new Date());  // Establecer la fecha actual por defecto
+		}, 100);
+	
+		return calendarDiv;
+	}
+	
 
 	function createBarCode(mode) {
 		let formData =  new FormData();
@@ -1493,6 +1553,23 @@ $(document).ready(function() {
 	}
 
 });
+
+/*function createDatePicker() {
+	let calendarDiv = document.createElement('div');
+	let input = document.createElement('input');
+	input.setAttribute('id', 'datepicker');
+	calendarDiv.appendChild(input);
+	
+	// Inicializar el datepicker de jQuery UI
+	setTimeout(function() {
+		$('#datepicker').datepicker();  // Requiere jQuery UI
+	}, 100);
+
+	return calendarDiv;
+}*/
+
+
+
 
 function updateColors(selectedColor) {
     let select = document.getElementById("id_marcador");
