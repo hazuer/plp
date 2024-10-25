@@ -49,7 +49,7 @@ $(document).ready(function() {
 		let descjt=(tjt>0) ? `Paquetería JT:${tjt}\n`:'';
 		let descimi=(timile>0) ? `Paquetería IMILE:${timile}\n`:'';
 		swal({
-			title: `Paquetes por liberar: ${tpaquetes}`,
+			title: `Paquetes por Liberar: ${tpaquetes}`,
 			text: `${descjt}${descimi}Télefono: ${tphone}\nNombre: ${tname}\n\nEstá seguro ?`,
 			icon: "info",
 			buttons: true,

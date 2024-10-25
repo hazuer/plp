@@ -19,12 +19,6 @@
                             </select>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="msyncp-date-release"><b>Fecha:</b></label>
-                                <input type="text" class="form-control" name="msyncp-date-release" id="msyncp-date-release" value="" disabled>
-                            </div>
-                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12" style="overflow: auto; max-height: 250px; width: 100%;">

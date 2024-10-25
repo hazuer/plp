@@ -585,9 +585,9 @@ switch ($_POST['option']) {
 		$idContactType = $_POST['idContactType'];
 		$idEstatus     = $_POST['idEstatus'];
 		$messagebot    = $_POST['messagebot'];
+		$mbIdCatParcel    = $_POST['mbIdCatParcel'];
+		$idParceIn   = ($mbIdCatParcel==99) ? '1,2': $mbIdCatParcel;
 		$plb  = $_POST['phonelistbot'];
-		$shipId = uniqid();
-		
 		$lineas = explode("\n", $plb);
 
 		// Iterar sobre cada línea y limpiarla (eliminar espacios y comillas)
@@ -631,7 +631,7 @@ client.on("ready", async () => {
 	const n_user_id='.$_SESSION["uId"].'
 	const numbers = ['.$phonelistbot.'];
 	const message = `'.$messagebot.'`;
-	const shipId = `'.$shipId.'`;
+	const idParceIn = `'.$idParceIn.'`;
 	let iconBot= ``;
 	let tipoMessage =``;
 	switch (id_estatus) {
@@ -643,7 +643,7 @@ client.on("ready", async () => {
 			iconBot= `🔔 `;
 			tipoMessage =`Recordatorio Mensajes Enviados`;
 		break;
-		case 3:
+		case 5:
 			iconBot= `📢 `;
 			tipoMessage =`Recordatorio Paquetes Confirmados`;
 		break;
@@ -673,86 +673,83 @@ client.on("ready", async () => {
 			WHERE 
 			p.id_location IN (${id_location}) 
 			AND p.id_status IN (${id_estatus}) 
-			AND cc.phone IN(${number})
-			GROUP BY cc.phone`
-			const data = await db.processDBQueryUsingPool(sql)
-			const rst = JSON.parse(JSON.stringify(data))
-			ids = rst[0] ? rst[0].ids : 0;
+			AND cc.phone IN(${number}) 
+			AND p.id_cat_parcel IN(${idParceIn}) 
+			GROUP BY cc.phone,cc.id_contact_type`
+			const data        = await db.processDBQueryUsingPool(sql)
+			const rst         = JSON.parse(JSON.stringify(data))
+			ids               = rst[0] ? rst[0].ids : 0;
 			let idContactType = rst[0] ? rst[0].id_contact_type : 0;
-			let folioGuias = rst[0] ? rst[0].folioGuias : 0;
-			let fullMessage = `${iconBot} ${message}\nsId:${shipId}`;
+			let folioGuias    = rst[0] ? rst[0].folioGuias : 0;
+			let fullMessage   = `${message}`;
 			if(ids!=0){
-				// Verifica si hay contenido y lo divide por las líneas nuevas (\'\n\')
 				let registros = folioGuias ? folioGuias.split(\'\n\').filter(Boolean) : [];
-				// Contar cuántos elementos hay en el array
 				let totalRegistros = registros.length;
-				fullMessage = `${iconBot} ${message} \n*Total:${totalRegistros}*\n*(Folio)-Guía:*\n${folioGuias}\nsId:${shipId}`;
+				fullMessage = `${message} \n*Total:${totalRegistros}*\n*(Folio)-Guía:*\n${folioGuias}`;
 			}
 	
-			let sid ="";
+			let sid = "";
 			let newStatusPackage = 1;
-			let id_contact_type = 3;
-			try {
-				if(idContactType==2){ //WhatsApp
-					const chatId = "521"+number+ "@c.us";
-					await client.sendMessage(chatId, fullMessage);
-					sid =`Mensaje enviado con éxito a, ${number} WhatsApp`
-					newStatusPackage = 2
-					if(id_estatus==5){
-						newStatusPackage=5;
+			let id_contact_type  = 3;
+			let logWhats      = null;
+
+			if(idContactType==2){ //WhatsApp
+				const chatId = "521"+number+ "@c.us";
+				let rst = await sendMessageWhats(client, chatId, fullMessage, iconBot);
+				sid = `${rst.descMsj} ::Whatsapp Registrado`;
+				logWhats = rst.details;
+				newStatusPackage = rst.status ? (id_estatus == 5 ? 5 : 2) : 6;
+				id_contact_type  = 2;
+			}else{
+				const number_details = await client.getNumberId(number); // get mobile number details
+				if (number_details) {
+					let rst = await sendMessageWhats(client, number_details._serialized, fullMessage,iconBot);
+					sid =`${rst.descMsj}`;
+					logWhats = rst.details;
+					newStatusPackage = rst.status ? (id_estatus == 5 ? 5 : 2) : 6;
+					if(ids!=0){
+						const lastMessage = moment().tz("America/Mexico_City").format("YYYY-MM-DD HH:mm:ss");
+						const sqlUpdateTypeContact = `UPDATE cat_contact 
+						SET id_contact_type=2, lastMessage=\'${lastMessage}\'
+						WHERE id_location=${id_location} AND phone=\'${number}\' AND id_contact_type=1`
+						await db.processDBQueryUsingPool(sqlUpdateTypeContact)
 					}
-					id_contact_type=2;
-				}else{
-					const number_details = await client.getNumberId(number); // get mobile number details
-					if (number_details) {
-						await client.sendMessage(number_details._serialized, fullMessage); // send message
-						sid =`Mensaje enviado con éxito a, ${number}`
-						newStatusPackage = 2
-						if(id_estatus==5){
-							newStatusPackage=5;
-						}
-						if(ids!=0){
-							const sqlUpdateTypeContact = `UPDATE cat_contact 
-							SET id_contact_type=2 
-							WHERE id_location=${id_location} AND phone=\'${number}\' AND id_contact_type=1`
-							await db.processDBQueryUsingPool(sqlUpdateTypeContact)
-						}
-					} else {
-						sid = `${number}, Número de móvil no registrado`
-						newStatusPackage = 6
-					}
-					if (i < numbers.length - 1) {
-						await sleep(2000); // tiempo de espera en segundos entre cada envío
-					}
+				} else {
+					sid = `${number}, Número de móvil no registrado`
+					logWhats = sid;
+					newStatusPackage = 6
 				}
-			} catch (error) {
-				sid =`Ocurrió un error al procesar el número, ${number}`
-				newStatusPackage = 6
+				if (i < numbers.length - 1) {
+					await sleep(1500); // tiempo de espera en segundos entre cada envío
+				}
 			}
-			console.log(`${i + 1} - ${sid}`);
+
 			if(ids!=0){
 				const listIds = ids.split(",");
 				const nDate = moment().tz("America/Mexico_City").format("YYYY-MM-DD HH:mm:ss");
+				let fullLog=`${sid}, ${logWhats}`;
 				for (let i = 0; i < listIds.length; i++) {
 					const id_package = listIds[i];
 					const sqlSaveNotification = `INSERT INTO notification 
 					(id_location,n_date,n_user_id,message,id_contact_type,sid,id_package) 
 					VALUES 
-					(${id_location},\'${nDate}\',${n_user_id},\'${message} \n*(Folio)-Guía:*\n${folioGuias}\',${id_contact_type},\'${sid}\',${id_package})`
-					await db.processDBQueryUsingPool(sqlSaveNotification)
+					(${id_location},\'${nDate}\',${n_user_id},\'${fullMessage}\',${id_contact_type},\'${fullLog}\',${id_package})`
+					await db.processDBQueryUsingPool(sqlSaveNotification);
 
 					const sqlLogger = `INSERT INTO logger 
 					(datelog, id_package, id_user, new_id_status, old_id_status, desc_mov) 
 					VALUES 
 					(\'${nDate}\', ${id_package}, ${n_user_id}, ${newStatusPackage}, ${id_estatus}, \'Envío de Mensaje WhatsApp\')`
 					await db.processDBQueryUsingPool(sqlLogger)
-	
+
 					const sqlUpdatePackage = `UPDATE package SET 
 					n_date = \'${nDate}\', n_user_id = \'${n_user_id}\', id_status=${newStatusPackage} 
 					WHERE id_package IN (${id_package})`
 					await db.processDBQueryUsingPool(sqlUpdatePackage)
 				}
 			}
+
+			console.log(`${i + 1} - ${sid}`);
 		}
 		console.log("Proceso finalizado...");
 	  } else {
@@ -765,6 +762,36 @@ client.on("ready", async () => {
 client.initialize();
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
+}
+async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
+	let rstSent = null;
+    try {
+        // Intentar enviar el mensaje
+        const response = await client.sendMessage(chatId, `${iconBot} ${fullMessage}`);
+        // Si el response tiene el campo id, consideramos que el mensaje fue enviado
+        if (response && response.id) {
+			let details = `success id:${response.id.id}, phone:${response.to}, timestamp:${response.timestamp}`;
+			rstSent = {
+				status:true,
+				descMsj:`Mensaje enviado exitosamente a ${response.to}`,
+				details:details
+			}
+        } else {
+            // Si no hay un id en el response, consideramos que el envío falló
+			rstSent = {
+				status:false,
+				descMsj:`Error en el envío, no se recibió un ID del mensaje`,
+				details:`No se recibio respuesta del servicio`
+			}
+        }
+    } catch (error) {
+		rstSent = {
+			status:false,
+			descMsj:`Error al enviar mensaje a ${chatId}`,
+			details:`error:${error}`
+		}
+    }
+	return rstSent
 }';
 		$init = array(
 			"nameFile" => $nameFile,
@@ -1079,6 +1106,10 @@ function sleep(ms) {
 		case 'createBarcode':
 
 			$id_location  = $_POST['id_location'];
+			$idParcel   = $_POST['idParcel'];
+			$parcelIn   = ($idParcel==99) ? " AND p.id_cat_parcel IN(1,2) ": "AND p.id_cat_parcel IN(".$idParcel.")";
+			$labelPacel   = ($idParcel==99) ? "todas": (($idParcel==1) ?"jt":"imile");
+			$fechaAuto  = $_POST['fechaAuto'];
 			$typeLocation ='tlaqui';
 			if($id_location==2){$typeLocation='zaca';}
 
@@ -1088,18 +1119,21 @@ function sleep(ms) {
 			switch ($_POST['type_mode']) {
 				case 'auto':
 					$nameTypeMode='auto_servicio';
-					$listEstatus='1, 2, 3, 4, 5, 6, 7'; // al estatus
-					$dateBetween = "AND p.c_date BETWEEN '".date('Y-m-d')." 00:00:00' AND '".date('Y-m-d')." 23:59:59' ";
+					#$listEstatus='1, 2, 3, 4, 5, 6, 7'; // al estatus
+					$listEstatus = "";
+					$dateBetween = "AND p.c_date BETWEEN '".$fechaAuto." 00:00:00' AND '".$fechaAuto." 23:59:59' ";
 					break;
 				case 'ocurre':
 					$nameTypeMode = 'ocurre';
 					$listEstatus  = '1, 2, 7'; // Nuevo / Mensaje Enviado / Contactado
+					$listEstatus  = " AND p.id_status IN ('1, 2, 7') ";
 					#$dateBetween = "AND p.c_date BETWEEN '".date('Y-m-d')." 00:00:00' AND '".date('Y-m-d')." 23:59:59' ";
 					$dateBetween  = "";
 					break;
 				case 'anomalia':
 					$nameTypeMode = 'anomalia';
-					$listEstatus  = '6'; //Mensaje de error
+					#$listEstatus = '6'; //Mensaje de error
+					$listEstatus  = " AND p.id_status IN ('6') ";
 					$dateBetween  = "";
 					break;
 			}
@@ -1124,9 +1158,20 @@ function sleep(ms) {
 			LEFT JOIN users ud ON ud.id = p.d_user_id 
 			WHERE 1 
 				AND p.id_location IN ($id_location) 
-				AND p.id_status IN ($listEstatus) $dateBetween 
+				$listEstatus 
+				$dateBetween 
+				$parcelIn 
 			ORDER BY p.id_package DESC";
 			$codigos = $db->select($sql);
+			if(count($codigos)==0){
+				$result = [
+					'success'   => 'false',
+					'zip'       => '',
+					'message'   => 'Sin registros para crear códigos de barras'
+				];
+				echo json_encode($result);
+				return;
+			}
 
 			$archivos = array();
 			// Iterar sobre cada código y generar el código de barras correspondiente
@@ -1144,7 +1189,7 @@ function sleep(ms) {
 			   $c++;
 			}
 
-			$nameOcurre= $nameTypeMode.'_'.$typeLocation.'_'.date('Y-m-d');
+			$nameOcurre= $nameTypeMode.'_'.$typeLocation.'_'.$labelPacel.'_T'.count($codigos).'_'.date('Y-m-d');
 			// Nombre del archivo ZIP
 			$zipFilename = $nameOcurre.'.zip';
 

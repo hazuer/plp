@@ -833,7 +833,8 @@ $(document).ready(function() {
 	$('#btn-bot').click(function(){
 		$('#mBListTelefonos').val('');
 		$('#modal-bot-title').html('Chatbot Envío de Mensajes 🤖');
-		$('#mBEstatus').val(1);
+		$('#mBEstatus').val(99);
+		$('#mbIdCatParcel').val(99);
 		$('#mBIdLocation').val(idLocationSelected.val());
 		$('#modal-bot').modal({backdrop: 'static', keyboard: false}, 'show');
 		let msj=`${templateMsj}`;
@@ -845,7 +846,7 @@ $(document).ready(function() {
 
 	$('#btn-bot-command').click(function(){
 
-		if($('#mBListTelefonos').val()==''){
+		if($('#mBListTelefonos').val()=='' || $('#mBEstatus').val()=='99'){
 			swal("Atención!", "* Campos requeridos", "error");
 			return;
 		}
@@ -856,6 +857,7 @@ $(document).ready(function() {
 		formData.append('idEstatus', $('#mBEstatus').val());
 		formData.append('messagebot', $('#mBMessage').val());
 		formData.append('phonelistbot', $('#mBListTelefonos').val());
+		formData.append('mbIdCatParcel', $('#mbIdCatParcel').val());
 		formData.append('option', 'bot');
 		try {
 			$.ajax({
@@ -1027,8 +1029,6 @@ $(document).ready(function() {
 		swal.close();
 		$('#form-modal-sync-package')[0].reset();
 		$('#msyncp-id_location').val(idLocationSelected.val());
-		let fechaFormateada = getCurrentDate();
-		$('#msyncp-date-release').val(fechaFormateada);
 
 		$('#modal-sync-package-title').html('Sincronizar J&T y Paquetes Liberados');
 		$('#modal-sync-package').modal({backdrop: 'static', keyboard: false}, 'show');
@@ -1087,6 +1087,7 @@ $(document).ready(function() {
 		swal({
 			title: "Crear Códigos de Barras",
 			text: "¿Que Opción Deseas Generar?",
+			content: createSelect(),
 			icon: "info",
 			buttons: {
 				opcion1: {
@@ -1105,10 +1106,11 @@ $(document).ready(function() {
 			dangerMode: false,
 		})
 		.then((value) => {
+			let idParcel = $('#optionSelect').val();
 			switch (value) {
 				case "opcion1":
 					swal({
-						title: "Fecha y Paquertería del Autoservicio",
+						title: "Selecciona Fecha del Autoservicio",
 						content: createDatePicker(),  // Función para crear el calendario
 						buttons: {
 							confirm: {
@@ -1117,56 +1119,58 @@ $(document).ready(function() {
 							}
 						}
 					}).then((dateValue) => {
-						console.log("Fecha seleccionada:", $('#datepicker').val());
-						console.log("Option:", $('#optionSelect').val());
-						// Aquí puedes hacer algo con la fecha seleccionada
+						let fechaAuto = $('#datepicker').val();
+						//console.log('idParcel:',idParcel);
+						//console.log("Fecha:",fechaAuto);
+						createBarCode('auto',idParcel,fechaAuto);
 					});
-						//createBarCode('auto');
 					break;
 				case "opcion2":
-						createBarCode('ocurre');
+						createBarCode('ocurre',idParcel,'');
 					break;
 				case "opcion3":
-						createBarCode('anomalia');
+						createBarCode('anomalia',idParcel,'');
 					break;
 			}
 		});
 	});
 
+	function createSelect(){
+		let selectDiv = document.createElement('div');
+		// Crear el select option
+		let select = document.createElement('select');
+		select.setAttribute('id', 'optionSelect');
+
+		// Agregar opciones al select
+		let option1 = document.createElement('option');
+		option1.value = '1';
+		option1.text = 'J&T';
+
+		let option2 = document.createElement('option');
+		option2.value = '2';
+		option2.text = 'IMILE';
+
+		let option3 = document.createElement('option');
+		option3.value = '99';
+		option3.text = 'TODAS';
+
+		// Añadir las opciones al select
+		select.appendChild(option1);
+		select.appendChild(option2);
+		select.appendChild(option3);
+		selectDiv.appendChild(select);
+		return selectDiv;
+	}
+
 	function createDatePicker() {
 		let calendarDiv = document.createElement('div');
-		
+
 		// Crear el input para el datepicker
 		let input = document.createElement('input');
 		input.setAttribute('id', 'datepicker');
 		input.setAttribute('readonly', true); // Evitar edición manual
 		calendarDiv.appendChild(input);
-		
-		// Crear el select option
-		let select = document.createElement('select');
-		select.setAttribute('id', 'optionSelect');
-		
-		// Agregar opciones al select
-		let option1 = document.createElement('option');
-		option1.value = 'opcion1';
-		option1.text = 'J&T';
-		
-		let option2 = document.createElement('option');
-		option2.value = 'opcion2';
-		option2.text = 'IMILE';
-		
-		let option3 = document.createElement('option');
-		option3.value = 'opcion3';
-		option3.text = 'TODAS';
-		
-		// Añadir las opciones al select
-		select.appendChild(option1);
-		select.appendChild(option2);
-		select.appendChild(option3);
-		
-		// Agregar el select al div
-		calendarDiv.appendChild(select);
-		
+
 		// Inicializar el datepicker de jQuery UI
 		setTimeout(function() {
 			$('#datepicker').datepicker({
@@ -1174,16 +1178,17 @@ $(document).ready(function() {
 				setDate: new Date(),    // Fecha actual
 			}).datepicker('setDate', new Date());  // Establecer la fecha actual por defecto
 		}, 100);
-	
 		return calendarDiv;
 	}
-	
 
-	function createBarCode(mode) {
+	function createBarCode(mode,idParcel,fechaAuto) {
 		let formData =  new FormData();
 		formData.append('id_location', idLocationSelected.val());
 		formData.append('type_mode', mode);
 		formData.append('option', 'createBarcode');
+		formData.append('idParcel', idParcel);
+		formData.append('fechaAuto', fechaAuto);
+
 		try {
 			$.ajax({
 				url        : `${base_url}/${baseController}`,
@@ -1226,7 +1231,8 @@ $(document).ready(function() {
 					})
 				}, 2500);
 				} else {
-					console.error('Error al generar el archivo ZIP:', response.message);
+					//console.error('Error al generar el archivo ZIP:', response.message);
+					swal('Atención', response.message, "warning");
 				}
 			}).fail(function(e) {
 				console.log("Opps algo salio mal",e);

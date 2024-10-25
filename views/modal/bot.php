@@ -9,7 +9,7 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label for="mBIdLocation"><b>Ubicación:</b></label>
                             <select name="mBIdLocation" id="mBIdLocation" class="form-control" disabled>
@@ -18,7 +18,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <label for="mBContactType"><b>Tipo:</b></label>
                             <select name="mBContactType" id="mBContactType" class="form-control" disabled>
@@ -26,17 +26,27 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="form-group">
-                            <label for="mBEstatus"><b>Estatus del Paquete:</b></label>
+                            <label for="mBEstatus"><b>* Estatus del Paquete:</b></label>
                             <select name="mBEstatus" id="mBEstatus" class="form-control">
-                                    <option value="1">Nuevo</option>
-                                    <option value="2">Mensaje Enviado (Recordatorio)</option>
-                                    <option value="5">Confirmados (Recordatorio)</option>
+                                <option value="99">Selecciona</option>
+                                <option value="1">Nuevo</option>
+                                <option value="2">Mensaje Enviado (Recordatorio)</option>
+                                <option value="5">Confirmados (Recordatorio)</option>
                             </select>
                         </div>
                     </div>
-
+                    <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="mbIdCatParcel"><b>Paquetería:</b></label>
+                                <select name="mbIdCatParcel" id="mbIdCatParcel" class="form-control">
+                                    <option value="99">TODAS</option>
+                                    <option value="1">J&T</option>
+                                    <option value="2">IMILE</option>
+                                </select>
+                            </div>
+                        </div>
                 </div>
                 <div class="row">
                     <div class="col-md-12">
@@ -49,7 +59,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group">
-                            <label for="mBListTelefonos"><b>Lista de Telefonos (Excel):</b></label>
+                            <label for="mBListTelefonos"><b>* Lista de Telefonos (Excel):</b></label>
                             <textarea class="form-control" id="mBListTelefonos" name="mBListTelefonos" rows="4"></textarea>
                         </div>
                     </div>

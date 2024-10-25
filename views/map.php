@@ -38,10 +38,20 @@ require_once('../system/session_cookies.php');
 
 			$result = $db->select($sql);
 			$groupedPackages = [];
+			// Contadores
+			$countJMX1 = 0;
+			$countImile1 = 0;
 
 			foreach($result as $row){
 				$initial = $row['initial'];  // La primera letra del nombre
 				$folio   = $row['folio'];      // El folio del paquete
+
+				// Recorrer el array y contar los que comienzan con "JMX"
+				if (strpos($row['tracking'], 'JMX') === 0) {
+					$countJMX1++;
+				} else {
+					$countImile1++;
+				}
 
 				// Agrupar los paquetes por inicial
 				if (!isset($groupedPackages[$initial])) {
@@ -57,14 +67,18 @@ require_once('../system/session_cookies.php');
 				];
 			}
 			?>
-			<h3>Map <?php echo $desc_loc.", Total: ".count($result)." Paquetes";?> </h3>
+			<h3>Map <?php echo $desc_loc;?> 
+			<?php 
+			if($countJMX1>0){echo "J&T:".$countJMX1.","; }
+			if($countImile1>0){echo " IMILE:".$countImile1.","; }
+			echo " Total: ".count($result)." Paquetes";?> </h3>
 			<div class="row">
 			<?php foreach ($groupedPackages as $initial => $packages): ?>
 				<div class="col-6 col-md-1"></div>
 				<div class="col-6 col-md-2" style="border: 1px solid black; min-height: 150px; background-color: lightblue; margin-bottom: 15px;">
 					<div class="row">
 						<div class="col-6" style="text-align:right;">
-							<span style="font-size:30px;"><b><?php echo $initial; ?></b></span>
+							<span style="font-size:30px;"><?php echo $initial; ?></span>
 						</div>
 						<div class="col-6" style="text-align:right;">
 							<?php

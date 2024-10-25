@@ -61,7 +61,7 @@ if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 					</button>
 					-->
 					<button id="btn-sync-1" class="dropdown-item" id="btn-grouped">
-						<i class="fa fa-refresh fa-lg" aria-hidden="true"></i> Sincronizar Paquetes
+						<i class="fa fa-refresh fa-lg" aria-hidden="true"></i> Sincronizar Paquetes J&T
 					</button>
 					<button id="btn-ocurre-1" class="dropdown-item" id="btn-grouped">
 						<i class="fa fa-barcode fa-lg" aria-hidden="true"></i> Crear Códigos de Barras
@@ -95,7 +95,7 @@ if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 			<!-- <button id="btn-release-package" type="button" class="btn-sm btn-success d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Entrega de Paquetes">
 				<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i>
 			</button> -->
-			<button id="btn-sync" type="button" class="btn-sm btn-success d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Sincronizar Paquetes">
+			<button id="btn-sync" type="button" class="btn-sm btn-success d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Sincronizar Paquetes J&T">
 				<i class="fa fa-refresh fa-lg" aria-hidden="true"></i>
 			</button>
 			<button id="btn-ocurre" type="button" class="btn-sm btn-success d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Crear Códigos de Barras">
