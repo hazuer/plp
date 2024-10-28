@@ -355,17 +355,17 @@ $(document).ready(function() {
 		if($('#id_cat_parcel').val()==1){
 			if (input.length === 15 && input.substr(0, 3).toUpperCase() === "JMX") {
 				$('#btn-save').click();
-			}else{
+			}/*else{
 				console.log('Favor de verificar la paqueteria 1');
 				swal("Atención!", "El número de guía no coincide con la paquetería seleccionada.", "error");
-			}
+			}*/
 		}else{
 			if (input.length === 13) {
 				$('#btn-save').click();
-			}else{
+			}/*else{
 				console.log('Favor de verificar la paqueteria 2');
 				swal("Atención!", "El número de guía no coincide con la paquetería seleccionada.", "error");
-			}
+			}*/
 		}
 	});
 
@@ -1558,24 +1558,18 @@ $(document).ready(function() {
 		}
 	}
 
+	$('#tbl-packages').on('dblclick', 'td:nth-child(3)', function() {
+        var phoneNumber = $(this).text().trim();
+        
+        // Colocar el número en el campo de búsqueda
+        var searchInput = $('input[type="search"]');
+        searchInput.val(phoneNumber);
+        
+        // Forzar un "input" o "keyup" para que DataTables detecte el cambio
+        searchInput.trigger('input').trigger('keyup');
+    });
+
 });
-
-/*function createDatePicker() {
-	let calendarDiv = document.createElement('div');
-	let input = document.createElement('input');
-	input.setAttribute('id', 'datepicker');
-	calendarDiv.appendChild(input);
-	
-	// Inicializar el datepicker de jQuery UI
-	setTimeout(function() {
-		$('#datepicker').datepicker();  // Requiere jQuery UI
-	}, 100);
-
-	return calendarDiv;
-}*/
-
-
-
 
 function updateColors(selectedColor) {
     let select = document.getElementById("id_marcador");

@@ -67,20 +67,21 @@ require_once('../system/session_cookies.php');
 				];
 			}
 			?>
-			<h3>Map <?php echo $desc_loc;?> 
+			<h3>Map <?php echo $desc_loc;?></h3>
+			<span style="font-size:18px;">
 			<?php 
-			if($countJMX1>0){echo "J&T:".$countJMX1.","; }
-			if($countImile1>0){echo " IMILE:".$countImile1.","; }
-			echo " Total: ".count($result)." Paquetes";?> </h3>
+			if($countJMX1>0){echo "J&T:".$countJMX1." | "; }
+			if($countImile1>0){echo " IMILE:".$countImile1."<br>"; }
+			echo "<b>Total: ".count($result)." Paquetes</b>";?></span>
 			<div class="row">
 			<?php foreach ($groupedPackages as $initial => $packages): ?>
 				<div class="col-6 col-md-1"></div>
 				<div class="col-6 col-md-2" style="border: 1px solid black; min-height: 150px; background-color: lightblue; margin-bottom: 15px;">
 					<div class="row">
-						<div class="col-6" style="text-align:right;">
-							<span style="font-size:30px;"><?php echo $initial; ?></span>
+						<div class="col-9" style="text-align:right;">
+							<span style="font-size:28px;"><?php echo $initial."-".count($packages); ?></span>
 						</div>
-						<div class="col-6" style="text-align:right;">
+						<div class="col-3" style="text-align:right;">
 							<?php
 							// Contadores
 							$countJMX = 0;
@@ -94,9 +95,8 @@ require_once('../system/session_cookies.php');
 									$countImile++;
 								}
 							}
-							if($countJMX>0){echo "JT:".$countJMX.","; }
-							if($countImile>0){echo " IM:".$countImile.","; }
-							echo "<b>T:".count($packages)."</b>";
+							if($countJMX>0){echo "JT:".$countJMX; }
+							if($countImile>0){echo " IM:".$countImile; }
 							?>
 						</div>
 					</div>

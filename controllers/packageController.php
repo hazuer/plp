@@ -1125,8 +1125,8 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 					break;
 				case 'ocurre':
 					$nameTypeMode = 'ocurre';
-					$listEstatus  = '1, 2, 7'; // Nuevo / Mensaje Enviado / Contactado
-					$listEstatus  = " AND p.id_status IN ('1, 2, 7') ";
+					//$listEstatus  = '1, 2, 7'; // Nuevo / Mensaje Enviado / Contactado
+					$listEstatus  = " AND p.id_status IN ('1', '2', '7') ";
 					#$dateBetween = "AND p.c_date BETWEEN '".date('Y-m-d')." 00:00:00' AND '".date('Y-m-d')." 23:59:59' ";
 					$dateBetween  = "";
 					break;
