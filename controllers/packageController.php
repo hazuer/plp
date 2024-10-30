@@ -1014,8 +1014,11 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 		case 'chekout':
 			$arrayRst = [];
 			$id_location = $_POST['id_location'];
+			$idParcel = $_POST['idParcel'];
+			$parcelIn   = ($idParcel==99) ? " AND p.id_cat_parcel IN(1,2) ": "AND p.id_cat_parcel IN(".$idParcel.")";
 			$sql = "SELECT 
 			p.id_package,
+			p.id_cat_parcel,
 			p.tracking,
 			RIGHT(cc.phone, 4) AS last_four_digits,
 			cc.phone,
@@ -1027,73 +1030,14 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 			WHERE 1 
 			AND p.id_location IN ($id_location) 
 			AND p.id_status IN(1,2,6,7)
-			and p.id_cat_parcel IN(1)";
+			$parcelIn";
 			$packages = $db->select($sql);
 			foreach($packages as $d){
-				$waybillNo   = $d['tracking'];
-				$phoneVerify = $d['last_four_digits'];
-				$phone       = $d['phone'];
-				$receiver    = $d['receiver'];
-				$folio       = $d['folio'];
-
-				$url = "https://official.jtjms-mx.com/official/logisticsTracking/v3/getDetailByWaybillNo?waybillNo=".$waybillNo."&langType=ES&phoneVerify=".$phoneVerify;
-
-				$curl = curl_init($url);
-				curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-				$response = curl_exec($curl);
-
-				$commonValues = [
-					'guia'     => $waybillNo,
-					'phone'    => $phone,
-					'receiver' => $receiver,
-					'folio'    => $folio
-				];
-
-				if ($response === false) {
-					$arrayRst[$waybillNo] = array_merge([
-						'status'      => 'Verificar',
-						'desc_status' => 'Error al realizar la solicitud, intenta nuevamente'
-					],$commonValues);
-				} else {
-					$jsonDecode = json_decode($response, true);
-					if ($jsonDecode && isset($jsonDecode['data']['details']) && count($jsonDecode['data']['details']) > 0) {
-						$details = $jsonDecode['data']['details'];
-						$lastScanTime = '';
-						$lastStatus = '';
-						foreach ($details as $detail) {
-							$scanTime = strtotime($detail['scanTime']);
-							if ($scanTime > strtotime($lastScanTime)) {
-								$lastScanTime = $detail['scanTime'];
-								$lastStatus   = $detail['status'];
-							}
-						}
-
-						// Determinar el estatus final
-						if ($lastStatus === '已签收') {
-							$arrayRst[$waybillNo] = array_merge([
-								'status'      => 'Verificar',
-								'desc_status' => 'Liberado en J&T pero no en el sistema interno'
-							],$commonValues);
-						} elseif ($lastStatus === '派件中') {
-							$arrayRst[$waybillNo] = array_merge([
-								'status'      => 'Ok',
-								'desc_status' => 'Entrega en curso'
-							],$commonValues);
-						} else {
-							$arrayRst[$waybillNo] = array_merge([
-								'status'      => 'Verificar',
-								'desc_status' => 'El estatus del paquete no pudo ser determinado'
-							],$commonValues);
-						}
-					} else {
-						$arrayRst[$waybillNo] = array_merge([
-							'status'      => 'Verificar',
-							'desc_status' => 'Sin detalles'
-						],$commonValues);
-					}
+				if($d['id_cat_parcel']==1){
+					jtCheckServiceTracking($d,$arrayRst);
+				}else if($d['id_cat_parcel']==2){
+					imileCheckServiceTracking($d,$arrayRst);
 				}
-
-				curl_close($curl);
 			}
 			$result = [
 				'success'      => 'true',
@@ -1320,6 +1264,151 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 
 			echo json_encode($result);
 			break;
+
+}
+
+function imileCheckServiceTracking($d,&$arrayRst){
+	$waybillNo   = $d['tracking'];
+	$phoneVerify = $d['last_four_digits'];
+	$phone       = $d['phone'];
+	$receiver    = $d['receiver'];
+	$folio       = $d['folio'];
+
+	$url = "https://www.imile.com/saastms/mobileWeb/track/query?waybillNo=".$waybillNo;
+
+	$curl = curl_init($url);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+	$response = curl_exec($curl);
+	curl_close($curl);
+
+	$commonValues = [
+		'guia'     => $waybillNo,
+		'phone'    => $phone,
+		'receiver' => $receiver,
+		'folio'    => $folio,
+		'parcel'   => 'IMILE'
+	];
+
+	if ($response === false) {
+		$arrayRst[$waybillNo] = array_merge([
+			'status'      => 'Verificar',
+			'desc_status' => 'Error al realizar la solicitud, intenta nuevamente'
+		],$commonValues);
+	} else {
+		$jsonDecode = json_decode($response, true);
+		if ($jsonDecode && isset($jsonDecode['resultObject']['trackInfos']) && count($jsonDecode['resultObject']['trackInfos']) > 0) {
+			$details = $jsonDecode['resultObject']['trackInfos'];
+			$lastScanTime = '';
+			$lastStatus = '';
+			foreach ($details as $detail) {
+				$scanTime = strtotime($detail['time']);
+				if ($scanTime > strtotime($lastScanTime)) {
+					$lastScanTime = $detail['time'];
+					$lastStatus   = $detail['trackStageTx'];
+				}
+			}
+
+			// Determinar el estatus final
+			if ($lastStatus === 'Delivered') {
+				$arrayRst[$waybillNo] = array_merge([
+					'status'      => 'Verificar',
+					'desc_status' => 'Liberado en IMILE pero no en el sistema interno',
+					'scanTime'    => $lastScanTime
+				],$commonValues);
+			} elseif ($lastStatus === 'Delivery') {
+				$arrayRst[$waybillNo] = array_merge([
+					'status'      => 'Ok',
+					'desc_status' => 'Entrega en curso',
+					'scanTime'    => ''
+				],$commonValues);
+			} else {
+				$arrayRst[$waybillNo] = array_merge([
+					'status'      => 'Verificar',
+					'desc_status' => 'El estatus del paquete no pudo ser determinado',
+					'scanTime'    => ''
+				],$commonValues);
+			}
+		} else {
+			$arrayRst[$waybillNo] = array_merge([
+				'status'      => 'Verificar',
+				'desc_status' => 'Sin detalles',
+				'scanTime'    => ''
+			],$commonValues);
+		}
+	}
+
+}
+
+function jtCheckServiceTracking($d,&$arrayRst){
+	$waybillNo   = $d['tracking'];
+	$phoneVerify = $d['last_four_digits'];
+	$phone       = $d['phone'];
+	$receiver    = $d['receiver'];
+	$folio       = $d['folio'];
+
+	$url = "https://official.jtjms-mx.com/official/logisticsTracking/v3/getDetailByWaybillNo?waybillNo=".$waybillNo."&langType=ES&phoneVerify=".$phoneVerify;
+
+	$curl = curl_init($url);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+	$response = curl_exec($curl);
+	curl_close($curl);
+
+	$commonValues = [
+		'guia'     => $waybillNo,
+		'phone'    => $phone,
+		'receiver' => $receiver,
+		'folio'    => $folio,
+		'parcel'   => 'J&T'
+	];
+
+	if ($response === false) {
+		$arrayRst[$waybillNo] = array_merge([
+			'status'      => 'Verificar',
+			'desc_status' => 'Error al realizar la solicitud, intenta nuevamente'
+		],$commonValues);
+	} else {
+		$jsonDecode = json_decode($response, true);
+		if ($jsonDecode && isset($jsonDecode['data']['details']) && count($jsonDecode['data']['details']) > 0) {
+			$details = $jsonDecode['data']['details'];
+			$lastScanTime = '';
+			$lastStatus = '';
+			foreach ($details as $detail) {
+				$scanTime = strtotime($detail['scanTime']);
+				if ($scanTime > strtotime($lastScanTime)) {
+					$lastScanTime = $detail['scanTime'];
+					$lastStatus   = $detail['status'];
+				}
+			}
+
+			// Determinar el estatus final
+			if ($lastStatus === '已签收') {
+				$arrayRst[$waybillNo] = array_merge([
+					'status'      => 'Verificar',
+					'desc_status' => 'Liberado en J&T pero no en el sistema interno',
+					'scanTime'    => $lastScanTime
+				],$commonValues);
+			} elseif ($lastStatus === '派件中') {
+				$arrayRst[$waybillNo] = array_merge([
+					'status'      => 'Ok',
+					'desc_status' => 'Entrega en curso',
+					'scanTime'    => ''
+				],$commonValues);
+			} else {
+				$arrayRst[$waybillNo] = array_merge([
+					'status'      => 'Verificar',
+					'desc_status' => 'El estatus del paquete no pudo ser determinado',
+					'scanTime'    => ''
+				],$commonValues);
+			}
+		} else {
+			$arrayRst[$waybillNo] = array_merge([
+				'status'      => 'Verificar',
+				'desc_status' => 'Sin detalles',
+				'scanTime'    => ''
+			],$commonValues);
+		}
+	}
+	//return $arrayRst;
 
 }
 

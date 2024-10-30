@@ -25,11 +25,13 @@
                         <table class="table table-striped table-bordered nowrap table-hover" id="tbl-sync">
                         <thead>
                             <tr>
+                                <th>Paquetería</th>
                                 <th>Guía</th>
                                 <th>Télefono</th>
                                 <th>Destinatario</th>
                                 <th>Folio</th>
                                 <th>Estatus/Descripción</th>
+                                <th>Hora</th>
                             </tr>
                         </thead>
                         <tbody>

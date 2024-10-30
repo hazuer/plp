@@ -1001,9 +1001,33 @@ $(document).ready(function() {
 
 
 	$('#btn-sync,#btn-sync-1').click(async function(){
+		$('#tbl-sync tbody').empty();  // Vacía el contenido del cuerpo de la tabla
+		swal({
+			title: "Verificación de Guías Liberadas",
+			text: "¿De qué paquetería desea comprobar las guías liberadas?",
+			content: createSelectSync(),
+			icon: "info",
+			buttons: {
+				btnconfirm: {
+					text: "Iniciar",
+					value: "ok",
+				}
+			},
+			dangerMode: false,
+		})
+		.then((value) => {
+			let idParcel = $('#optionSelectSync').val();
+			if(value==='ok'){
+				continueSync(idParcel);
+			}
+		});
+	});
+
+	async function continueSync(idParcel) {
 		showSwal();
 		$('.swal-button-container').hide();
-		let result = await chekout();
+		console.log('idParcel',idParcel);
+		let result = await chekout(idParcel);
 	
 		// Iterar sobre el trackingList y agregar las filas correspondientes
 		var trackingList = result.trackingList;
@@ -1013,7 +1037,7 @@ $(document).ready(function() {
 				var data = trackingList[guia];
 				if (data.status === 'Verificar') {
 					t++;
-					addRowToTable(data.guia, data.phone, data.receiver, data.folio,data.desc_status);
+					addRowToTable(data.guia, data.phone, data.receiver, data.folio,data.desc_status,data.parcel,data.scanTime);
 				}
 			}
 		}
@@ -1030,30 +1054,60 @@ $(document).ready(function() {
 		$('#form-modal-sync-package')[0].reset();
 		$('#msyncp-id_location').val(idLocationSelected.val());
 
-		$('#modal-sync-package-title').html('Sincronizar J&T y Paquetes Liberados');
+		$('#modal-sync-package-title').html('Verificación de Guías Liberadas');
 		$('#modal-sync-package').modal({backdrop: 'static', keyboard: false}, 'show');
-	});
-
-	function addRowToTable(guia, telefono, destinatario, folio,desc_action) {
-		var table = document.getElementById("tbl-sync").getElementsByTagName('tbody')[0];
-		var newRow = table.insertRow(table.rows.length);
-		var cellGuia = newRow.insertCell(0);
-		var cellTelefono = newRow.insertCell(1);
-		var cellDestinatario = newRow.insertCell(2);
-		var cellFolio = newRow.insertCell(3);
-		var cellDescAtion = newRow.insertCell(4);
-		cellGuia.innerHTML = guia;
-		cellTelefono.innerHTML = telefono;
-		cellDestinatario.innerHTML = destinatario;
-		cellFolio.innerHTML = folio;
-		cellDescAtion.innerHTML = desc_action;
 	}
 
-	async function chekout() {
+	function createSelectSync(){
+		let selectDivSync = document.createElement('div');
+		// Crear el select option
+		let select = document.createElement('select');
+		select.setAttribute('id', 'optionSelectSync');
+
+		// Agregar opciones al select
+		let option1 = document.createElement('option');
+		option1.value = '1';
+		option1.text = 'J&T';
+		let option2 = document.createElement('option');
+		option2.value = '2';
+		option2.text = 'IMILE';
+		let option3 = document.createElement('option');
+		option3.value = '99';
+		option3.text = 'TODAS';
+		// Añadir las opciones al select
+		select.appendChild(option1);
+		select.appendChild(option2);
+		select.appendChild(option3);
+		selectDivSync.appendChild(select);
+		return selectDivSync;
+	}
+
+	function addRowToTable(guia, telefono, destinatario, folio,desc_action,parcel,timeh) {
+		var table = document.getElementById("tbl-sync").getElementsByTagName('tbody')[0];
+		var newRow = table.insertRow(table.rows.length);
+		var cellParcel       = newRow.insertCell(0);
+		var cellGuia         = newRow.insertCell(1);
+		var cellTelefono     = newRow.insertCell(2);
+		var cellDestinatario = newRow.insertCell(3);
+		var cellFolio        = newRow.insertCell(4);
+		var cellDescAtion    = newRow.insertCell(5);
+		var celltime    = newRow.insertCell(6);
+		cellParcel.innerHTML       = parcel;
+		cellGuia.innerHTML         = guia;
+		cellTelefono.innerHTML     = telefono;
+		cellDestinatario.innerHTML = destinatario;
+		cellFolio.innerHTML        = folio;
+		cellDescAtion.innerHTML    = desc_action;
+		celltime.innerHTML    = timeh;
+	}
+
+	async function chekout(idParcel) {
 		let result   = '';
 		let formData =  new FormData();
 		formData.append('id_location', idLocationSelected.val());
 		formData.append('option', 'chekout');
+		formData.append('idParcel', idParcel);
+		idParcel
 		try {
 			const response = await $.ajax({
 				url: `${base_url}/${baseController}`,
@@ -1119,10 +1173,12 @@ $(document).ready(function() {
 							}
 						}
 					}).then((dateValue) => {
-						let fechaAuto = $('#datepicker').val();
-						//console.log('idParcel:',idParcel);
-						//console.log("Fecha:",fechaAuto);
-						createBarCode('auto',idParcel,fechaAuto);
+						if(dateValue==='confirmar'){
+							let fechaAuto = $('#datepicker').val();
+							//console.log('idParcel:',idParcel);
+							//console.log("Fecha:",fechaAuto);
+							createBarCode('auto',idParcel,fechaAuto);
+						}
 					});
 					break;
 				case "opcion2":
