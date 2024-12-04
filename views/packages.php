@@ -106,6 +106,7 @@ $templateMsj=$user[0]['template'];
 		let uIdCatParcel =`<?php echo $_SESSION["uIdCatParcel"];?>`;
 		let largo = `<?php echo LARGO;?>`;
 		let alto = `<?php echo ALTO;?>`;
+		let rVoice =`<?php echo $_SESSION["uVoice"]; ?>`
 		</script>
 		<script src="<?php echo BASE_URL;?>/assets/js/packages.js?version=<?php echo time(); ?>"></script>
 		<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">

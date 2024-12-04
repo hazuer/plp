@@ -42,6 +42,17 @@
                         </div>
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="mfVoice"><b>Reproducir Audio:</b></label>
+                            <select name="mfVoice" id="mfVoice" class="form-control">
+                                <option value="1">Si</option>
+                                <option value="2">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button id="btn-save-folio" type="button" class="btn btn-success" title="Guardar">Guardar</button>

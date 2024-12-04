@@ -47,6 +47,9 @@ switch ($_REQUEST['option']) {
 
 					}
 					setcookie('uLocation', $_SESSION["uLocationDefault"], time() + $cookieDuration, "/"); // Caduca en 8 horas
+					$sql ="SELECT voice FROM folio WHERE 1 AND id_location = ".$user[0]['id_location_default'];
+					$rstF = $db->select($sql);
+					$_SESSION["uVoice"] = $rstF[0]['voice'];
 				}
 
 				echo json_encode($result);

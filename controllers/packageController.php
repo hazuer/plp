@@ -231,6 +231,7 @@ switch ($_POST['option']) {
 
 		$id_location      = $_POST['id_location'];
 		$data['folio']    = $_POST['mfNumFolio'];
+		$data['voice']    = $_POST['mfVoice'];
 		try {
 			$success  = 'true';
 			$dataJson = $db->update('folio',$data," `id_location` = $id_location");
@@ -240,6 +241,7 @@ switch ($_POST['option']) {
 				'dataJson' => $dataJson,
 				'message'  => $message
 			];
+			$_SESSION["uVoice"] = $data['voice'];
 		} catch (Exception $e) {
 			$result = [
 				'success'  => $success,
@@ -675,7 +677,7 @@ client.on("ready", async () => {
 			AND p.id_status IN (${id_estatus}) 
 			AND cc.phone IN(${number}) 
 			AND p.id_cat_parcel IN(${idParceIn}) 
-			GROUP BY cc.phone,cc.id_contact_type`
+			GROUP BY cc.phone`
 			const data        = await db.processDBQueryUsingPool(sql)
 			const rst         = JSON.parse(JSON.stringify(data))
 			ids               = rst[0] ? rst[0].ids : 0;

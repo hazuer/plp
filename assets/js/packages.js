@@ -284,7 +284,7 @@ $(document).ready(function() {
 			$('#div-keep-modal').hide();
 			divStatus.show();
 			folio.val(row.folio);
-			titleModal=`Editar Paquete ${row.folio}`;
+			titleModal=`Editar Folio ${row.folio}`;
 			action.val('update');
 			$('#tracking').prop('disabled', true);
 			$('#id_cat_parcel').val(row.id_cat_parcel);
@@ -301,7 +301,10 @@ $(document).ready(function() {
 			$('#div-keep-modal').show();
 			let newFolio = await getFolio('new');
 			folio.val(newFolio);
-			titleModal = `Nuevo Paquete ${newFolio}`;
+			titleModal = `Folio Número ${newFolio}`;
+			if(rVoice=='1'){
+				speakText(titleModal);
+			}
 		}
 
 		$('#modal-package-title').html(titleModal);
@@ -309,6 +312,19 @@ $(document).ready(function() {
 		setTimeout(function(){
 			phone.focus();
 		}, 600);
+	}
+
+	function speakText(txtFolio) {
+		// Crea una nueva instancia de SpeechSynthesisUtterance
+		const utterance = new SpeechSynthesisUtterance(txtFolio);
+
+		// Configuración del idioma y propiedades
+		utterance.lang = 'es-ES'; // Español
+		utterance.rate = 1; // Velocidad normal
+		utterance.pitch = 1; // Tono normal
+
+		// Reproducir el texto
+		window.speechSynthesis.speak(utterance);
 	}
 
 	async function getFolio(type) {
@@ -627,6 +643,7 @@ $(document).ready(function() {
 		let formData =  new FormData();
 		formData.append('id_location', idLocationSelected.val());
 		formData.append('mfNumFolio', $('#mfNumFolio').val());
+		formData.append('mfVoice', $('#mfVoice').val());
 		formData.append('option', 'saveFolio');
 		try {
 			$.ajax({
@@ -1651,7 +1668,7 @@ function updateColors(selectedColor) {
 }
 
 function updatePaqueteria(selectedId) {
-	console.log('id selecciona updatePaqueteria', selectedId);
+	// console.log('id selecciona updatePaqueteria', selectedId);
 	let select = document.getElementById("id_cat_parcel");
 	for (let i = 0; i < select.options.length; i++) {
 		if (select.options[i].value === selectedId) {
