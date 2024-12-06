@@ -52,6 +52,10 @@ switch ($_POST['option']) {
 		$data['id_location'] = $_POST['id_location'];
 		$phone               = $_POST['phone'];
 		$receiver            = $_POST['receiver'];
+		// Elimina los espacios al inicio y final
+		$receiver = trim($receiver);
+		// Reemplaza espacios múltiples entre palabras con un solo espacio
+		$receiver = preg_replace('/\s+/', ' ', $receiver);
 		$data['id_status']   = $_POST['id_status'];
 		$data['note']        = $_POST['note'];
 		$id_contact          = $_POST['id_contact'];
