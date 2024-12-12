@@ -40,12 +40,14 @@ $(document).ready(function() {
 			{title: `note`,         name : `note`,         data : `note`},        //9
 			{title: `id_contact`,   name : `id_contact`,   data : `id_contact`},   //10
 			{title: `id_cat_parcel`,   name : `id_cat_parcel`,   data : `id_cat_parcel`},   //11
-			{title: `Paquetería`,   name : `parcel`,   data : `parcel`}   //12 + 1 last
+			{title: `Paq.`,   name : `parcel`,   data : `parcel`},   //12
+			{title: `TM`,   name : `messages`,   data : `messages`},   //13
+			{title: `TD`,   name : `tdt`,   data : `tdt`}   //14 + 1 last
 		],
 		"columnDefs": [
 			{"orderable": false,'targets': 0,'checkboxes': {'selectRow': true}},
 			{ "targets": [3,7,9,10,11], "visible"   : false, "searchable": false, "orderable": false},
-			{ "orderable": false,"targets": 13 }, // last
+			{ "orderable": false,"targets": 15 }, // last
 			// { "width": "40%", "targets": [1,2] }
 		],
 		'select': {

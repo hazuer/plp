@@ -688,49 +688,48 @@ client.on("ready", async () => {
 			let idContactType = rst[0] ? rst[0].id_contact_type : 0;
 			let folioGuias    = rst[0] ? rst[0].folioGuias : 0;
 			let fullMessage   = `${message}`;
+			let sid = "";
 			if(ids!=0){
 				let registros = folioGuias ? folioGuias.split(\'\n\').filter(Boolean) : [];
 				let totalRegistros = registros.length;
 				fullMessage = `${message} \n*Total:${totalRegistros}*\n*(Folio)-Guía:*\n${folioGuias}`;
-			}
 	
-			let sid = "";
-			let newStatusPackage = 1;
-			let id_contact_type  = 3;
-			let logWhats      = null;
+				let newStatusPackage = 1;
+				let id_contact_type  = 3;
+				let logWhats      = null;
 
-			if(idContactType==2){ //WhatsApp
-				const chatId = "521"+number+ "@c.us";
-				let rst = await sendMessageWhats(client, chatId, fullMessage, iconBot);
-				sid = `${rst.descMsj} ::Whatsapp Registrado`;
-				logWhats = rst.details;
-				newStatusPackage = rst.status ? (id_estatus == 5 ? 5 : 2) : 6;
-				id_contact_type  = 2;
-			}else{
-				const number_details = await client.getNumberId(number); // get mobile number details
-				if (number_details) {
-					let rst = await sendMessageWhats(client, number_details._serialized, fullMessage,iconBot);
-					sid =`${rst.descMsj}`;
+				if(idContactType==2){ //WhatsApp
+					const chatId = "521"+number+ "@c.us";
+					let rst = await sendMessageWhats(client, chatId, fullMessage, iconBot);
+					sid = `${rst.descMsj} ::Whatsapp Registrado`;
 					logWhats = rst.details;
 					newStatusPackage = rst.status ? (id_estatus == 5 ? 5 : 2) : 6;
-					if(ids!=0){
-						const lastMessage = moment().tz("America/Mexico_City").format("YYYY-MM-DD HH:mm:ss");
-						const sqlUpdateTypeContact = `UPDATE cat_contact 
-						SET id_contact_type=2, lastMessage=\'${lastMessage}\'
-						WHERE id_location=${id_location} AND phone=\'${number}\' AND id_contact_type=1`
-						await db.processDBQueryUsingPool(sqlUpdateTypeContact)
+					id_contact_type  = 2;
+				}else{
+					const number_details = await client.getNumberId(number); // get mobile number details
+					if (number_details) {
+						let rst = await sendMessageWhats(client, number_details._serialized, fullMessage,iconBot);
+						sid =`${rst.descMsj}`;
+						logWhats = rst.details;
+						newStatusPackage = rst.status ? (id_estatus == 5 ? 5 : 2) : 6;
+						// if(ids!=0){
+							const lastMessage = moment().tz("America/Mexico_City").format("YYYY-MM-DD HH:mm:ss");
+							const sqlUpdateTypeContact = `UPDATE cat_contact 
+							SET id_contact_type=2, lastMessage=\'${lastMessage}\'
+							WHERE id_location=${id_location} AND phone=\'${number}\' AND id_contact_type=1`
+							await db.processDBQueryUsingPool(sqlUpdateTypeContact)
+						// }
+					} else {
+						sid = `${number}, Número de móvil no registrado`
+						logWhats = sid;
+						newStatusPackage = 6
 					}
-				} else {
-					sid = `${number}, Número de móvil no registrado`
-					logWhats = sid;
-					newStatusPackage = 6
+					if (i < numbers.length - 1) {
+						await sleep(1500); // tiempo de espera en segundos entre cada envío
+					}
 				}
-				if (i < numbers.length - 1) {
-					await sleep(1500); // tiempo de espera en segundos entre cada envío
-				}
-			}
 
-			if(ids!=0){
+			//if(ids!=0){
 				const listIds = ids.split(",");
 				const nDate = moment().tz("America/Mexico_City").format("YYYY-MM-DD HH:mm:ss");
 				let fullLog=`${sid}, ${logWhats}`;
@@ -753,6 +752,8 @@ client.on("ready", async () => {
 					WHERE id_package IN (${id_package})`
 					await db.processDBQueryUsingPool(sqlUpdatePackage)
 				}
+			}else{
+				sid = ` Número ${number} sin guías para procesar, mensaje no enviado`;
 			}
 
 			console.log(`${i + 1} - ${sid}`);
@@ -808,6 +809,11 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 		$nodeFile->createContentFileJs($path_file, $jsfile_content);
 		//$nodeFile->getContentFile(true); # true:continue
 		$nodeJsPath = $nodeFile->getFullPathFile();
+
+		$logNameFile = "log-".date("Y-m-d H-i-s").".txt";
+		$txtLog  = new NodeJs($init);
+		$allData = "idEstatus:".$idEstatus."\n"."messagebot:".$messagebot."\n"."idParceIn:".$idParceIn."\n"."phonelistbot:".$phonelistbot;
+		$txtLog->createLog($logNameFile,$path_file."logs/", $allData);
 
 		//handler emergency
 

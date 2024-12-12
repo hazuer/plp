@@ -6,10 +6,8 @@ require_once('../system/configuration.php');
 require_once('../system/DB.php');
 $db = new DB(HOST,USERNAME,PASSWD,DBNAME,PORT,SOCKET);
 
-
 require_once('../system/session_cookies.php');
 $id_location = $_SESSION['uLocation'];
-
 
 $sql = "SELECT 
 p.id_package,
@@ -43,7 +41,7 @@ CASE
 			'background-color: #FFFF99;',
 			'background-color: #FF9999;')
 	) 
-END AS styleCtrlDays,
+END AS styleCtrlDaysx,
 CASE 
 	WHEN DAYOFWEEK(p.c_date) = 6 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 1,
 		'',
@@ -70,14 +68,27 @@ CASE
 			'3DT')
 	) 
 END AS diasTrans,
+DATEDIFF(NOW(), p.c_date) AS tdt,
 cc.contact_name receiver,
 cs.id_status,
 IF(cs.id_status=6,'color:#DC143C;', '') colorErrorMessage,
 cs.status_desc,
 p.note,
-IF(p.n_date is null,'', CONCAT('el ',DATE_FORMAT(p.n_date, '%Y-%m-%d'))) n_date,
+IF(p.n_date is null,'', (SELECT DATE_FORMAT(n.n_date, '%m-%d') FROM notification n WHERE n.id_package IN(p.id_package) ORDER BY id_notification ASC LIMIT 1)) n_date,
 (SELECT count(n.id_notification) FROM notification n WHERE n.id_package IN(p.id_package)) t_sms_sent,
 p.id_contact,
+(SELECT 
+    CASE 
+        WHEN DATEDIFF(NOW(), n.n_date) = 0 OR DATEDIFF(NOW(), n.n_date) = 1 THEN '' 
+        WHEN DATEDIFF(NOW(), n.n_date) = 2 THEN 'background-color: #FFFF99;' 
+        WHEN DATEDIFF(NOW(), n.n_date) >= 3 THEN 'background-color: #FF9999;' 
+        ELSE 'sin color' 
+    END AS color 
+FROM notification n 
+WHERE n.id_package IN (p.id_package) 
+ORDER BY n.id_notification ASC 
+LIMIT 1) styleCtrlDays,
+(SELECT DATEDIFF(NOW(), n_date) FROM notification n WHERE n.id_package IN(p.id_package) order by id_notification asc limit 1) dcolor,
 p.marker,
 (SELECT count(e.id_evidence) FROM evidence e WHERE e.id_package IN(p.id_package)) t_evidence,
 p.id_cat_parcel,
@@ -117,6 +128,14 @@ $templateMsj=$user[0]['template'];
                 table.dataTable th:nth-child(4) {
                     display: none;
                 }
+				table.dataTable td:nth-child(9),
+                table.dataTable th:nth-child(9) {
+                    display: none;
+                }
+				table.dataTable td:nth-child(10),
+                table.dataTable th:nth-child(10) {
+                    display: none;
+                }
                 #lbl-title-location {
                     display: none;
                 }
@@ -134,8 +153,8 @@ $templateMsj=$user[0]['template'];
 					const text = cell.innerText;
 
 					// Si el texto es más largo que 20 caracteres, truncarlo
-					if (text.length > 20) {
-						cell.innerText = text.substring(0, 20) + '...'; // Añadir "..." al final
+					if (text.length > 10) {
+						cell.innerText = text.substring(0, 10) + '...'; // Añadir "..." al final
 					}
 				}
 			}
@@ -189,6 +208,8 @@ $templateMsj=$user[0]['template'];
 								<th>id_contact</th>
 								<th>id_cat_parcel</th>
 								<th>parcel</th>
+								<th>messages</th>
+								<th>tdiast</th>
 								<th style="text-align: center; width:20%;">
 									<button type="button" id="confirmg" name="confirmg" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="top" title="Confirmar Guías Seleccionadas">
 										<i class="fa fa-flag-o fa-lg" aria-hidden="true"></i>
@@ -200,7 +221,8 @@ $templateMsj=$user[0]['template'];
 							</tr>
 						</thead>
 						<tbody>
-							<?php foreach($packages as $d): ?>
+							<?php foreach($packages as $d):
+								?>
 								<tr id="<?php echo 'row_id_'.$d['id_package']; ?>" style="<?php echo $d['id_status'] == 5 ? 'background-color:#A2D9A2' : $d['styleCtrlDays']; ?>" title="">
 								<td><?php echo $d['id_package']; ?></td>
 								<td><?php echo $d['tracking']; ?></td>
@@ -210,15 +232,26 @@ $templateMsj=$user[0]['template'];
 								<td style="font-weight: bold; color: <?php echo $d['marker']; ?>;"><?php echo $d['folio']; ?></td>
 								<td><?php echo $d['receiver']; ?></td>
 								<td><?php echo $d['id_status']; ?></td>
-								<td style="<?php echo $d['colorErrorMessage']; ?>" ><?php echo $d['diasTrans']; ?> <?php echo $d['status_desc']; ?> <?php echo $d['n_date']; ?> <?php if($d['t_sms_sent']!=0){ ?>
-								<span class="badge badge-pill badge-info" style="cursor: pointer;" id="btn-details-p" title="Leer Mensaje"><?php echo $d['t_sms_sent']; ?></span>
+								<td style="<?php echo $d['colorErrorMessage']; ?>" > <?php echo $d['status_desc']; ?>
 							<?php
-							} if($d['note']){?><span class="badge badge-pill badge-default" style="cursor: pointer;" title="<?php echo $d['note'];?>"><i class="fa fa-sticky-note-o" aria-hidden="true"></i> </span><?php }?>
+							if($d['note']){?><span class="badge badge-pill badge-default" style="cursor: pointer;" title="<?php echo $d['note'];?>"><i class="fa fa-sticky-note-o" aria-hidden="true"></i> </span><?php }?>
 							</td>
 								<td><?php echo $d['note']; ?></td>
 								<td><?php echo $d['id_contact']; ?></td>
 								<td><?php echo $d['id_cat_parcel']; ?></td>
 								<td><?php echo $d['parcel']; ?></td>
+								<td><?php if($d['t_sms_sent']!=0){ ?>
+									<?php 
+									echo $d['n_date']
+									?>
+									<span class="badge badge-pill badge-info" style="cursor: pointer;" id="btn-details-p" title="Leer Mensaje"><?php echo $d['t_sms_sent']; ?> </span>
+								<?php }?></td>
+								<td>
+									<?php if($d['tdt']!=0){
+									 echo $d['tdt'];
+									}?>
+								</td>
+								</td>
 								<td style="text-align: center;">
 									<div class="row">
 										<div class="col-md-4">

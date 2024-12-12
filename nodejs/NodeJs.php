@@ -37,6 +37,14 @@ class NodeJs {
         fclose($file);
        }
 
+    public function createLog($logNameFile,$pathFile,$jsContent){
+        $this->pathFile = $pathFile;
+        $this->fullPathFile = $this->pathFile.$logNameFile;
+        $file=fopen($this->fullPathFile,"w");
+        fwrite($file,$jsContent);
+        fclose($file);
+       }
+
     /**
      * Read and print all content file created
      * false:break, true:continue

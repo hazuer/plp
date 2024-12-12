@@ -27,7 +27,21 @@ require_once('../system/session_cookies.php');
 				p.tracking,
 				p.folio,
 				cc.contact_name receiver,
-				UPPER(SUBSTRING(TRIM(cc.contact_name), 1, 1)) AS initial,
+				UPPER(SUBSTRING(TRIM(REPLACE(
+					REPLACE(
+						REPLACE(
+							REPLACE(
+								REPLACE(
+									REPLACE(
+										REPLACE(
+											REPLACE(cc.contact_name, 'á', 'a'),
+										'é', 'e'),
+									'í', 'i'),
+								'ó', 'o'),
+							'ú', 'u'),
+						'Á', 'A'),
+					'Ñ', 'N'),
+				'É', 'E')), 1, 1)) AS initial,
 				p.marker 
 				FROM package p 
 				INNER JOIN cat_contact cc ON cc.id_contact = p.id_contact 
@@ -118,4 +132,3 @@ require_once('../system/session_cookies.php');
     ?>
 	</body>
 </html>
-

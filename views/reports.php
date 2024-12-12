@@ -222,7 +222,9 @@ $packages = $db->select($sql);
 					</tr>
 				</thead>
 				<tbody>
-					<?php foreach($packages as $d): ?>
+					<?php foreach($packages as $d):
+						$folioColor = "<span style='font-weight: bold; color:".$d['marker']."'>".$d['folio']."</span>";
+						?>
 						<tr>
 						<td title="Ver Historial" id="id-logger" style="cursor: pointer; text-decoration: underline;"><?php echo $d['id_package']; ?></td>
 						<td><?php echo $d['location_desc']; ?></td>
@@ -230,7 +232,7 @@ $packages = $db->select($sql);
 						<td><?php echo $d['c_date']; ?></td>
 						<td><?php echo $d['registro']; ?></td>
 						<td><?php echo $d['tracking']; ?></td>
-						<td style="font-weight: bold; color: <?php echo $d['marker']; ?>;"><?php echo $d['folio']; ?></td>
+						<td><?php echo $folioColor; ?></td>
 						<td><?php echo $d['phone']; ?></td>
 						<td><?php echo $d['receiver']; ?></td>
 						<td><?php echo $d['status_desc']; ?></td>
