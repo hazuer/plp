@@ -886,6 +886,10 @@ $(document).ready(function() {
 				cache      : false,
 				contentType: false,
 				processData: false,
+				beforeSend : function() {
+					showSwal();
+					$('.swal-button-container').hide();
+				}
 			})
 			.done(function(response) {
 				$('#modal-bot').modal('hide');
