@@ -75,6 +75,6 @@ const showSwal = () => {
 	  text             : "Espere por favor",
 	  icon             : `${base_url}/assets/img/ajax-loader.gif`,
 	  showConfirmButton: false,
-	  allowOutsideClick: false
+	  closeOnClickOutside: false
 	});
   }
