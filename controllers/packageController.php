@@ -1066,7 +1066,7 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 			$id_location  = $_POST['id_location'];
 			$idParcel   = $_POST['idParcel'];
 			$parcelIn   = ($idParcel==99) ? " AND p.id_cat_parcel IN(1,2,3) ": "AND p.id_cat_parcel IN(".$idParcel.")";
-			$labelPacel = "";
+			$labelParcel = "";
 			switch ($idParcel) {
 				case 1:
 					$labelParcel = "jt";
@@ -1081,7 +1081,7 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 					$labelParcel = "todas";
 					break;
 			}
-			
+
 			$fechaAuto  = $_POST['fechaAuto'];
 			$typeLocation ='tlaqui';
 			if($id_location==2){$typeLocation='zaca';}
@@ -1162,7 +1162,7 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 			   $c++;
 			}
 
-			$nameOcurre= $nameTypeMode.'_'.$typeLocation.'_'.$labelPacel.'_T'.count($codigos).'_'.date('Y-m-d');
+			$nameOcurre= $nameTypeMode.'_'.$typeLocation.'_'.$labelParcel.'_T'.count($codigos).'_'.date('Y-m-d');
 			// Nombre del archivo ZIP
 			$zipFilename = $nameOcurre.'.zip';
 
