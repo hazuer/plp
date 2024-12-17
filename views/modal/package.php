@@ -64,6 +64,7 @@
                                 <select name="id_cat_parcel" id="id_cat_parcel" class="form-control">
                                     <option value="1">J&T</option>
                                     <option value="2">IMILE</option>
+                                    <option value="3">CNMEX</option>
                                 </select>
                             </div>
                         </div>

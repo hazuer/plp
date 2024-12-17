@@ -61,20 +61,23 @@ $packages = $db->select($sql);
 							// Dividir el string en un array
 							$array = explode(',', $d['trackings']);
 							// Contadores
-							$countJMX = 0;
+							$countJMX   = 0;
+							$countCN    = 0;
 							$countImile = 0;
 
 							// Recorrer el array y contar los que comienzan con "JMX" y los demás
 							foreach ($array as $item) {
 								if (strpos($item, 'JMX') === 0) {
 									$countJMX++;
+								}else if (strpos($item, 'CNMEX') === 0) {
+									$countCN++;
 								} else {
 									$countImile++;
 								}
 							}
 							?>
 							<span class="badge badge-pill badge-info btn-pull-realise" style="cursor: pointer;" title="Liberar Paquetes" data-tpaquetes="<?php echo $d['total_p']; ?>" data-tphone="<?php echo $d['phone']; ?>" data-tname="<?php echo $d['main_name']; ?>" data-tids="<?php echo $d['ids']; ?>" data-tjt="<?php echo $countJMX; ?>" data-timile="<?php echo $countImile; ?>">
-								<?php if($countJMX>0){echo "JT:".$countJMX.","; }?> <?php if($countImile>0){echo " Imile:".$countImile.","; }?> TOTAL: <?php echo $d['total_p']; ?>
+								<?php if($countJMX>0){echo "JT:".$countJMX.","; }?> <?php if($countCN>0){echo " CN:".$countCN.","; }?> <?php if($countImile>0){echo " IM:".$countImile.","; }?> TOTAL: <?php echo $d['total_p']; ?>
 							</span>
 
 						</td>

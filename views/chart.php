@@ -19,7 +19,7 @@ if(isset($rParcel)){
 	if($rParcel!=99){
 		$andParcelIn = " AND p.id_cat_parcel IN ($rParcel)";
 	}else{
-		$andParcelIn = " AND p.id_cat_parcel IN (1,2)";
+		$andParcelIn = " AND p.id_cat_parcel IN (1,2,3)";
 	}
 }
 ?>
@@ -45,6 +45,7 @@ if(isset($rParcel)){
                                 <option value="99" <?php echo ($rParcel==99) ? 'selected': ''; ?>>Todas</option>
                                 <option value="1" <?php echo ($rParcel==1) ? 'selected': ''; ?>>J&T</option>
                                 <option value="2" <?php echo ($rParcel==2) ? 'selected': ''; ?>>IMILE</option>
+                                <option value="3" <?php echo ($rParcel==3) ? 'selected': ''; ?>>CNMEX</option>
                             </select>
                         </div>
                     </div>

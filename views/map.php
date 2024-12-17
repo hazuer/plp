@@ -53,7 +53,8 @@ require_once('../system/session_cookies.php');
 			$result = $db->select($sql);
 			$groupedPackages = [];
 			// Contadores
-			$countJMX1 = 0;
+			$countJMX1   = 0;
+			$countCN1    = 0;
 			$countImile1 = 0;
 
 			foreach($result as $row){
@@ -63,10 +64,11 @@ require_once('../system/session_cookies.php');
 				// Recorrer el array y contar los que comienzan con "JMX"
 				if (strpos($row['tracking'], 'JMX') === 0) {
 					$countJMX1++;
+				}else if(strpos($row['tracking'], 'CNMEX') === 0) {
+					$countCN1++;
 				} else {
 					$countImile1++;
 				}
-
 				// Agrupar los paquetes por inicial
 				if (!isset($groupedPackages[$initial])) {
 					$groupedPackages[$initial] = [];
@@ -85,6 +87,7 @@ require_once('../system/session_cookies.php');
 			<span style="font-size:18px;">
 			<?php 
 			if($countJMX1>0){echo "J&T:".$countJMX1." | "; }
+			if($countCN1>0){echo "CNMEX:".$countCN1." | "; }
 			if($countImile1>0){echo " IMILE:".$countImile1."<br>"; }
 			echo "<b>Total: ".count($result)." Paquetes</b>";?></span>
 			<div class="row">
@@ -92,24 +95,28 @@ require_once('../system/session_cookies.php');
 				<div class="col-6 col-md-1"></div>
 				<div class="col-6 col-md-2" style="border: 1px solid black; min-height: 150px; background-color: lightblue; margin-bottom: 15px;">
 					<div class="row">
-						<div class="col-9" style="text-align:right;">
+						<div class="col-8" style="text-align:right;">
 							<span style="font-size:28px;"><?php echo $initial."-".count($packages); ?></span>
 						</div>
-						<div class="col-3" style="text-align:right;">
+						<div class="col-4" style="text-align:right;">
 							<?php
 							// Contadores
-							$countJMX = 0;
+							$countJMX   = 0;
+							$countCN    = 0;
 							$countImile = 0;
 
 							// Recorrer el array y contar los que comienzan con "JMX"
 							foreach ($packages as $item) {
 								if (strpos($item['tracking'], 'JMX') === 0) {
 									$countJMX++;
+								} else if (strpos($item['tracking'], 'CNMEX') === 0) {
+									$countCN++;
 								} else {
 									$countImile++;
 								}
 							}
-							if($countJMX>0){echo "JT:".$countJMX; }
+							if($countJMX>0){echo "JT:".$countJMX."<br>"; }
+							if($countCN>0){echo "CN:".$countCN."<br>"; }
 							if($countImile>0){echo " IM:".$countImile; }
 							?>
 						</div>

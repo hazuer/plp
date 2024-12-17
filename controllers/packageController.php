@@ -265,8 +265,8 @@ switch ($_POST['option']) {
 		$phone       = $_POST['phone'];
 		$id_location = $_POST['id_location'];
 		$idParcel    = $_POST['idParcel'];
-		$criteriaPhone = ($idParcel==1) ? "'%$phone%'" : "'%$phone'";
-		$limit = ($idParcel==1) ? 10 : 20;
+		$criteriaPhone = ($idParcel==1 || $idParcel==3) ? "'%$phone%'" : "'%$phone'";
+		$limit = ($idParcel==1 || $idParcel==3) ? 10 : 20;
 
 
 		try {

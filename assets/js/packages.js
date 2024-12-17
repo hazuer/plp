@@ -68,7 +68,7 @@ $(document).ready(function() {
 
 	$("#btn-first-package, #btn-add-package,#btn-add-package-1").click(function(e){
 		let fechaFormateada = getCurrentDate();
-		console.log(uIdCatParcel);
+		console.log('uIdCatParcel:',uIdCatParcel);
 		let row = {
 			id_package : 0,
 			phone      : '',
@@ -176,7 +176,6 @@ $(document).ready(function() {
 				tracks.forEach(track => track.stop());
 				video.srcObject = null;
 				videoContainer.style.border = "none";
-				console.log("Cámara detenida.");
 			}
 		});
 
@@ -187,7 +186,6 @@ $(document).ready(function() {
 				tracks.forEach(track => track.stop());
 				video.srcObject = null;
 				videoContainer.style.border = "none";
-				console.log("Cámara detenida.");
 			}
 			 if (capturedImageData) {
                 $('#modal-photo-confirmed').modal('hide');
@@ -368,22 +366,20 @@ $(document).ready(function() {
 
 	//-----------------------
 	$('#tracking').on('input', function() {
-		console.log('enter');
-		let input = $(this).val().trim(); // Eliminar espacios en blanco al inicio y al final
+		console.log('realizar intento de enter');
+		let input = $(this).val().trim();
 		if($('#id_cat_parcel').val()==1){
 			if (input.length === 15 && input.substr(0, 3).toUpperCase() === "JMX") {
 				$('#btn-save').click();
-			}/*else{
-				console.log('Favor de verificar la paqueteria 1');
-				swal("Atención!", "El número de guía no coincide con la paquetería seleccionada.", "error");
-			}*/
-		}else{
+			}
+		}else if($('#id_cat_parcel').val()==2){
 			if (input.length === 13) {
 				$('#btn-save').click();
-			}/*else{
-				console.log('Favor de verificar la paqueteria 2');
-				swal("Atención!", "El número de guía no coincide con la paquetería seleccionada.", "error");
-			}*/
+			}
+		}else if($('#id_cat_parcel').val()==3){
+			if (input.length === 15 && input.substr(0, 5).toUpperCase() === "CNMEX") {
+				$('#btn-save').click();
+			}
 		}
 	});
 
@@ -400,13 +396,14 @@ $(document).ready(function() {
 		}
 
 		let guia = '';
+		console.log('ENTRADA',$('#id_cat_parcel').val());
 		if($('#id_cat_parcel').val()==1){
 			console.log('JT validar entrada');
-			let t = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
+			let jtTracking = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
 			let regex = /^JMX\d{12}$/;
-			if (t.length !== 15 || !regex.test(t.toUpperCase())) {
+			if (jtTracking.length !== 15 || !regex.test(jtTracking.toUpperCase())) {
 				let mensajeError = "* Código de barras no válido:";
-				if (t.length !== 15) {
+				if (jtTracking.length !== 15) {
 					mensajeError += " Debe tener 15 caracteres";
 				} else {
 					mensajeError += " Formato no válido";
@@ -416,13 +413,14 @@ $(document).ready(function() {
 			}
 			let decodedText = $('#tracking').val();
 			guia = decodedText.substring(0, 3).toUpperCase() + decodedText.substring(3);
-		}else{
-			let t = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
+		}else if($('#id_cat_parcel').val()==2){
+			console.log('EMILE entrada');
+			let imTracking = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
 			const regex = /^\d{13}$/;
 			// La condición ahora verifica si la longitud es distinta de 13 o si el formato no es válido
-			if (t.length !== 13 || !regex.test(t)) {
+			if (imTracking.length !== 13 || !regex.test(imTracking)) {
 				let mensajeError = "* Código de barras no válido:";
-				if (t.length !== 13) {
+				if (imTracking.length !== 13) {
 					mensajeError += " Debe tener 13 caracteres.";
 				} else {
 					mensajeError += " Solo se permiten números.";
@@ -430,8 +428,23 @@ $(document).ready(function() {
 				swal("Atención!", mensajeError, "error");
 				return;
 			}
-			console.log('EMILE entrada');
-			guia = t;
+			guia = imTracking;
+		}else if($('#id_cat_parcel').val()==3){
+			console.log('CNMEX entrada');
+			let cnTracking = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
+			let regex = /^CNMEX\d{10}$/;
+			if (cnTracking.length !== 15 || !regex.test(cnTracking.toUpperCase())) {
+				let mensajeError = "* Código de barras no válido:";
+				if (cnTracking.length !== 15) {
+					mensajeError += " Debe tener 15 caracteres";
+				} else {
+					mensajeError += " Formato no válido";
+				}
+				swal("Atención!", mensajeError, "error");
+				return;
+			}
+			let decodedText = $('#tracking').val();
+			guia = decodedText.substring(0, 5).toUpperCase() + decodedText.substring(5);
 		}
 
 		let file = null;
@@ -443,8 +456,6 @@ $(document).ready(function() {
 			swal("Atención!", 'Por favor, proporciona la evidencia de la devolución del paquete', "error");
 			return;
 		}
-
-		console.log('continuar',guia);
 
 		let formData = new FormData();
 		formData.append('id_package',id_package.val());
@@ -543,11 +554,10 @@ $(document).ready(function() {
 			receiver.focus();
         }
 
-		console.log('telefono input',input);
 		let idParcel = $('#id_cat_parcel').val();
 		console.log(idParcel);
-		let limitDigit = (idParcel==1) ? 5 : 3;
-		console.log('limite',limitDigit)
+		let limitDigit = (idParcel==1 || idParcel==3) ? 5 : 3;
+		console.log("LIMITE",limitDigit);
 
 		if (input.length <= limitDigit) {
 			return;
