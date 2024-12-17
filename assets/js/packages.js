@@ -1105,12 +1105,16 @@ $(document).ready(function() {
 		option2.value = '2';
 		option2.text = 'IMILE';
 		let option3 = document.createElement('option');
-		option3.value = '99';
-		option3.text = 'TODAS';
+		option3.value = '3';
+		option3.text = 'CNMEX';
+		let option4 = document.createElement('option');
+		option4.value = '99';
+		option4.text = 'TODAS';
 		// Añadir las opciones al select
 		select.appendChild(option1);
 		select.appendChild(option2);
 		select.appendChild(option3);
+		select.appendChild(option4);
 		selectDivSync.appendChild(select);
 		return selectDivSync;
 	}
@@ -1240,13 +1244,18 @@ $(document).ready(function() {
 		option2.text = 'IMILE';
 
 		let option3 = document.createElement('option');
-		option3.value = '99';
-		option3.text = 'TODAS';
+		option3.value = '3';
+		option3.text = 'CNMEX';
+
+		let option4 = document.createElement('option');
+		option4.value = '99';
+		option4.text = 'TODAS';
 
 		// Añadir las opciones al select
 		select.appendChild(option1);
 		select.appendChild(option2);
 		select.appendChild(option3);
+		select.appendChild(option4);
 		selectDiv.appendChild(select);
 		return selectDiv;
 	}

@@ -592,7 +592,7 @@ switch ($_POST['option']) {
 		$idEstatus     = $_POST['idEstatus'];
 		$messagebot    = $_POST['messagebot'];
 		$mbIdCatParcel    = $_POST['mbIdCatParcel'];
-		$idParceIn   = ($mbIdCatParcel==99) ? '1,2': $mbIdCatParcel;
+		$idParceIn   = ($mbIdCatParcel==99) ? '1,2,3': $mbIdCatParcel;
 		$plb  = $_POST['phonelistbot'];
 		$lineas = explode("\n", $plb);
 
@@ -1027,7 +1027,7 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 			$arrayRst = [];
 			$id_location = $_POST['id_location'];
 			$idParcel = $_POST['idParcel'];
-			$parcelIn   = ($idParcel==99) ? " AND p.id_cat_parcel IN(1,2) ": "AND p.id_cat_parcel IN(".$idParcel.")";
+			$parcelIn   = ($idParcel==99) ? " AND p.id_cat_parcel IN(1,2,3) ": "AND p.id_cat_parcel IN(".$idParcel.")";
 			$sql = "SELECT 
 			p.id_package,
 			p.id_cat_parcel,
@@ -1049,6 +1049,8 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 					jtCheckServiceTracking($d,$arrayRst);
 				}else if($d['id_cat_parcel']==2){
 					imileCheckServiceTracking($d,$arrayRst);
+				}else if($d['id_cat_parcel']==3){
+					cnmexCheckServiceTracking($d,$arrayRst);
 				}
 			}
 			$result = [
@@ -1063,8 +1065,23 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 
 			$id_location  = $_POST['id_location'];
 			$idParcel   = $_POST['idParcel'];
-			$parcelIn   = ($idParcel==99) ? " AND p.id_cat_parcel IN(1,2) ": "AND p.id_cat_parcel IN(".$idParcel.")";
-			$labelPacel   = ($idParcel==99) ? "todas": (($idParcel==1) ?"jt":"imile");
+			$parcelIn   = ($idParcel==99) ? " AND p.id_cat_parcel IN(1,2,3) ": "AND p.id_cat_parcel IN(".$idParcel.")";
+			$labelPacel = "";
+			switch ($idParcel) {
+				case 1:
+					$labelParcel = "jt";
+					break;
+				case 2:
+					$labelParcel = "imile";
+					break;
+				case 3:
+					$labelParcel = "cnmex";
+					break;
+				case 99:
+					$labelParcel = "todas";
+					break;
+			}
+			
 			$fechaAuto  = $_POST['fechaAuto'];
 			$typeLocation ='tlaqui';
 			if($id_location==2){$typeLocation='zaca';}
@@ -1279,6 +1296,77 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 
 }
 
+function cnmexCheckServiceTracking($d,&$arrayRst){
+	$waybillNo   = $d['tracking'];
+	$phoneVerify = $d['last_four_digits'];
+	$phone       = $d['phone'];
+	$receiver    = $d['receiver'];
+	$folio       = $d['folio'];
+
+	$url = "https://global.cainiao.com/global/detail.json?mailNos=".$waybillNo."&lang=en-US&language=en-US";
+
+	$curl = curl_init($url);
+	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+	$response = curl_exec($curl);
+	curl_close($curl);
+
+	$commonValues = [
+		'guia'     => $waybillNo,
+		'phone'    => $phone,
+		'receiver' => $receiver,
+		'folio'    => $folio,
+		'parcel'   => 'CNMEX'
+	];
+
+	if ($response === false) {
+		$arrayRst[$waybillNo] = array_merge([
+			'status'      => 'Verificar',
+			'desc_status' => 'Error al realizar la solicitud, intenta nuevamente'
+		],$commonValues);
+	} else {
+		$jsonDecode = json_decode($response, true);
+		if ($jsonDecode && isset($jsonDecode['module']['detailList']) && count($jsonDecode['module']['detailList']) > 0) {
+			$details = $jsonDecode['module']['detailList'];
+			$lastScanTime = '';
+			$lastStatus = '';
+			foreach ($details as $detail) {
+				$scanTime = strtotime($detail['time']);
+				if ($scanTime > strtotime($lastScanTime)) {
+					$lastScanTime = $detail['time'];
+					$lastStatus   = $detail['desc'];
+				}
+			}
+
+			// Determinar el estatus final
+			if ($lastStatus === 'Package delivered') {
+				$arrayRst[$waybillNo] = array_merge([
+					'status'      => 'Verificar',
+					'desc_status' => 'Liberado en CNMEX pero no en el sistema interno',
+					'scanTime'    => $lastScanTime
+				],$commonValues);
+			} elseif ($lastStatus === 'Delivery') { //TODO
+				$arrayRst[$waybillNo] = array_merge([
+					'status'      => 'Ok',
+					'desc_status' => 'Entrega en curso',
+					'scanTime'    => ''
+				],$commonValues);
+			} else {
+				$arrayRst[$waybillNo] = array_merge([
+					'status'      => 'Verificar',
+					'desc_status' => 'El estatus del paquete no pudo ser determinado',
+					'scanTime'    => ''
+				],$commonValues);
+			}
+		} else {
+			$arrayRst[$waybillNo] = array_merge([
+				'status'      => 'Verificar',
+				'desc_status' => 'Sin detalles',
+				'scanTime'    => ''
+			],$commonValues);
+		}
+	}
+}
+
 function imileCheckServiceTracking($d,&$arrayRst){
 	$waybillNo   = $d['tracking'];
 	$phoneVerify = $d['last_four_digits'];
@@ -1348,7 +1436,6 @@ function imileCheckServiceTracking($d,&$arrayRst){
 			],$commonValues);
 		}
 	}
-
 }
 
 function jtCheckServiceTracking($d,&$arrayRst){
