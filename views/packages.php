@@ -68,8 +68,11 @@ $templateMsj=$user[0]['template'];
 		let rVoice =`<?php echo $_SESSION["uVoice"]; ?>`
 		</script>
 		<script src="<?php echo BASE_URL;?>/assets/js/packages.js?version=<?php echo time(); ?>"></script>
-		<link rel="stylesheet" href="<?php echo BASE_URL;?>/assets/css/libraries/jquery-ui.css">
+		<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 		<script src="<?php echo BASE_URL;?>/assets/js/libraries/jquery-ui.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js"></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css">
+
 		<style>
     		@media only screen and (max-width: 768px) {
                 table.dataTable td:nth-child(4),

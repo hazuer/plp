@@ -1082,7 +1082,8 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 					break;
 			}
 
-			$fechaAuto  = $_POST['fechaAuto'];
+			$fechaAutoIni  = $_POST['fechaAuto'];
+			$fechaAutoFin      = explode(" ", $fechaAutoIni)[0];
 			$typeLocation ='tlaqui';
 			if($id_location==2){$typeLocation='zaca';}
 
@@ -1094,7 +1095,7 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 					$nameTypeMode='auto_servicio';
 					#$listEstatus='1, 2, 3, 4, 5, 6, 7'; // al estatus
 					$listEstatus = "";
-					$dateBetween = "AND p.c_date BETWEEN '".$fechaAuto." 00:00:00' AND '".$fechaAuto." 23:59:59' ";
+					$dateBetween = "AND p.c_date BETWEEN '".$fechaAutoIni.":00' AND '".$fechaAutoFin." 23:59:59' ";
 					break;
 				case 'ocurre':
 					$nameTypeMode = 'ocurre';

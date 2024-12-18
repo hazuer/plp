@@ -1280,10 +1280,19 @@ $(document).ready(function() {
 
 		// Inicializar el datepicker de jQuery UI
 		setTimeout(function() {
-			$('#datepicker').datepicker({
-				dateFormat: 'yy-mm-dd', // Formato de fecha
-				setDate: new Date(),    // Fecha actual
-			}).datepicker('setDate', new Date());  // Establecer la fecha actual por defecto
+			$('#datepicker').datetimepicker({
+				dateFormat: 'yy-mm-dd',  // Formato de la fecha
+				timeFormat: 'HH:mm', // Formato de la hora
+				controlType: 'select',  // Selectores para hora y minutos
+				oneLine: true,          // Mostrar en una sola línea
+				defaultDate: null,      // Establecer nulo para evitar conflicto
+				hour: 7,                // Hora predeterminada
+				minute: 0,              // Minuto predeterminado
+				second: 0               // Segundo predeterminado
+			});
+			const defaultDateTime = new Date();
+			defaultDateTime.setHours(7, 0, 0); // Configurar la hora: 07:00:00
+			$('#datepicker').datetimepicker('setDate', defaultDateTime);  // Establecer la fecha actual por defecto
 		}, 100);
 		return calendarDiv;
 	}
