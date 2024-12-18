@@ -65,9 +65,7 @@ $(document).ready(function() {
 	$(function () {
 		$('[data-toggle="tooltip"]').tooltip()
 	})
-	  
 });
-
 
 const showSwal = () => {
 	swal({

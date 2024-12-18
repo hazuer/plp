@@ -3,6 +3,27 @@ $(document).ready(function() {
 	let idLocationSelected = $('#option-location');
 
   	let table = $('#tbl-contacts').DataTable({
+		"language": {
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthMenu: "Mostrar _MENU_ registros",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            infoEmpty: "Mostrando 0 a 0 de 0 registros",
+            infoFiltered: "(filtrado de _MAX_ registros totales)",
+            loadingRecords: "Cargando...",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "No hay datos disponibles en la tabla",
+            paginate: {
+                first: "Primero",
+                previous: "Anterior",
+                next: "Siguiente",
+                last: "Último"
+            },
+            aria: {
+                sortAscending: ": Activar para ordenar la columna de forma ascendente",
+                sortDescending: ": Activar para ordenar la columna de forma descendente"
+            }
+        },
 		"bPaginate": true,
 		"lengthMenu": [[10, 50, 100, -1], [10, 50, 100, "All"]], // Definir las opciones de longitud del menú
         "pageLength": 500, // Establecer el número de registros por página predeterminado

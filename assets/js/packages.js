@@ -14,6 +14,27 @@ $(document).ready(function() {
 	let divStatus          = $('#div-status');
 
   	let table = $('#tbl-packages').DataTable({
+		"language": {
+            processing: "Procesando...",
+            search: "Buscar:",
+            lengthMenu: "Mostrar _MENU_ registros",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            infoEmpty: "Mostrando 0 a 0 de 0 registros",
+            infoFiltered: "(filtrado de _MAX_ registros totales)",
+            loadingRecords: "Cargando...",
+            zeroRecords: "No se encontraron resultados",
+            emptyTable: "No hay datos disponibles en la tabla",
+            paginate: {
+                first: "Primero",
+                previous: "Anterior",
+                next: "Siguiente",
+                last: "Último"
+            },
+            aria: {
+                sortAscending: ": Activar para ordenar la columna de forma ascendente",
+                sortDescending: ": Activar para ordenar la columna de forma descendente"
+            }
+        },
 		"bPaginate": true,
         "lengthMenu": [[10, 50, 100, -1], [10, 50, 100, "All"]], // Definir las opciones de longitud del menú
         "pageLength": 500, // Establecer el número de registros por página predeterminado
@@ -68,7 +89,6 @@ $(document).ready(function() {
 
 	$("#btn-first-package, #btn-add-package,#btn-add-package-1").click(function(e){
 		let fechaFormateada = getCurrentDate();
-		console.log('uIdCatParcel:',uIdCatParcel);
 		let row = {
 			id_package : 0,
 			phone      : '',
@@ -366,7 +386,6 @@ $(document).ready(function() {
 
 	//-----------------------
 	$('#tracking').on('input', function() {
-		console.log('realizar intento de enter');
 		let input = $(this).val().trim();
 		if($('#id_cat_parcel').val()==1){
 			if (input.length === 15 && input.substr(0, 3).toUpperCase() === "JMX") {
@@ -396,9 +415,7 @@ $(document).ready(function() {
 		}
 
 		let guia = '';
-		console.log('ENTRADA',$('#id_cat_parcel').val());
 		if($('#id_cat_parcel').val()==1){
-			console.log('JT validar entrada');
 			let jtTracking = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
 			let regex = /^JMX\d{12}$/;
 			if (jtTracking.length !== 15 || !regex.test(jtTracking.toUpperCase())) {
@@ -414,7 +431,6 @@ $(document).ready(function() {
 			let decodedText = $('#tracking').val();
 			guia = decodedText.substring(0, 3).toUpperCase() + decodedText.substring(3);
 		}else if($('#id_cat_parcel').val()==2){
-			console.log('EMILE entrada');
 			let imTracking = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
 			const regex = /^\d{13}$/;
 			// La condición ahora verifica si la longitud es distinta de 13 o si el formato no es válido
@@ -430,7 +446,6 @@ $(document).ready(function() {
 			}
 			guia = imTracking;
 		}else if($('#id_cat_parcel').val()==3){
-			console.log('CNMEX entrada');
 			let cnTracking = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
 			let regex = /^CNMEX\d{10}$/;
 			if (cnTracking.length !== 15 || !regex.test(cnTracking.toUpperCase())) {
@@ -555,9 +570,7 @@ $(document).ready(function() {
         }
 
 		let idParcel = $('#id_cat_parcel').val();
-		console.log(idParcel);
 		let limitDigit = (idParcel==1 || idParcel==3) ? 5 : 3;
-		console.log("LIMITE",limitDigit);
 
 		if (input.length <= limitDigit) {
 			return;
@@ -903,7 +916,6 @@ $(document).ready(function() {
 			})
 			.done(function(response) {
 				$('#modal-bot').modal('hide');
-				console.log(response);
 				swal(`🤖`,`${response.message}`, "success");
 				$('.swal-button-container').hide();
 				setTimeout(function(){
@@ -1059,7 +1071,6 @@ $(document).ready(function() {
 	async function continueSync(idParcel) {
 		showSwal();
 		$('.swal-button-container').hide();
-		console.log('idParcel',idParcel);
 		let result = await chekout(idParcel);
 	
 		// Iterar sobre el trackingList y agregar las filas correspondientes
@@ -1212,8 +1223,6 @@ $(document).ready(function() {
 					}).then((dateValue) => {
 						if(dateValue==='confirmar'){
 							let fechaAuto = $('#datepicker').val();
-							//console.log('idParcel:',idParcel);
-							//console.log("Fecha:",fechaAuto);
 							createBarCode('auto',idParcel,fechaAuto);
 						}
 					});
@@ -1385,7 +1394,6 @@ $(document).ready(function() {
 		}
 
 		let rowsConfirm = rows_selected.join(",");
-		//console.log('continue:::',rowsConfirm);
 		let tpaquetes = tRows;
 		let tphone    = phoneUser[0];
 		let tname     = userName[0];
@@ -1466,7 +1474,6 @@ $(document).ready(function() {
 			 let rowData = table.row(rowIndex).data(); // Obtener los datos de la fila
 			 let status = rowData.id_status;
 			// Verificar si el estatus es 2 o 7
-			//console.log(rowId,status);
 			if (status !== '2' && status !== '5' && status !== '7') {
 				isValid = false; // Marcar como inválido si no cumple con el criterio 
 				noValidTracking.push(rowData.tracking); // Agregar el tracking no válido al array
@@ -1599,7 +1606,6 @@ $(document).ready(function() {
 				tracks.forEach(track => track.stop());
 				video.srcObject = null;
 				videoContainer.style.border = "none";
-				console.log("Cámara detenida.");
 			}
 		});
 
@@ -1610,7 +1616,6 @@ $(document).ready(function() {
 				tracks.forEach(track => track.stop());
 				video.srcObject = null;
 				videoContainer.style.border = "none";
-				console.log("Cámara detenida.");
 			}
 			if (capturedImageData) {
                 $('#modal-pull-photo').modal('hide');
@@ -1693,7 +1698,6 @@ function updateColors(selectedColor) {
 }
 
 function updatePaqueteria(selectedId) {
-	// console.log('id selecciona updatePaqueteria', selectedId);
 	let select = document.getElementById("id_cat_parcel");
 	for (let i = 0; i < select.options.length; i++) {
 		if (select.options[i].value === selectedId) {

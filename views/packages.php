@@ -16,65 +16,13 @@ cc.phone,
 p.id_location,
 p.c_date,
 p.folio,
-CASE 
-	WHEN DAYOFWEEK(p.c_date) = 6 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 1,
-		'',
-		IF(DATEDIFF(NOW(), p.c_date)=3,
-			'background-color: #FFFF99;',
-			'background-color: #FF9999;')
-	) 
-	WHEN DAYOFWEEK(p.c_date) = 7 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 1,
-		'',
-		IF(DATEDIFF(NOW(), p.c_date)=2,
-			'background-color: #FFFF99;',
-			'background-color: #FF9999;')
-	) 
-	WHEN DAYOFWEEK(p.c_date) = 1 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 1,
-		'',
-		IF(DATEDIFF(NOW(), p.c_date)=2,
-			'background-color: #FFFF99;',
-			'background-color: #FF9999;')
-	) 
-	ELSE IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 1,
-		'',
-		IF(DATEDIFF(NOW(), p.c_date)=2,
-			'background-color: #FFFF99;',
-			'background-color: #FF9999;')
-	) 
-END AS styleCtrlDaysx,
-CASE 
-	WHEN DAYOFWEEK(p.c_date) = 6 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 1,
-		'',
-		IF(DATEDIFF(NOW(), p.c_date)=3,
-			'2DT',
-			'3DT')
-	) 
-	WHEN DAYOFWEEK(p.c_date) = 7 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 1,
-		'',
-		IF(DATEDIFF(NOW(), p.c_date)=2,
-			'2DT',
-			'3DT')
-	) 
-	WHEN DAYOFWEEK(p.c_date) = 1 THEN IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 1,
-		'',
-		IF(DATEDIFF(NOW(), p.c_date)=2,
-			'2DT',
-			'3DT')
-	) 
-	ELSE IF(DATEDIFF(NOW(), p.c_date) BETWEEN 0 AND 1,
-		'',
-		IF(DATEDIFF(NOW(), p.c_date)=2,
-			'2DT',
-			'3DT')
-	) 
-END AS diasTrans,
-DATEDIFF(NOW(), p.c_date) AS tdt,
+DATEDIFF(NOW(), p.c_date) tdt,
 cc.contact_name receiver,
 cs.id_status,
 IF(cs.id_status=6,'color:#DC143C;', '') colorErrorMessage,
 cs.status_desc,
 p.note,
-IF(p.n_date is null,'', (SELECT DATE_FORMAT(n.n_date, '%m-%d') FROM notification n WHERE n.id_package IN(p.id_package) ORDER BY id_notification ASC LIMIT 1)) n_date,
+IF(p.n_date IS NULL,'', (SELECT DATE_FORMAT(n.n_date, '%m-%d') FROM notification n WHERE n.id_package IN(p.id_package) ORDER BY id_notification ASC LIMIT 1)) n_date,
 (SELECT count(n.id_notification) FROM notification n WHERE n.id_package IN(p.id_package)) t_sms_sent,
 p.id_contact,
 (SELECT 
@@ -88,7 +36,7 @@ FROM notification n
 WHERE n.id_package IN (p.id_package) 
 ORDER BY n.id_notification ASC 
 LIMIT 1) styleCtrlDays,
-(SELECT DATEDIFF(NOW(), n_date) FROM notification n WHERE n.id_package IN(p.id_package) order by id_notification asc limit 1) dcolor,
+(SELECT DATEDIFF(NOW(), n_date) FROM notification n WHERE n.id_package IN(p.id_package) ORDER BY id_notification ASC LIMIT 1) dcolor,
 p.marker,
 (SELECT count(e.id_evidence) FROM evidence e WHERE e.id_package IN(p.id_package)) t_evidence,
 p.id_cat_parcel,
@@ -120,8 +68,8 @@ $templateMsj=$user[0]['template'];
 		let rVoice =`<?php echo $_SESSION["uVoice"]; ?>`
 		</script>
 		<script src="<?php echo BASE_URL;?>/assets/js/packages.js?version=<?php echo time(); ?>"></script>
-		<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+		<link rel="stylesheet" href="<?php echo BASE_URL;?>/assets/css/libraries/jquery-ui.css">
+		<script src="<?php echo BASE_URL;?>/assets/js/libraries/jquery-ui.min.js"></script>
 		<style>
     		@media only screen and (max-width: 768px) {
                 table.dataTable td:nth-child(4),
@@ -142,23 +90,23 @@ $templateMsj=$user[0]['template'];
             }
         </style>
         <script>
-   		function truncateText() {
-			const table = document.getElementById('tbl-packages');
-			const rows = table.getElementsByTagName('tr');
+			function truncateText() {
+				const table = document.getElementById('tbl-packages');
+				const rows = table.getElementsByTagName('tr');
 
-			for (let i = 1; i < rows.length; i++) { // Empezamos desde 1 para omitir el encabezado
-				const cells = rows[i].getElementsByTagName('td');
-				if (cells.length > 6) { // Asegúrate de que hay al menos 7 columnas
-					const cell = cells[6]; // La columna 7 tiene un índice de 6
-					const text = cell.innerText;
+				for (let i = 1; i < rows.length; i++) { // Empezamos desde 1 para omitir el encabezado
+					const cells = rows[i].getElementsByTagName('td');
+					if (cells.length > 6) { // Asegúrate de que hay al menos 7 columnas
+						const cell = cells[6]; // La columna 7 tiene un índice de 6
+						const text = cell.innerText;
 
-					// Si el texto es más largo que 20 caracteres, truncarlo
-					if (text.length > 10) {
-						cell.innerText = text.substring(0, 10) + '...'; // Añadir "..." al final
+						// Si el texto es más largo que 20 caracteres, truncarlo
+						if (text.length > 10) {
+							cell.innerText = text.substring(0, 10) + '...'; // Añadir "..." al final
+						}
 					}
 				}
 			}
-		}
 
 			// Ejecutar la función al cargar la página
 			window.onload = function() {

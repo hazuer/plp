@@ -86,10 +86,11 @@ require_once('../system/session_cookies.php');
 			<h3>Map <?php echo $desc_loc;?></h3>
 			<span style="font-size:18px;">
 			<?php 
+			echo "<b>Total: ".count($result)." Paquetes</b> <br>";
 			if($countJMX1>0){echo "J&T:".$countJMX1." | "; }
 			if($countCN1>0){echo "CNMEX:".$countCN1." | "; }
-			if($countImile1>0){echo " IMILE:".$countImile1."<br>"; }
-			echo "<b>Total: ".count($result)." Paquetes</b>";?></span>
+			if($countImile1>0){echo " IMILE:".$countImile1; }
+			?></span>
 			<div class="row">
 			<?php foreach ($groupedPackages as $initial => $packages): ?>
 				<div class="col-6 col-md-1"></div>
