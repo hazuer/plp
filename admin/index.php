@@ -33,7 +33,7 @@ if(isset($_SESSION["uActive"])){
 	<link rel="stylesheet" type="text/css" href="<?php echo BASE_URL;?>/admin/css/util.css">
 	<link rel="stylesheet" type="text/css" href="<?php echo BASE_URL;?>/admin/css/main.css">
 <!--===============================================================================================-->
-<script src="<?php echo BASE_URL;?>/assets/js/sweetalert.min.js"></script>
+<script src="<?php echo BASE_URL;?>/assets/js/libraries/sweetalert.min.js"></script>
 
 <script>
 	let base_url = '<?php echo BASE_URL;?>';
