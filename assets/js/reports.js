@@ -74,9 +74,56 @@ $(document).ready(function() {
 
 	$(`#tbl-reports tbody`).on( `click`, `#id-logger`, function () {
 		let row = table.row( $(this).closest('tr') ).data();
-		console.log(row);
+		$('#btn-revert-status').hide();
+		// console.log(row);
+		$('#id_package_revert').val(0);
 		loadHistory(row.id_package,row.guia);
+		if(row.status_desc==='Devuelto'){
+			$('#btn-revert-status').show();
+			$('#id_package_revert').val(row.id_package);
+		}
 	});
+
+	$('#btn-revert-status').click(function(){
+		revertEstatus();
+	});
+
+	function revertEstatus() {
+		let id_package = $('#id_package_revert').val();
+
+		let list = [];
+		let formData =  new FormData();
+		formData.append('id_package', id_package);
+		formData.append('option','revertStatus');
+		try {
+			$.ajax({
+				url: `${base_url}/${baseController}`,
+				type: 'POST',
+				data: formData,
+				cache: false,
+				contentType: false,
+				processData: false,
+				beforeSend : function() {
+					showSwal();
+					$('.swal-button-container').hide();
+				}
+			}).done(function(response) {
+				swal.close();
+				if(response.success=='true'){
+					swal("Éxito!", `${response.message}`, "success");
+					setTimeout(function(){
+						swal.close();
+						window.location.reload();
+					}, 1500);
+				}
+			}).fail(function(e) {
+				console.log("Opps algo salio mal",e);
+			});
+
+		} catch (error) {
+			console.error(error);
+		}
+	}
 
 	async function loadHistory(id_package,guia) {
 		let listLogs = await getRecordsHistory(id_package,guia);

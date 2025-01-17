@@ -1295,6 +1295,34 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 			echo json_encode($result);
 			break;
 
+			case 'revertStatus':
+				$result   = [];
+				$success  = 'false';
+				$dataJson = [];
+				$message  = 'Error al guardar cambiar el estatus';
+				$id_package      = $_POST['id_package'];
+
+				try {
+					$success  = 'true';
+					$data['id_status']  = 7;
+					saveLog($id_package,$data['id_status'],'Activacion de Guía, se cambia a Contactado',true);
+					$dataJson = $db->update('package',$data," `id_package` = $id_package");
+					$message  = 'Guía Actualizada';
+					$result = [
+						'success'  => $success,
+						'dataJson' => $dataJson,
+						'message'  => $message
+					];
+				} catch (Exception $e) {
+					$result = [
+						'success'  => $success,
+						'dataJson' => $dataJson,
+						'message'  => $message.": ".$e->getMessage()
+					];
+				}
+				echo json_encode($result);
+			break;
+
 }
 
 function cnmexCheckServiceTracking($d,&$arrayRst){
