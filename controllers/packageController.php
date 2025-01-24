@@ -1515,13 +1515,19 @@ function jtCheckServiceTracking($d,&$arrayRst){
 					'desc_status' => 'Liberado en J&T pero no en el sistema interno',
 					'scanTime'    => $lastScanTime
 				],$commonValues);
+			} elseif ($lastStatus === '运送中') {
+				$arrayRst[$waybillNo] = array_merge([
+					'status'      => 'Ok',
+					'desc_status' => 'En tránsito',
+					'scanTime'    => ''
+				],$commonValues);
 			} elseif ($lastStatus === '派件中') {
 				$arrayRst[$waybillNo] = array_merge([
 					'status'      => 'Ok',
 					'desc_status' => 'Entrega en curso',
 					'scanTime'    => ''
 				],$commonValues);
-			} else {
+			}else {
 				$arrayRst[$waybillNo] = array_merge([
 					'status'      => 'Verificar',
 					'desc_status' => 'El estatus del paquete no pudo ser determinado',
