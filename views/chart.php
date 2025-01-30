@@ -224,7 +224,6 @@ if(isset($rParcel)){
                 echo "<hr>";
             }
 
-            echo "<hr>";
             // Obtener el día actual del mes
             $diaHoy = date('j');
             // Obtener el último día del mes actual con el día actual del mes
@@ -262,9 +261,15 @@ if(isset($rParcel)){
                     $tpm += intval($item['count']); // Convertir a entero antes de sumar
                 }
 
+                echo "<h4 style='text-align:center;'>Resumen del mes de ".date('F')." ".$desc_loc." Periodo del ".$fini." al ".$ffin."</h4>";
+                ?>
+                <div class="row">
+                <div class='col-md-6'>
+                <?php
+
                 // Crear la tabla HTML
                 echo "<table class='table table-striped table-bordered nowrap table-hover' cellspacing='0' style='width:100%'>";
-                echo "<tr><th colspan='3'>Resumen del mes de ".date('F')." ".$desc_loc."<br>Periodo del ".$fini." al ".$ffin."<br>Total: ".$tpm." paquetes </th></tr>";
+                echo "<tr><th colspan='3'>Total: ".$tpm." paquetes</th></tr>";
                 echo "<tr><th>Estatus</th><th>Total</th><th>Porcentaje</th></tr>";
 
                 // Recorrer el arreglo y generar las filas de la tabla
@@ -278,7 +283,75 @@ if(isset($rParcel)){
                 }
                 echo "</table>";
 
-	        ?>
+                $labels = [];
+                $data = [];
+                ?>
+                </div>
+                <div class='col-md-6'>
+                    <canvas id="myChart"></canvas>
+                <?php
+
+                foreach ($rst as $item) {
+                    $labels[] = $item['status_desc']; // Nombre del estado
+                    $data[] = (int)$item['count'];    // Cantidad (convertida a número)
+                }
+
+                // Convertir arrays PHP a JSON para JavaScript
+                $labelsJson = json_encode($labels);
+                $dataJson = json_encode($data);
+	            ?>
+                <script>
+                    // Convertir los datos de PHP a JavaScript
+                    const labels = <?php echo $labelsJson; ?>;
+                    const dataValues = <?php echo $dataJson; ?>;
+
+                    // Crear el gráfico con Chart.js
+                    const ctx = document.getElementById('myChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'pie', // Puedes cambiar a 'pie' o 'doughnut'
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Total',
+                                data: dataValues,
+                                backgroundColor: [
+                                    'rgba(54, 162, 235, 0.6)',
+                                    'rgba(75, 192, 192, 0.6)',
+                                    'rgba(255, 99, 132, 0.6)',
+                                    'rgba(255, 206, 86, 0.6)'
+                                ],
+                                borderColor: [
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(255, 206, 86, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,          // Muestra el título
+                                    text: 'Total: <?php echo $tpm; ?> paquetes',  // Título del gráfico
+                                    font: {
+                                        size: 18,           // Tamaño de la fuente
+                                        family: 'Arial',     // Familia tipográfica
+                                    },
+                                    padding: 20             // Espaciado alrededor del título
+                                },
+                                legend: {
+                                    position: 'top',      // Posición de la leyenda
+                                }
+                            },
+                            // Establecer la altura directamente
+                            maintainAspectRatio: false,
+                        }
+                    });
+                </script>
+                </div>
+            </div>
 	    </div>
     <?php
     include('footer.php');
