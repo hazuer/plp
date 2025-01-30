@@ -27,6 +27,7 @@ if(isset($rParcel)){
 <html lang = "en">
 	<head>
 		<?php include '../views/header.php'; ?>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	</head>
 	<body>
 		<div class="main">
@@ -110,39 +111,120 @@ if(isset($rParcel)){
                 ORDER BY p.id_status";
 
                 $result = $db->select($sql);
+                echo "<div class='row'>";
                 if (count($result) > 0) {
                     $total_count = 0;
 
-                foreach ($result as $item) {
-                    $total_count += intval($item['count']); // Convertir a entero antes de sumar
-                }
-
-                echo "<table class='table table-striped table-bordered nowrap table-hover' cellspacing='0' style='width:100%'>
-                <tr><td colspan='6'>Paquetes registrados el día $current_date, Total:<b> ".$total_count." (100%)</b></td></tr>";
-                foreach ($result as $row) {
-                    $p= round(((100/$total_count)*$row["count"]),1);
-                    if($row["id_status"]==3){
-                        $pmd=round(((100/$row["count"])*$row["same_day_delivery"]),1);
-                        $pdd=round(((100/$row["count"])*$row["different_day_delivery"]),1);
-                        echo "<tr>
-                        <td>".$row["status_desc"]."(s)</td>
-                        <td>".$row["count"]." (".$p."%)</td>
-                        <td>Entregados mismo día</td>
-                        <td>".$row["same_day_delivery"]." (".$pmd."%)</td>
-                        <td>Entregados después del día </td>
-                        <td>".$row["different_day_delivery"]." (".$pdd."%)</td></tr>";
-                    }else{
-                            echo "<tr><td>".$row["status_desc"]."(s)</td><td>".$row["count"]." (".$p."%)</tr>";
+                    foreach ($result as $item) {
+                        $total_count += intval($item['count']); // Convertir a entero antes de sumar
                     }
-                }
-                echo "</table>";
+
+                    echo "<div class='col-md-6'>
+                    <table class='table table-striped table-bordered nowrap table-hover' cellspacing='0' style='width:100%'>
+                    <tr><td colspan='6'>Paquetes registrados el día $current_date, Total:<b> ".$total_count." (100%)</b></td></tr>";
+                    foreach ($result as $row) {
+                        $p= round(((100/$total_count)*$row["count"]),1);
+                        if($row["id_status"]==3){
+                            $pmd=round(((100/$row["count"])*$row["same_day_delivery"]),1);
+                            $pdd=round(((100/$row["count"])*$row["different_day_delivery"]),1);
+                            echo "<tr>
+                            <td>".$row["status_desc"]."(s)</td>
+                            <td>".$row["count"]." (".$p."%)</td>
+                            <td>Entregados mismo día</td>
+                            <td>".$row["same_day_delivery"]." (".$pmd."%)</td>
+                            <td>Entregados después del día </td>
+                            <td>".$row["different_day_delivery"]." (".$pdd."%)</td></tr>";
+                        }else{
+                                echo "<tr><td>".$row["status_desc"]."(s)</td><td>".$row["count"]." (".$p."%)</tr>";
+                        }
+                    }
+                    echo "</table>
+                    </div>
+                    <div class='col-md-6'>";
+
+                    // Extraer etiquetas y valores
+                    $labels = [];
+                    $data = [];
+
+                    foreach ($result as $item) {
+                        $labels[] = $item['status_desc']; // Nombre del estado
+                        $data[] = (int)$item['count'];    // Cantidad (convertida a número)
+                    }
+
+                    // Convertir arrays PHP a JSON para JavaScript
+                    $labelsJson = json_encode($labels);
+                    $dataJson = json_encode($data);
+
+                    $nameDateDiv = str_replace("-", "", $current_date);
+
+                    ?>
+                    <canvas id="myChart_<?php echo $nameDateDiv;?>"></canvas>
+
+                    <script>
+                    // Convertir los datos de PHP a JavaScript
+                    const labels_<?php echo $nameDateDiv;?> = <?php echo $labelsJson; ?>;
+                    const dataValues_<?php echo $nameDateDiv;?> = <?php echo $dataJson; ?>;
+
+                    // Crear el gráfico con Chart.js
+                    const ctx_<?php echo $nameDateDiv;?> = document.getElementById('myChart_<?php echo $nameDateDiv;?>').getContext('2d');
+                    new Chart(ctx_<?php echo $nameDateDiv;?>, {
+                        type: 'pie', // Puedes cambiar a 'pie' o 'doughnut'
+                        data: {
+                            labels: labels_<?php echo $nameDateDiv;?>,
+                            datasets: [{
+                                label: 'Total',
+                                data: dataValues_<?php echo $nameDateDiv;?>,
+                                backgroundColor: [
+                                    'rgba(54, 162, 235, 0.6)',
+                                    'rgba(75, 192, 192, 0.6)',
+                                    'rgba(255, 99, 132, 0.6)',
+                                    'rgba(255, 206, 86, 0.6)'
+                                ],
+                                borderColor: [
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(255, 206, 86, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                title: {
+                                    display: true,          // Muestra el título
+                                    text: 'Paquetes registrados el día <?php echo $current_date?>, Total: <?php echo $total_count?>',  // Título del gráfico
+                                    font: {
+                                        size: 18,           // Tamaño de la fuente
+                                        family: 'Arial',     // Familia tipográfica
+                                    },
+                                    padding: 20             // Espaciado alrededor del título
+                                },
+                                legend: {
+                                    position: 'top',      // Posición de la leyenda
+                                }
+                            },
+                            // Establecer la altura directamente
+                            maintainAspectRatio: false,
+                        }
+                    });
+                </script>
+
+                 <?php
+                    echo "</div>
+                   ";
                 } else {
-                    echo "<table class='table table-striped table-bordered nowrap table-hover' cellspacing='0' style='width:100%'>
+                    echo "<div class='col-md-12'><table class='table table-striped table-bordered nowrap table-hover' cellspacing='0' style='width:49%'>
                     <tr><td>Día $current_date, sin registro de paquetes</td></tr>
-                    </table>";
+                    </table>
+                    </div>";
                 }
+                echo "</div>";
+                echo "<hr>";
             }
 
+            echo "<hr>";
             // Obtener el día actual del mes
             $diaHoy = date('j');
             // Obtener el último día del mes actual con el día actual del mes
