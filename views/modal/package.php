@@ -111,6 +111,7 @@
                                     <option value="5">Confirmado</option>
                                     <option value="6">Error al enviar mensaje</option>
                                     <option value="7">Contactado</option>
+                                    <option value="8">Devolución en Proceso</option>
                                 </select>
                             </div>
                         </div>

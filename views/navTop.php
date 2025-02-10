@@ -14,6 +14,9 @@ $selectDisabled='';
 if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 	$selectDisabled='disabled';
 }
+
+$txtchg = ($_SESSION['uLocation']==2) ? "Tlaquiltenango":"Zacatepec";
+$txtchgval = ($_SESSION['uLocation']==2) ? 1:2;
 ?>
 <div class="row">
 	<div class="col-md-12">
@@ -47,23 +50,26 @@ if($_SESSION["uId"] ==5 || $_SESSION["uId"]==6){
 				</button>
                 <div class="dropdown-menu" aria-labelledby="mobileMenuButton">
 					<!-- Elementos agrupados en el menú desplegable -->
-					<button id="btn-folio-1" class="dropdown-item" id="btn-grouped">
+					<button id="option-location-1" class="dropdown-item" data-slocation="<?php echo $txtchgval; ?>" data-slocationd="<?php echo $txtchg;?>">
+						<i class="fa fa-map-marker fa-lg" aria-hidden="true"></i> Cambiar Ubicación a <?php echo $txtchg;?>
+					</button>
+					<button id="btn-folio-1" class="dropdown-item">
 						<i class="fa fa-hashtag fa-lg" aria-hidden="true"></i> Configurar Folio
 					</button>
-					<button id="btn-template-1" class="dropdown-item" id="btn-grouped">
+					<button id="btn-template-1" class="dropdown-item">
 						<i class="fa fa-file-text-o fa-lg" aria-hidden="true"></i> Plantillas de Mensajes
 					</button>
-					<button id="btn-add-package-1" class="dropdown-item" id="btn-grouped">
+					<button id="btn-add-package-1" class="dropdown-item">
 						<i class="fa fa-cube fa-lg" aria-hidden="true"></i> Nuevo Paquete
 					</button>
-					<!--<button id="btn-release-package-1" class="dropdown-item" id="btn-grouped">
+					<!--<button id="btn-release-package-1" class="dropdown-item">
 						<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i> Entrega de Paquetes
 					</button>
 					-->
-					<button id="btn-sync-1" class="dropdown-item" id="btn-grouped">
+					<button id="btn-sync-1" class="dropdown-item">
 						<i class="fa fa-refresh fa-lg" aria-hidden="true"></i> Verificación de Guías Liberadas
 					</button>
-					<button id="btn-ocurre-1" class="dropdown-item" id="btn-grouped">
+					<button id="btn-ocurre-1" class="dropdown-item">
 						<i class="fa fa-barcode fa-lg" aria-hidden="true"></i> Crear Códigos de Barras
 					</button>
                 </div>

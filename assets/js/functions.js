@@ -42,6 +42,27 @@ $(document).ready(function() {
 		})
 	});
 
+	$('#option-location-1').click(function(){
+		let formData = new FormData();
+		formData.append('id_location',$(this).data('slocation'));
+		let sdesc = $(this).data('slocationd');
+		swal(`Nueva Ubicación ${sdesc}`, "", "success");
+		formData.append('option','changeLocation');
+		$.ajax({
+			url : `${base_url}/controllers/packageController.php`,
+			type: 'POST',
+			data:formData,
+			cache: false,
+			contentType: false,
+			processData: false,
+		  })
+		  .done(function(response) {
+			setTimeout(function(){
+			window.location.reload();
+			}, 1500);
+		})
+	});
+
 	$('#btn-report').click(function(){
 		window.location.href = `${base_url}/views/reports.php`;
 	});

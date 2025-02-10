@@ -46,7 +46,7 @@ require_once('../system/session_cookies.php');
 				FROM package p 
 				INNER JOIN cat_contact cc ON cc.id_contact = p.id_contact 
 				WHERE p.id_location IN ($id_location) 
-				AND p.id_status IN (1, 2, 5, 6, 7) 
+				AND p.id_status IN (1, 2, 5, 6, 7, 8) 
 				ORDER BY initial, p.folio
 			";
 

@@ -47,7 +47,7 @@ LEFT JOIN cat_status cs ON cs.id_status=p.id_status
 LEFT JOIN cat_parcel cp ON cp.id_cat_parcel=p.id_cat_parcel 
 WHERE 1 
 AND p.id_location IN ($id_location)
-AND p.id_status IN(1,2,5,6,7)";
+AND p.id_status IN(1,2,5,6,7,8)";
 $packages = $db->select($sql);
 
 $sqlTemp ="SELECT template FROM cat_template WHERE id_location IN ($id_location) LIMIT 1";

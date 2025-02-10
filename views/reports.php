@@ -26,7 +26,7 @@ if(isset($rFstatus)){
 	if($rFstatus!='99'){
 		$andStatusIn = " AND p.id_status IN ($rFstatus)";
 	}else{
-		$andStatusIn =" AND p.id_status IN (1,2,3,4,5,6,7)";
+		$andStatusIn =" AND p.id_status IN (1,2,3,4,5,6,7,8)";
 	}
 }
 
@@ -129,6 +129,7 @@ $packages = $db->select($sql);
 								<option value="5" <?php echo ($rFstatus==5) ? 'selected': ''; ?>>Confirmado</option>
 								<option value="6" <?php echo ($rFstatus==6) ? 'selected': ''; ?>>Error al enviar mensaje</option>
 								<option value="7" <?php echo ($rFstatus==7) ? 'selected': ''; ?>>Contactado</option>
+								<option value="8" <?php echo ($rFstatus==8) ? 'selected': ''; ?>>Devolución en Proceso</option>
 							</select>
 						</div>
 					</div>
