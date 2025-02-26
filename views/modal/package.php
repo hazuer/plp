@@ -72,7 +72,11 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label for="phone"><b>* Télefono:</b></label>
+                                <label for="phone"><b>* Télefono:</b>
+                                    <span class="input-group-addon" id="phone-loading" style="display:none;">
+                                    <i class="fa fa-spinner fa-spin"></i>
+                                    </span>
+                                </label>
                                 <input type="text" class="form-control" name="phone" id="phone" value="" autocomplete="off" >
                             </div>
                             <div id="coincidencias" style="display: none;"></div>

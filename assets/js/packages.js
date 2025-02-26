@@ -580,6 +580,9 @@ $(document).ready(function() {
             url: `${base_url}/${baseController}`, // URL ficticia de la API
             method: 'POST',
             data: { phone: phoneNumber,id_location:id_location,option:'getContact',idParcel:idParcel },
+			beforeSend: function() {
+				$('#phone-loading').show();
+			},
             success: function(data) {
                 let coincidencias = data.dataJson; // Supongamos que la respuesta contiene una lista de coincidencias
                 // Limpiar el contenido del div de coincidencias
@@ -605,7 +608,10 @@ $(document).ready(function() {
             },
             error: function(xhr, status, error) {
                 console.error(error); // Manejo de errores
-            }
+            },
+			complete: function() {
+				$('#phone-loading').hide();
+			}
         });
     });
 
