@@ -1087,6 +1087,20 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 			$typeLocation ='tlaqui';
 			if($id_location==2){$typeLocation='zaca';}
 
+			$tat  = $_POST['textAreatracking'];
+			$lineasTat = explode("\n", $tat);
+
+			// Iterar sobre cada línea y limpiarla (eliminar espacios y comillas)
+			$numeros_de_guia = [];
+			foreach ($lineasTat as $linea) {
+				$numero = trim(str_replace('"', '', $linea));
+				if (!empty($numero)) {
+					$numeros_de_guia[] = "'" . $numero . "'";
+				}
+			}
+			// Unir los números de teléfono en un solo string con comas
+			$textAreatracking = implode(",", $numeros_de_guia);
+
 			$nameTypeMode = '';
 			$listEstatus  = '';
 			$dateBetween  = '';
@@ -1109,6 +1123,11 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 					#$listEstatus = '6'; //Mensaje de error
 					$listEstatus  = " AND p.id_status IN ('6') ";
 					$dateBetween  = "";
+					break;
+				case 'manual':
+					$nameTypeMode='manual';
+					$listEstatus = "";
+					$dateBetween = "AND p.tracking IN (".$textAreatracking.") ";
 					break;
 			}
 
