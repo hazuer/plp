@@ -114,7 +114,7 @@ $packages = $db->select($sql);
 			<?php
 				include '../views/navTop.php';
 			?>
-			<h3>Reportes <?php echo $desc_loc;?></h3>
+			<h3 id="lbl-title-location">Reportes <?php echo $desc_loc;?></h3>
 			<form id="frm-reports" action="<?php echo BASE_URL;?>/views/reports.php" method="POST">
 				<div class="row">
 					<div class="col-md-3">

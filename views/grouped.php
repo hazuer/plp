@@ -39,7 +39,7 @@ $packages = $db->select($sql);
 			<?php
 				include '../views/navTop.php';
 			?>
-			<h3>Usuarios y Paquetes Agrupados <?php echo $desc_loc;?></h3>
+			<h3 id="lbl-title-location">Usuarios y Paquetes Agrupados <?php echo $desc_loc;?></h3>
 			<table id="tbl-inspect" class="table table-striped table-bordered nowrap table-hover" cellspacing="0" style="width:100%">
 				<thead>
 					<tr>

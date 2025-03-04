@@ -37,7 +37,7 @@ if(isset($rParcel)){
             <form id="frm-reports" action="<?php echo BASE_URL;?>/views/chart.php" method="POST">
                 <div class="row">
                     <div class="col-md-9">
-                        <h3>Porcentaje de Entrega <?php echo date('F');?> <?php echo $desc_loc;?></h3>
+                        <h3 id="lbl-title-location">Porcentaje de Entrega <?php echo date('F');?> <?php echo $desc_loc;?></h3>
                     </div>
                     <div class="col-md-2">
                         <div class="form-group">

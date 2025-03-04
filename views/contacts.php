@@ -39,7 +39,7 @@ $contacts = $db->select($sql);
 			<?php
 				include '../views/navTop.php';
 			?>
-			<h3>Lista de Contactos <?php echo $desc_loc;?></h3>
+			<h3 id="lbl-title-location">Lista de Contactos <?php echo $desc_loc;?></h3>
 			<div class="row">
 				<div class="col-md-12 row justify-content-end">
 					<div class="btn-group" role="group" aria-label="Basic example">

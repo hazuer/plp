@@ -38,7 +38,7 @@ $id_location = $_SESSION['uLocation'];
 			?>
 
 			<form id="frm-package">
-			<h3>🤖 Envío Manual de Mensajes <?php echo $desc_loc;?></h3>
+			<h3 id="lbl-title-location">🤖 Envío Manual de Mensajes <?php echo $desc_loc;?></h3>
 			<?php
 				include('modal/handler.php');
 			?>

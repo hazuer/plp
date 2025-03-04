@@ -83,7 +83,7 @@ require_once('../system/session_cookies.php');
 				];
 			}
 			?>
-			<h3>Map <?php echo $desc_loc;?></h3>
+			<h3 id="lbl-title-location">Map <?php echo $desc_loc;?></h3>
 			<span style="font-size:18px;">
 			<?php 
 			echo "<b>Total: ".count($result)." Paquetes</b> <br>";
