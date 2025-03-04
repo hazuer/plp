@@ -91,6 +91,10 @@ $templateMsj=$user[0]['template'];
                     display: none;
                 }
             }
+			div.swal-footer {
+				text-align: center !important;
+				padding: 0px 0px !important;
+			}
         </style>
         <script>
 			function truncateText() {

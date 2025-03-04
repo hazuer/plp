@@ -392,7 +392,7 @@ $(document).ready(function() {
 				$('#btn-save').click();
 			}
 		}else if($('#id_cat_parcel').val()==2){
-			if (input.length === 13) {
+			if (input.length === 13 || input.length === 14) { // Acepta 13 o 14 caracteres
 				$('#btn-save').click();
 			}
 		}else if($('#id_cat_parcel').val()==3){
@@ -432,12 +432,13 @@ $(document).ready(function() {
 			guia = decodedText.substring(0, 3).toUpperCase() + decodedText.substring(3);
 		}else if($('#id_cat_parcel').val()==2){
 			let imTracking = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
-			const regex = /^\d{13}$/;
-			// La condición ahora verifica si la longitud es distinta de 13 o si el formato no es válido
-			if (imTracking.length !== 13 || !regex.test(imTracking)) {
+			const regex = /^\d{13,14}$/; // Acepta exactamente 13 o 14 dígitos
+
+			// Verificar si la longitud no es 13 o 14 o si el formato no es válido
+			if ((imTracking.length !== 13 && imTracking.length !== 14) || !regex.test(imTracking)) {
 				let mensajeError = "* Código de barras no válido:";
-				if (imTracking.length !== 13) {
-					mensajeError += " Debe tener 13 caracteres.";
+				if (imTracking.length < 13 || imTracking.length > 14) {
+					mensajeError += " Debe tener 13 o 14 caracteres.";
 				} else {
 					mensajeError += " Solo se permiten números.";
 				}
@@ -1244,8 +1245,10 @@ $(document).ready(function() {
 						createBarCode('anomalia',idParcel,'');
 					break;
 				case "opcion4":
+					const lblLocation =$("#option-location option:selected").text();
+					const lblParcel = $('#optionSelect option:selected').text();
 					swal({
-						title: "Ingresa Código(s) Barra(s)",
+						title: `Ingresa Código(s) Barra(s) \n ${lblLocation} - ${lblParcel}`,
 						content: createTextArea(),  // Función para crear el calendario
 						buttons: {
 							confirm: {
@@ -1254,7 +1257,7 @@ $(document).ready(function() {
 							}
 						}
 					}).then((dateValue) => {
-						if(dateValue==='generar'){
+						if(dateValue==='generar' && $('#txtBarcode').val()!=""){
 							let txtBarcode = $('#txtBarcode').val();
 							createBarCode('manual',idParcel,'',txtBarcode);
 						}
@@ -1332,6 +1335,9 @@ $(document).ready(function() {
 		texta.style.width = '200px';  // Ancho del textarea
 		texta.style.height = '300px'; // Alto del textarea
 		textAreaDiv.appendChild(texta);
+		setTimeout(function(){
+			texta.focus();
+		}, 100);
 
 		return textAreaDiv;
 	}
