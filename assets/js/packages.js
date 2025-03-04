@@ -378,6 +378,7 @@ $(document).ready(function() {
 		$('#phone').val('');
 		$('#receiver').val('');
 		$('#tracking').val('');
+		$('#note').val('');
 		$('#phone').focus();
 		let coincidenciasDiv = $('#coincidencias');
 		coincidenciasDiv.empty();
@@ -574,6 +575,7 @@ $(document).ready(function() {
 		let limitDigit = (idParcel==1 || idParcel==3) ? 5 : 3;
 
 		if (input.length <= limitDigit) {
+			coincidenciasDiv.hide();
 			return;
         }
 
@@ -601,8 +603,51 @@ $(document).ready(function() {
 
                     // Agregar cada coincidencia como un elemento <p> al div
                     coincidenciasArray.forEach(function(coincidencia) {
-						coincidenciasDiv.append(`<p data-phone="${coincidencia.phone}" data-name="${coincidencia.contact_name}" data-idcontact="${coincidencia.id_contact}">${coincidencia.phone} - ${coincidencia.contact_name}</p>`);
+						coincidenciasDiv.append(`<p class="coincidencia-item" tabindex="0" data-phone="${coincidencia.phone}" data-name="${coincidencia.contact_name}" data-idcontact="${coincidencia.id_contact}">${coincidencia.phone} - ${coincidencia.contact_name}</p>`);
                     });
+
+					let items = $(".coincidencia-item");
+            		let selectedIndex = -1;
+					$(document).off("keydown").on("keydown", function(e) {
+						if (items.length === 0) return;
+		
+						if (e.key === "ArrowDown") {
+							e.preventDefault();
+							selectedIndex = (selectedIndex + 1) % items.length;
+						} else if (e.key === "ArrowUp") {
+							e.preventDefault();
+							selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+						} else if (e.key === "Enter" && selectedIndex !== -1) {
+							let selected = items.eq(selectedIndex); // Obtiene el elemento seleccionado
+							let name        = selected.data('name');  // Usa 'selected' en lugar de 'this'
+							let phoneNumber = selected.data('phone');
+							let id_contact  = selected.data('idcontact');
+							$('#receiver').val(name);
+							$('#phone').val(phoneNumber);
+							$('#id_contact').val(id_contact);
+							$('#coincidencias').hide();
+							$('#tracking').focus();
+							coincidenciasDiv.hide();
+						}
+		
+						items.removeClass("selected");
+						if (selectedIndex !== -1) {
+							items.eq(selectedIndex).addClass("selected");
+						}
+					});
+					$("<style>")
+					.prop("type", "text/css")
+					.html(`
+						.coincidencia-item {
+							padding: 5px;
+							cursor: pointer;
+						}
+						.coincidencia-item.selected {
+							background-color: #D4EDDA;
+						}
+					`)
+					.appendTo("head");
+
                 } else {
                     coincidenciasDiv.hide();
                 }

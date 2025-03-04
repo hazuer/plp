@@ -384,12 +384,12 @@ ul.menu {
 
 #coincidencias {
     position: absolute;
-    top: calc(100% + 7px); /* Posición debajo del campo #phone */
-    left: 0;
-    width: 100%;
+    top: calc(100% - 13px); /* Posición debajo del campo #phone */
+    /*left: 0;*/
+    width: calc(100% - 5%);
     max-height: 200px; /* Altura máxima para evitar el desplazamiento */
     overflow-y: auto; /* Mostrar barra de desplazamiento vertical si es necesario */
-    background-color: white; /* Color de fondo */
+    background-color: #F8F9FA; /* Color de fondo */
     border: 1px solid #ccc; /* Borde */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra */
     z-index: 1000; /* Z-index para que se superponga a otros elementos */
@@ -402,5 +402,5 @@ ul.menu {
 }
 
 #coincidencias p:hover {
-    background-color: #ADD8E6; /* Cambiar el color de fondo al pasar el cursor */
+    background-color: #D4EDDA; /* Cambiar el color de fondo al pasar el cursor */
 }

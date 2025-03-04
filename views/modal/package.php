@@ -20,7 +20,7 @@
                         <div class="col-md-6">
                             <div class="form-check form-check-inline">
                             <input class="form-check-input" type="radio" name="keepModal" id="opcMA" value="option1">
-                            <label class="form-check-label" for="opcMA"><b>Guardar y volver a registrar</b></label>
+                            <label class="form-check-label" for="opcMA"><b>Repetir</b></label>
                             </div>
                         </div>
                         <div class="col-md-3">
