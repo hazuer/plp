@@ -1209,6 +1209,10 @@ $(document).ready(function() {
 				opcion3: {
 					text: "Anomalia",
 					value: "opcion3",
+				},
+				opcion4: {
+					text: "Manual",
+					value: "opcion4",
 				}
 			},
 			dangerMode: false,
@@ -1239,6 +1243,23 @@ $(document).ready(function() {
 				case "opcion3":
 						createBarCode('anomalia',idParcel,'');
 					break;
+				case "opcion4":
+					swal({
+						title: "Ingresa Código(s) Barra(s)",
+						content: createTextArea(),  // Función para crear el calendario
+						buttons: {
+							confirm: {
+								text: "Generar",
+								value: "generar"
+							}
+						}
+					}).then((dateValue) => {
+						if(dateValue==='generar'){
+							let txtBarcode = $('#txtBarcode').val();
+							createBarCode('manual',idParcel,'',txtBarcode);
+						}
+					});
+				break;
 			}
 		});
 	});
@@ -1303,14 +1324,26 @@ $(document).ready(function() {
 		return calendarDiv;
 	}
 
-	function createBarCode(mode,idParcel,fechaAuto) {
+	function createTextArea() {
+		let textAreaDiv = document.createElement('div');
+
+		let texta = document.createElement('textarea');
+		texta.id = 'txtBarcode';
+		texta.style.width = '200px';  // Ancho del textarea
+		texta.style.height = '300px'; // Alto del textarea
+		textAreaDiv.appendChild(texta);
+
+		return textAreaDiv;
+	}
+
+	function createBarCode(mode,idParcel,fechaAuto,textAreatracking=null) {
 		let formData =  new FormData();
 		formData.append('id_location', idLocationSelected.val());
 		formData.append('type_mode', mode);
 		formData.append('option', 'createBarcode');
 		formData.append('idParcel', idParcel);
 		formData.append('fechaAuto', fechaAuto);
-
+		formData.append('textAreatracking', textAreatracking);
 		try {
 			$.ajax({
 				url        : `${base_url}/${baseController}`,
