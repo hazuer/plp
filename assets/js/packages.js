@@ -393,8 +393,12 @@ $(document).ready(function() {
 				$('#btn-save').click();
 			}
 		}else if($('#id_cat_parcel').val()==2){
-			if (input.length === 13 || input.length === 14) { // Acepta 13 o 14 caracteres
+			let inputImile = $(this).val().replace(/\D/g, '').replace(/[\r\n]/g, ''); // Elimina caracteres no numéricos y saltos de línea
+			$(this).val(inputImile); // Actualiza el inputImile con solo números
+
+			if (inputImile.length === 13 || inputImile.length === 14) {
 				$('#btn-save').click();
+				$(this).val(''); // Limpia el input después de procesarlo
 			}
 		}else if($('#id_cat_parcel').val()==3){
 			if (input.length === 15 && input.substr(0, 5).toUpperCase() === "CNMEX") {
