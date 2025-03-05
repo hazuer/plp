@@ -386,6 +386,7 @@ $(document).ready(function() {
 	});
 
 	//-----------------------
+	let scanTimeout; // Variable para el temporizador
 	$('#tracking').on('input', function() {
 		let input = $(this).val().trim();
 		if($('#id_cat_parcel').val()==1){
@@ -393,13 +394,18 @@ $(document).ready(function() {
 				$('#btn-save').click();
 			}
 		}else if($('#id_cat_parcel').val()==2){
-			let inputImile = $(this).val().replace(/\D/g, '').replace(/[\r\n]/g, ''); // Elimina caracteres no numéricos y saltos de línea
-			$(this).val(inputImile); // Actualiza el inputImile con solo números
+			clearTimeout(scanTimeout); // Reinicia el temporizador si hay más entradas rápidas
 
-			if (inputImile.length === 13 || inputImile.length === 14) {
-				$('#btn-save').click();
-				$(this).val(''); // Limpia el input después de procesarlo
-			}
+			let inputImile = $(this).val().replace(/\D/g, '').replace(/[\r\n]/g, ''); // Solo números, sin saltos de línea
+			$(this).val(inputImile); // Actualiza el inputImile con los datos limpios
+		
+			// Espera 300ms antes de validar para permitir que el escáner termine de escribir
+			scanTimeout = setTimeout(() => {
+				if (inputImile.length === 13 || inputImile.length === 14) {
+					$('#btn-save').click();
+					$(this).val(''); // Limpia el inputImile después de procesarlo
+				}
+			}, 500);
 		}else if($('#id_cat_parcel').val()==3){
 			if (input.length === 15 && input.substr(0, 5).toUpperCase() === "CNMEX") {
 				$('#btn-save').click();
