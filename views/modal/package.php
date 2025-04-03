@@ -122,7 +122,7 @@
                         <div class="col-md-6" >
                             <?php if($host==NAME_HOST_REMOTE){?>
                             <label for="evidence"><b>Evidencia:</b></label>
-                            <input type="file" id="evidence" name="evidence" accept="image/*" id="fileInput">
+                            <input type="file" id="evidence" name="evidence" accept="image/*,application/pdf" id="fileInput">
                             <?php }?>
                         </div>
                     </div>
