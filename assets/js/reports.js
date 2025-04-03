@@ -295,18 +295,37 @@ $(document).ready(function() {
 			let clean_path   = item_path.replace(/^\.\.\//, '');
 			let encoded_path = encodeURI(clean_path);
 			let full_url     = `${base_url}/${encoded_path}`;
+			let preview = showPreview(full_url);
 
 			let row = `<tr>
 				<td><b>${c}</b></td>
 				<td>${item.date_e}</td>
 				<td>${item.user}</td>
-				<td style="text-align:center;"><a href="${full_url}" target="_blank" data-toggle="tooltip" data-placement="top" title="Click para ver imagen completa">
-				<img src="${full_url}" width="150" height="150">
-			  </a></td>
+				<td style="text-align:center;">${preview}</td>
 			</tr>`;
 			$('#tbl-evidence').append(row);
 			c++;
 		});
 		$('#modal-evidence-title').html(`Evidencia(s) Guía ${titleGuia}`);
 	}
+
+	function showPreview(fileUrl) {
+        const fileExtension = fileUrl.split('.').pop().toLowerCase(); // Obtener la extensión del archivo
+
+        let previewHtml = '';
+		const txtFullARef =`<br><a href="${fileUrl}" target="_blank" data-toggle="tooltip" data-placement="top" title="Click para ver en pantalla completa">[Pantalla Completa `;
+
+        if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(fileExtension)) {
+            // Si es imagen, mostrar en un <img>
+			previewHtml = `<img src="${fileUrl}" width="150" height="150">${txtFullARef} IMG]</a>`;
+        } else if (fileExtension === 'pdf') {
+            // Si es PDF, mostrar <embed>
+            previewHtml = `<embed src="${fileUrl}" width="150" height="150" type="application/pdf">${txtFullARef} PDF]</a>`;
+        } else {
+            previewHtml = `<p>Archivo no compatible para vista previa</p>`;
+        }
+
+        return previewHtml;
+    }
+
 });

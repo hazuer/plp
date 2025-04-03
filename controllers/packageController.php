@@ -105,7 +105,7 @@ switch ($_POST['option']) {
 						}
 
 						$file = $_FILES['evidence'];
-						$allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+						$allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp','application/pdf'];
 						$fileType = mime_content_type($file['tmp_name']);
 
 						if (in_array($fileType, $allowedTypes)) {
