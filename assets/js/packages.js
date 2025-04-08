@@ -425,6 +425,11 @@ $(document).ready(function() {
 			return;
 		}
 
+		if(phone.val().trim()==='0000000000'){
+		    swal("Atención!", "* El número de télefono (0000000000) no es válido", "error");
+			return;
+		}
+
 		let guia = '';
 		if($('#id_cat_parcel').val()==1){
 			let jtTracking = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
