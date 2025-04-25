@@ -27,18 +27,18 @@ $txtchgval = ($_SESSION['uLocation']==2) ? 1:2;
 			<button id="home" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Paquetes">
 				<i class="fa fa-cubes fa-lg" aria-hidden="true"></i>
 			</button>
-			<button id="btn-grouped" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Usuarios y Paquetes Agrupados">
+			<!-- <button id="btn-grouped" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Usuarios y Paquetes Agrupados">
 				<i class="fa fa-crosshairs fa-lg" aria-hidden="true"></i>
-			</button>
+			</button> -->
 			<button id="btn-report" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Reportes">
 				<i class="fa fa-bar-chart fa-lg" aria-hidden="true"></i>
 			</button>
 			<button id="btn-chart" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Porcentaje de Entrega">
 				<i class="fa fa-pie-chart fa-lg" aria-hidden="true"></i>
 			</button>
-			<button id="btn-map" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Map">
+			<!-- <button id="btn-map" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Map">
 				<i class="fa fa-th fa-lg" aria-hidden="true"></i>
-			</button>
+			</button> -->
 			<button id="btn-list-contact" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Lista de Contactos">
 				<i class="fa fa-users fa-lg" aria-hidden="true"></i>
 			</button>

@@ -9,6 +9,11 @@ $db = new DB(HOST,USERNAME,PASSWD,DBNAME,PORT,SOCKET);
 require_once('../system/session_cookies.php');
 $id_location = $_SESSION['uLocation'];
 
+if($_SESSION["uId"] !=1){
+	header('Location: '.BASE_URL.'/admin');
+	die();
+}
+
 $sql="SELECT 
 		cc.phone,
 		IF((SELECT count(cc1.contact_name) FROM cat_contact cc1 WHERE cc1.phone = cc.phone AND cc1.id_location IN($id_location) AND cc1.id_contact_status IN (1))=1,

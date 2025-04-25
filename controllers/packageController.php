@@ -209,7 +209,6 @@ switch ($_POST['option']) {
 
 				break;
 			}
-
 			$result = [
 				'success'  => $success,
 				'dataJson' => $dataJson,
@@ -725,7 +724,7 @@ client.on("ready", async () => {
 						newStatusPackage = 6
 					}
 					if (i < numbers.length - 1) {
-						await sleep(1500); // tiempo de espera en segundos entre cada envío
+						await sleep(1000); // tiempo de espera en segundos entre cada envío
 					}
 				}
 

@@ -73,7 +73,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="phone"><b>* Télefono:</b>
-                                    <span class="input-group-addon" id="phone-loading" style="display:none;">
+                                    <span class="input-group-addon" id="phone-loading" style="display:none; color:green;">
                                     <i class="fa fa-spinner fa-spin"></i>
                                     </span>
                                 </label>

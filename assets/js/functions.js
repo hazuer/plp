@@ -88,10 +88,10 @@ $(document).ready(function() {
 	})
 });
 
-const showSwal = () => {
+const showSwal = (title='Procesando...',textDesc='Espere por favor') => {
 	swal({
-	  title            : "Procesando...",
-	  text             : "Espere por favor",
+	  title            : title,
+	  text             : textDesc,
 	  icon             : `${base_url}/assets/img/ajax-loader.gif`,
 	  showConfirmButton: false,
 	  closeOnClickOutside: false

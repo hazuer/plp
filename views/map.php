@@ -11,6 +11,10 @@ require_once('../system/DB.php');
 $db = new DB(HOST,USERNAME,PASSWD,DBNAME,PORT,SOCKET);
 
 require_once('../system/session_cookies.php');
+if($_SESSION["uId"] !=1){
+	header('Location: '.BASE_URL.'/admin');
+	die();
+}
 
 ?>
 <!doctype html>

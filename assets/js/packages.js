@@ -144,20 +144,20 @@ $(document).ready(function() {
 		context.clearRect(0, 0, canvas.width, canvas.height);
 
 		// Establecer estilos para el contenedor del video (marco verde)
-		videoContainer.style.width = "50%"; // 50% del ancho de la pantalla, es decir, 512px en una pantalla de 1024px
-		videoContainer.style.height = "50%"; // 50% del alto, para mantener proporciones cuadradas
-		videoContainer.style.maxWidth = "320px"; // Máximo tamaño 512px
-		videoContainer.style.maxHeight = "320px"; // Máximo tamaño 512px
-		videoContainer.style.border = "2px solid green"; // Borde verde
-		videoContainer.style.display = "flex";
-		videoContainer.style.alignItems = "center";
+		videoContainer.style.width          = "50%"; // 50% del ancho de la pantalla, es decir, 512px en una pantalla de 1024px
+		videoContainer.style.height         = "50%"; // 50% del alto, para mantener proporciones cuadradas
+		videoContainer.style.maxWidth       = "320px"; // Máximo tamaño 512px
+		videoContainer.style.maxHeight      = "320px"; // Máximo tamaño 512px
+		videoContainer.style.border         = "2px solid green"; // Borde verde
+		videoContainer.style.display        = "flex";
+		videoContainer.style.alignItems     = "center";
 		videoContainer.style.justifyContent = "center";
-		videoContainer.style.margin = "0 auto"; // Centrado horizontal
-		videoContainer.style.position = "relative";
+		videoContainer.style.margin         = "0 auto"; // Centrado horizontal
+		videoContainer.style.position       = "relative";
 
 		// Ajustar el video dentro del contenedor
-		video.style.width = "100%";
-		video.style.height = "100%";
+		video.style.width     = "100%";
+		video.style.height    = "100%";
 		video.style.objectFit = "cover"; // Ajustar video dentro del marco
 
 		navigator.mediaDevices.enumerateDevices().then((devices) => {
@@ -180,7 +180,7 @@ $(document).ready(function() {
 		.catch((err) => {
 			console.error("Error al acceder a la cámara: ", err);
 		});
-		
+
 		let capturedImageData;
 		videoSnap.addEventListener("click", () => {
 		    $('audio#sound-snap')[0].play();
@@ -233,10 +233,11 @@ $(document).ready(function() {
 			contentType: false,
 			processData: false,
 			beforeSend : function() {
-				showSwal();
+				showSwal('Liberación de Paquete Manual','Espere por favor...');
 				$('.swal-button-container').hide();
 			}
 		}).done(function(response) {
+			swal.close();
 			if(response.success==='true'){
 				swal(guia, response.message, "success");
 			}else {
@@ -247,7 +248,6 @@ $(document).ready(function() {
 				swal.close();
 				window.location.reload();
 			}, 3500);
-
 		}).fail(function(e) {
 			console.log("Opps algo salio mal",e);
 		});
@@ -317,6 +317,7 @@ $(document).ready(function() {
 			$('#btn-erase').hide();
 		}else{
 			updateColors(uMarker);
+			cleanForm();
 			$('#opcMA').prop('checked', true);
 			$('#div-keep-modal').show();
 			let newFolio = await getFolio('new');
@@ -329,21 +330,13 @@ $(document).ready(function() {
 
 		$('#modal-package-title').html(titleModal);
 		$('#modal-package').modal({backdrop: 'static', keyboard: false}, 'show');
-		setTimeout(function(){
-			phone.focus();
-		}, 600);
 	}
 
-	function speakText(txtFolio) {
-		// Crea una nueva instancia de SpeechSynthesisUtterance
-		const utterance = new SpeechSynthesisUtterance(txtFolio);
-
-		// Configuración del idioma y propiedades
-		utterance.lang = 'es-ES'; // Español
-		utterance.rate = 1; // Velocidad normal
+	function speakText(txt) {
+		const utterance = new SpeechSynthesisUtterance(txt);
+		utterance.lang  = 'es-ES'; // Español
+		utterance.rate  = 1; // Velocidad normal
 		utterance.pitch = 1; // Tono normal
-
-		// Reproducir el texto
 		window.speechSynthesis.speak(utterance);
 	}
 
@@ -360,7 +353,19 @@ $(document).ready(function() {
 				data: formData,
 				cache: false,
 				contentType: false,
-				processData: false
+				processData: false,
+				beforeSend : function() {
+					showSwal('Obteniendo Folio','Espere por favor...');
+					$('.swal-button-container').hide();
+				},
+				complete: function() {
+					if(type=='new'){
+						setTimeout(function(){
+							phone.focus();
+						}, 600);
+					}
+					swal.close();
+				}
 			});
 			folio = response.folio;
 		} catch (error) {
@@ -374,6 +379,10 @@ $(document).ready(function() {
 	});
 
 	$('#btn-erase').click(function(){
+		cleanForm();
+	});
+
+	function cleanForm(){
 		$('#id_contact').val(0);
 		$('#phone').val('');
 		$('#receiver').val('');
@@ -383,6 +392,13 @@ $(document).ready(function() {
 		let coincidenciasDiv = $('#coincidencias');
 		coincidenciasDiv.empty();
 		coincidenciasDiv.hide();
+	}
+
+	$('#phone').on('keydown', function(e) {
+		if (e.key === "Backspace" || e.key === "Delete") {
+			$('#id_contact').val(0);
+		$('#receiver').val('');
+		}
 	});
 
 	//-----------------------
@@ -399,7 +415,7 @@ $(document).ready(function() {
 			let inputImile = $(this).val().replace(/\D/g, '').replace(/[\r\n]/g, ''); // Solo números, sin saltos de línea
 			$(this).val(inputImile); // Actualiza el inputImile con los datos limpios
 		
-			// Espera 300ms antes de validar para permitir que el escáner termine de escribir
+			// Espera 500ms antes de validar para permitir que el escáner termine de escribir
 			scanTimeout = setTimeout(() => {
 				if (inputImile.length === 13 || inputImile.length === 14) {
 					$('#btn-save').click();
@@ -489,11 +505,6 @@ $(document).ready(function() {
 			return;
 		}
 
-		if(id_status.val()=='8' && file === null){
-			swal("Atención!", 'Por favor, proporciona la guía (PDF) de la devolución del paquete', "error");
-			return;
-		}
-
 		let formData = new FormData();
 		formData.append('id_package',id_package.val());
 		formData.append('id_location',idLocationSelected.val());
@@ -518,9 +529,14 @@ $(document).ready(function() {
 			cache      : false,
 			contentType: false,
 			processData: false,
+			beforeSend : function() {
+				$('#modal-package').modal('hide');
+				showSwal('El paquete se está guardando','Espere por favor...');
+				$('.swal-button-container').hide();
+			}
 		})
 		.done(function(response) {
-
+			swal.close();
 			if(response.success=='true'){
 				uMarker = $('#id_marcador').val();
 				uIdCatParcel = $('#id_cat_parcel').val();
@@ -533,7 +549,6 @@ $(document).ready(function() {
 					swal(`${response.message}`, "", "success");
 				}
 				$('.swal-button-container').hide();
-				$('#modal-package').modal('hide');
 
 				if(action.val()=="update"){
 					setTimeout(function(){
@@ -544,6 +559,7 @@ $(document).ready(function() {
 				}
 
 				if(action.val()=="new"){
+					cleanForm();
 					if ($('#opcMA').prop('checked')) {
 						setTimeout(function(){
 							swal.close();
@@ -572,6 +588,7 @@ $(document).ready(function() {
 				$('.swal-button-container').hide();
 				setTimeout(function(){
 					swal.close();
+					$('#modal-package').modal('show');
 				}, 3500);
 				return;
 			}
@@ -580,105 +597,120 @@ $(document).ready(function() {
 		});
 	}
 
+	let typingTimer; // Timer global
+	let doneTypingInterval = 800; // Tiempo en ms para detectar que el usuario terminó de escribir
+
 	phone.on('input', function() {
-        let phoneNumber = $(this).val();
-		let id_location = idLocationSelected.val();
-        let coincidenciasDiv = $('#coincidencias');
+		let input = $(this).val().replace(/\D/g, '').slice(0, 10); // solo números, máx 10 dígitos
+		$(this).val(input);
 
-        input = phoneNumber.replace(/\D/g, '').slice(0, 10); // Elimina caracteres no numéricos y limita a 10 dígitos
-        $(this).val(input);
-        if (input.length === 10) {
-			receiver.focus();
-        }
+		clearTimeout(typingTimer); // Cancela el temporizador anterior si sigue escribiendo
 
-		let idParcel = $('#id_cat_parcel').val();
-		let limitDigit = (idParcel==1 || idParcel==3) ? 5 : 3;
+		typingTimer = setTimeout(() => {
 
-		if (input.length <= limitDigit) {
-			coincidenciasDiv.hide();
-			return;
-        }
+			let phoneNumber = input;
+			let id_location = idLocationSelected.val();
+			let coincidenciasDiv = $('#coincidencias');
 
-        $.ajax({
-            url: `${base_url}/${baseController}`, // URL ficticia de la API
-            method: 'POST',
-            data: { phone: phoneNumber,id_location:id_location,option:'getContact',idParcel:idParcel },
-			beforeSend: function() {
-				$('#phone-loading').show();
-			},
-            success: function(data) {
-                let coincidencias = data.dataJson; // Supongamos que la respuesta contiene una lista de coincidencias
-                // Limpiar el contenido del div de coincidencias
-                coincidenciasDiv.empty();
-				$('#id_contact').val(0);
-				$('#receiver').val('');
-				if (phoneNumber.length==10){
-					coincidenciasDiv.hide();
-					return;
-				}
-                // Mostrar el div de coincidencias si hay coincidencias
-                if (phoneNumber.length > 0 && coincidencias.length > 0) {
-                    coincidenciasDiv.show();
-					let coincidenciasArray = Object.values(coincidencias);
-
-                    // Agregar cada coincidencia como un elemento <p> al div
-                    coincidenciasArray.forEach(function(coincidencia) {
-						coincidenciasDiv.append(`<p class="coincidencia-item" tabindex="0" data-phone="${coincidencia.phone}" data-name="${coincidencia.contact_name}" data-idcontact="${coincidencia.id_contact}">${coincidencia.phone} - ${coincidencia.contact_name}</p>`);
-                    });
-
-					let items = $(".coincidencia-item");
-            		let selectedIndex = -1;
-					$(document).off("keydown").on("keydown", function(e) {
-						if (items.length === 0) return;
-		
-						if (e.key === "ArrowDown") {
-							e.preventDefault();
-							selectedIndex = (selectedIndex + 1) % items.length;
-						} else if (e.key === "ArrowUp") {
-							e.preventDefault();
-							selectedIndex = (selectedIndex - 1 + items.length) % items.length;
-						} else if (e.key === "Enter" && selectedIndex !== -1) {
-							let selected = items.eq(selectedIndex); // Obtiene el elemento seleccionado
-							let name        = selected.data('name');  // Usa 'selected' en lugar de 'this'
-							let phoneNumber = selected.data('phone');
-							let id_contact  = selected.data('idcontact');
-							$('#receiver').val(name);
-							$('#phone').val(phoneNumber);
-							$('#id_contact').val(id_contact);
-							$('#coincidencias').hide();
-							$('#tracking').focus();
-							coincidenciasDiv.hide();
-						}
-		
-						items.removeClass("selected");
-						if (selectedIndex !== -1) {
-							items.eq(selectedIndex).addClass("selected");
-						}
-					});
-					$("<style>")
-					.prop("type", "text/css")
-					.html(`
-						.coincidencia-item {
-							padding: 5px;
-							cursor: pointer;
-						}
-						.coincidencia-item.selected {
-							background-color: #D4EDDA;
-						}
-					`)
-					.appendTo("head");
-
-                } else {
-                    coincidenciasDiv.hide();
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error(error); // Manejo de errores
-            },
-			complete: function() {
-				$('#phone-loading').hide();
+			if (input.length === 10) {
+				coincidenciasDiv.hide();
+				receiver.focus();
 			}
-        });
+
+			let idParcel = $('#id_cat_parcel').val();
+			let limitDigit = (idParcel==1 || idParcel==3) ? 5 : 3;
+
+			if (input.length <= limitDigit) {
+				coincidenciasDiv.hide();
+				return;
+			}
+
+			$.ajax({
+				url: `${base_url}/${baseController}`, // URL ficticia de la API
+				method: 'POST',
+				data: { phone: phoneNumber,id_location:id_location,option:'getContact',idParcel:idParcel },
+				beforeSend: function() {
+					$('#phone-loading').show();
+					$('#id_contact').val(0);
+					$('#receiver').val('');
+				},
+				success: function(data) {
+					let coincidencias = data.dataJson; // Supongamos que la respuesta contiene una lista de coincidencias
+					// Limpiar el contenido del div de coincidencias
+					coincidenciasDiv.empty();
+					$('#id_contact').val(0);
+					$('#receiver').val('');
+					if (phoneNumber.length==10){
+						coincidenciasDiv.hide();
+						return;
+					}
+					// Mostrar el div de coincidencias si hay coincidencias
+					if (phoneNumber.length > 0 && coincidencias.length > 0) {
+						coincidenciasDiv.show();
+						let coincidenciasArray = Object.values(coincidencias);
+
+						// Agregar cada coincidencia como un elemento <p> al div
+						coincidenciasArray.forEach(function(coincidencia) {
+							coincidenciasDiv.append(`<p class="coincidencia-item" tabindex="0" data-phone="${coincidencia.phone}" data-name="${coincidencia.contact_name}" data-idcontact="${coincidencia.id_contact}">${coincidencia.phone} - ${coincidencia.contact_name}</p>`);
+						});
+
+						let items = $(".coincidencia-item");
+						let selectedIndex = -1;
+						$(document).off("keydown").on("keydown", function(e) {
+							if (items.length === 0) return;
+
+							if (e.key === "ArrowDown") {
+								e.preventDefault();
+								selectedIndex = (selectedIndex + 1) % items.length;
+							} else if (e.key === "ArrowUp") {
+								e.preventDefault();
+								selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+							} else if (e.key === "Enter" && selectedIndex !== -1) {
+								let selected = items.eq(selectedIndex); // Obtiene el elemento seleccionado
+								let name        = selected.data('name');  // Usa 'selected' en lugar de 'this'
+								let phoneNumber = selected.data('phone');
+								let id_contact  = selected.data('idcontact');
+								$('#receiver').val(name);
+								$('#phone').val(phoneNumber);
+								$('#id_contact').val(id_contact);
+								$('#coincidencias').hide();
+								$('#tracking').focus();
+								coincidenciasDiv.hide();
+								if($('#action').val()=='new'){
+									speakText(name);
+								}
+							}
+
+							items.removeClass("selected");
+							if (selectedIndex !== -1) {
+								items.eq(selectedIndex).addClass("selected");
+							}
+						});
+						$("<style>")
+						.prop("type", "text/css")
+						.html(`
+							.coincidencia-item {
+								padding: 5px;
+								cursor: pointer;
+							}
+							.coincidencia-item.selected {
+								background-color: #D4EDDA;
+							}
+						`)
+						.appendTo("head");
+
+					} else {
+						coincidenciasDiv.hide();
+					}
+				},
+				error: function(xhr, status, error) {
+					console.error(error); // Manejo de errores
+				},
+				complete: function() {
+					$('#phone-loading').hide();
+				}
+			});
+		}, doneTypingInterval); // Ejecuta después de que el usuario deja de escribir
     });
 
 	// Manejar la selección de una coincidencia
@@ -691,8 +723,11 @@ $(document).ready(function() {
 		$('#id_contact').val(id_contact);
 		$('#coincidencias').hide();
 		$('#tracking').focus();
+		if($('#action').val()=='new'){
+			speakText(name);
+		}
+		//hasFetchedContact = false; // 🔄 Permitir futuras búsquedas
 	});
-
 
 	$('#mfNumFolio').on('input', function() {
         let input = $(this).val();
@@ -750,8 +785,13 @@ $(document).ready(function() {
 				cache      : false,
 				contentType: false,
 				processData: false,
+				beforeSend : function() {
+					showSwal('Guardando Folio','Espere por favor...');
+					$('.swal-button-container').hide();
+				}
 			})
 			.done(function(response) {
+				swal.close();
 				if(response.success=='true'){
 					swal(`${response.message}`, "", "success");
 					$('.swal-button-container').hide();
@@ -903,7 +943,7 @@ $(document).ready(function() {
 			swal("Atención!", "* Campos requeridos", "error");
 			return;
 		}
-		
+
 		let formData =  new FormData();
 		formData.append('id_location', idLocationSelected.val());
 		formData.append('mTTemplate', $('#mTTemplate').val());
@@ -916,8 +956,13 @@ $(document).ready(function() {
 				cache      : false,
 				contentType: false,
 				processData: false,
+				beforeSend : function() {
+					showSwal('Guardando plantilla','Espere por favor...');
+					$('.swal-button-container').hide();
+				}
 			})
 			.done(function(response) {
+				swal.close();
 				if(response.success=='true'){
 					swal(`${response.message}`, "", "success");
 					$('.swal-button-container').hide();
@@ -982,11 +1027,12 @@ $(document).ready(function() {
 				contentType: false,
 				processData: false,
 				beforeSend : function() {
-					showSwal();
+					showSwal('Creando BOT','Espere por favor...');
 					$('.swal-button-container').hide();
 				}
 			})
 			.done(function(response) {
+				swal.close();
 				$('#modal-bot').modal('hide');
 				swal(`🤖`,`${response.message}`, "success");
 				$('.swal-button-container').hide();
@@ -1028,7 +1074,14 @@ $(document).ready(function() {
 				data: formData,
 				cache: false,
 				contentType: false,
-				processData: false
+				processData: false,
+				beforeSend : function() {
+					showSwal('Cargando evidencia(s)','Espere por favor...');
+					$('.swal-button-container').hide();
+				},
+				complete: function() {
+					swal.close();
+				}
 			});
 			if(response.success=='true'){
 				list = response;
@@ -1043,7 +1096,7 @@ $(document).ready(function() {
 		$('#tbl-evidence').empty();
 		let c=1;
 		let titleGuia='';
-		
+
 		$.each(data.dataJson, function(index, item) {
 			titleGuia    = item.tracking;
 			let item_path = item.path;
@@ -1103,7 +1156,14 @@ $(document).ready(function() {
 				data: formData,
 				cache: false,
 				contentType: false,
-				processData: false
+				processData: false,
+				beforeSend : function() {
+					showSwal('Cargando mensajes','Espere por favor...');
+					$('.swal-button-container').hide();
+				},
+				complete: function() {
+					swal.close();
+				}
 			});
 			if(response.success=='true'){
 				list = response;
@@ -1159,7 +1219,7 @@ $(document).ready(function() {
 	});
 
 	async function continueSync(idParcel) {
-		showSwal();
+		showSwal('Validando guías','Espere por favor...');
 		$('.swal-button-container').hide();
 		let result = await chekout(idParcel);
 	
@@ -1442,7 +1502,7 @@ $(document).ready(function() {
 				contentType: false,
 				processData: false,
 				beforeSend : function() {
-					showSwal();
+					showSwal('Creando códigos','Espere por favor...');
 					$('.swal-button-container').hide();
 				}
 			})
@@ -1562,8 +1622,13 @@ $(document).ready(function() {
 					cache      : false,
 					contentType: false,
 					processData: false,
+					beforeSend : function() {
+						showSwal('Confirmando guías','Espere por favor...');
+						$('.swal-button-container').hide();
+					}
 				})
 				.done(function(response) {
+					swal.close();
 					if(response.success==='true'){
 						swal('Éxito', response.message, "success");
 						setTimeout(function(){
@@ -1692,20 +1757,20 @@ $(document).ready(function() {
 		context.clearRect(0, 0, canvas.width, canvas.height);
 
 		// Establecer estilos para el contenedor del video (marco verde)
-		videoContainer.style.width = "50%"; // 50% del ancho de la pantalla, es decir, 512px en una pantalla de 1024px
-		videoContainer.style.height = "50%"; // 50% del alto, para mantener proporciones cuadradas
-		videoContainer.style.maxWidth = "320px"; // Máximo tamaño 512px
-		videoContainer.style.maxHeight = "320px"; // Máximo tamaño 512px
-		videoContainer.style.border = "2px solid green"; // Borde verde
-		videoContainer.style.display = "flex";
-		videoContainer.style.alignItems = "center";
+		videoContainer.style.width          = "50%"; // 50% del ancho de la pantalla, es decir, 512px en una pantalla de 1024px
+		videoContainer.style.height         = "50%"; // 50% del alto, para mantener proporciones cuadradas
+		videoContainer.style.maxWidth       = "320px"; // Máximo tamaño 512px
+		videoContainer.style.maxHeight      = "320px"; // Máximo tamaño 512px
+		videoContainer.style.border         = "2px solid green"; // Borde verde
+		videoContainer.style.display        = "flex";
+		videoContainer.style.alignItems     = "center";
 		videoContainer.style.justifyContent = "center";
-		videoContainer.style.margin = "0 auto"; // Centrado horizontal
-		videoContainer.style.position = "relative";
+		videoContainer.style.margin         = "0 auto"; // Centrado horizontal
+		videoContainer.style.position       = "relative";
 	
 		// Ajustar el video dentro del contenedor
-		video.style.width = "100%";
-		video.style.height = "100%";
+		video.style.width     = "100%";
+		video.style.height    = "100%";
 		video.style.objectFit = "cover"; // Ajustar video dentro del marco
 
 		navigator.mediaDevices.enumerateDevices().then((devices) => {
@@ -1777,11 +1842,12 @@ $(document).ready(function() {
 				contentType: false,
 				processData: false,
 				beforeSend : function() {
-					showSwal();
+					showSwal('Liberación de Paquete por Selección','Espere por favor...');
 					$('.swal-button-container').hide();
 				}
 			})
 			.done(function(response) {
+				swal.close();
 				if(response.success==='true'){
 					swal('Éxito', response.message, "success");
 					setTimeout(function(){
@@ -1800,11 +1866,9 @@ $(document).ready(function() {
 
 	$('#tbl-packages').on('dblclick', 'td:nth-child(3)', function() {
         var phoneNumber = $(this).text().trim();
-        
         // Colocar el número en el campo de búsqueda
         var searchInput = $('input[type="search"]');
         searchInput.val(phoneNumber);
-        
         // Forzar un "input" o "keyup" para que DataTables detecte el cambio
         searchInput.trigger('input').trigger('keyup');
     });
