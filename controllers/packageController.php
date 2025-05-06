@@ -18,12 +18,23 @@ switch ($_POST['option']) {
 	case 'getFolio':
 		$id_location = $_POST['id_location'];
 		$type = $_POST['type'];
-		$newOrCurrent = ($type=='new')? 1: 0;
-		$sqlMax="SELECT MAX(folio) + $newOrCurrent AS nuevo_folio FROM folio WHERE id_location IN ($id_location)";
+		$increment = ($type == 'new') ? 1 : 0;
+		/*$sqlMax="SELECT MAX(folio) + $newOrCurrent AS nuevo_folio FROM folio WHERE id_location IN ($id_location)";
 		$records = $db->select($sqlMax);
 		$folio = $records[0]['nuevo_folio'];
 		$upQr['folio']  = $folio;
-		$db->update('folio',$upQr," `id_location` = $id_location");
+		$db->update('folio',$upQr," `id_location` = $id_location");*/
+		if ($increment) {
+			// Incrementa folio en 1 y guarda el nuevo valor en sesión segura
+			$db->sqlPure("UPDATE folio SET folio = LAST_INSERT_ID(folio + 1) WHERE id_location = $id_location");
+			// Obtiene el nuevo folio de forma segura para esta conexión
+			$records = $db->select("SELECT LAST_INSERT_ID() AS nuevo_folio");
+			$folio = $records[0]['nuevo_folio'];
+		} else {
+			// Si no es 'new', solo lee el folio actual
+			$records = $db->select("SELECT folio AS nuevo_folio FROM folio WHERE id_location = $id_location");
+			$folio = $records[0]['nuevo_folio'];
+		}
 		$result = [
 			'success' => 'true',
 			'folio'   => $folio,

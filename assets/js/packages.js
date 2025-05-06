@@ -615,6 +615,8 @@ $(document).ready(function() {
 			if (input.length === 10) {
 				coincidenciasDiv.hide();
 				receiver.focus();
+				speakText('Nuevo usuario');
+				return;
 			}
 
 			let idParcel = $('#id_cat_parcel').val();
