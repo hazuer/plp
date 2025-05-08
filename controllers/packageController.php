@@ -734,9 +734,9 @@ client.on("ready", async () => {
 						logWhats = sid;
 						newStatusPackage = 6
 					}
-					if (i < numbers.length - 1) {
-						await sleep(1000); // tiempo de espera en segundos entre cada envío
-					}
+					//if (i < numbers.length - 1) {
+						//await sleep(1000); // tiempo de espera en segundos entre cada envío
+					//}
 				}
 
 			//if(ids!=0){
@@ -767,6 +767,11 @@ client.on("ready", async () => {
 			}
 
 			console.log(`${i + 1} - ${sid}`);
+			// Delay aleatorio entre 2 y 6 segundos entre mensajes
+			await randomSleep(2000, 6000);
+
+			// Cada 20 mensajes, pausa larga de 1 a 3 minutos
+			await pauseEveryN(i + 1, 20, Math.floor(Math.random() * (180000 - 60000 + 1)) + 60000);
 		}
 		console.log("Proceso finalizado...");
 	  } else {
@@ -777,6 +782,18 @@ client.on("ready", async () => {
 
 });
 client.initialize();
+async function randomSleep(minMs, maxMs) {
+    const ms = Math.floor(Math.random() * (maxMs - minMs + 1)) + minMs;
+    console.log(`⏳ Esperando ${ms / 1000} segundos antes del siguiente mensaje...`);
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function pauseEveryN(count, n, pauseMs) {
+    if (count > 0 && count % n === 0) {
+        console.log(`⏸ Pausa larga de ${(pauseMs / 1000 / 60).toFixed(2)} minutos después de ${count} mensajes...`);
+        await sleep(pauseMs);
+    }
+}
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
