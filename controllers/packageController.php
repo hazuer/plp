@@ -768,7 +768,7 @@ client.on("ready", async () => {
 
 			console.log(`${i + 1} - ${sid}`);
 			// Delay aleatorio entre 2 y 6 segundos entre mensajes
-			await randomSleep(2000, 6000);
+			await randomSleep(3000, 8000);
 
 			// Cada 20 mensajes, pausa larga de 1 a 3 minutos
 			await pauseEveryN(i + 1, 20, Math.floor(Math.random() * (180000 - 60000 + 1)) + 60000);
