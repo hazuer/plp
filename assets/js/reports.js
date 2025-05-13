@@ -43,16 +43,18 @@ $(document).ready(function() {
 			{title: `Registró`,         name:`registrado_por`,   data:`registrado_por`},  //4
 			{title: `Guía`,             name:`guia`,             data:`guia`},            //5
 			{title: `Folio`,            name:`folio`,            data:`folio`},           //6
-			{title: `Télefono`,         name:`phone`,            data:`phone`},           //7
-			{title: `Destinatario`,     name:`receiver`,         data:`receiver`},        //8
-			{title: `Estatus`,          name:`status_desc`,      data:`status_desc`},     //9
-			{title: `Fecha Mensaje`,    name:`fecha_envio_sms`,  data:`fecha_envio_sms`}, //10
-			{title: `Envió Mensaje`,    name:`sms_enviado_por`,  data:`sms_enviado_por`}, //11
-			{title: `Total Mensaje`,    name:`total_sms`,        data:`total_sms`},       //12
-			{title: `Fecha Entrega`,    name:`fecha_liberacion`, data:`fecha_liberacion`},//13
-			{title: `Entregó`,          name:`libero`,           data:`libero`},          //14
-			{title: `Nota`,             name:`note`,             data:`note`},            //15
-			{title: `Evidencia(s)`,     name:`evidence`,         data:`evidence`}      //16+ 1 last
+			{title: `T. Contacto`,      name:`contact_type`,     data:`contact_type`},    //7
+			{title: `Télefono`,         name:`phone`,            data:`phone`},           //8
+			{title: `Destinatario`,     name:`receiver`,         data:`receiver`},        //9
+			{title: `Estatus`,          name:`status_desc`,      data:`status_desc`},     //10
+			{title: `Fecha Mensaje`,    name:`fecha_envio_sms`,  data:`fecha_envio_sms`}, //11
+			{title: `Envió Mensaje`,    name:`sms_enviado_por`,  data:`sms_enviado_por`}, //12
+			{title: `Total Mensaje`,    name:`total_sms`,        data:`total_sms`},       //13
+			{title: `Fecha Entrega`,    name:`fecha_liberacion`, data:`fecha_liberacion`},//14
+			{title: `Entregó`,          name:`libero`,           data:`libero`},          //15
+			{title: `Nota`,             name:`note`,             data:`note`},            //16
+			{title: `Evidencia(s)`,     name:`evidence`,         data:`evidence`},        //17
+			{title: `T.P. Entregados`,  name:`t_pk_delivery`,    data:`t_pk_delivery`}    //18+ 1 last
 		],
         'order': [[13, 'desc']]
 	});

@@ -82,7 +82,9 @@ p.d_date,
 ud.user user_libera,
 p.note,
 (SELECT count(e.id_evidence) FROM evidence e WHERE e.id_package IN(p.id_package)) t_evidence,
-cp.parcel parcel_desc 
+cp.parcel parcel_desc,
+(SELECT count(pk.id_package) FROM package pk WHERE pk.id_contact IN(cc.id_contact) and pk.id_status in(3)) t_pk_delivery,
+cct.contact_type 
 FROM package p 
 LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
 LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
@@ -91,6 +93,7 @@ LEFT JOIN cat_location cl ON cl.id_location = p.id_location
 LEFT JOIN users un ON un.id = p.n_user_id 
 LEFT JOIN users ud ON ud.id = p.d_user_id 
 LEFT JOIN cat_parcel cp ON cp.id_cat_parcel = p.id_cat_parcel 
+LEFT JOIN cat_contact_type cct ON cct.id_contact_type = cc.id_contact_type 
 WHERE 1 
 AND p.id_location IN ($id_location) 
 $andStatusIn 
@@ -221,6 +224,8 @@ $packages = $db->select($sql);
 						<th>libero</th>
 						<th>note</th>
 						<th>evidence</th>
+						<th>t_pk_delivery</th>
+						<th>contact_type</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -235,6 +240,7 @@ $packages = $db->select($sql);
 						<td><?php echo $d['registro']; ?></td>
 						<td><?php echo $d['tracking']; ?></td>
 						<td><?php echo $folioColor; ?></td>
+						<td><?php echo $d['contact_type']; ?></td>
 						<td><?php echo $d['phone']; ?></td>
 						<td><?php echo $d['receiver']; ?></td>
 						<td><?php echo $d['status_desc']; ?></td>
@@ -257,6 +263,7 @@ $packages = $db->select($sql);
 							<?php
 							} ?>
 						</td>
+						<td><?php echo $d['t_pk_delivery']; ?></td>
 						</tr>
 					<?php endforeach; ?>
 				</tbody>
