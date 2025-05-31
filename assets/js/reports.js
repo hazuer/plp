@@ -56,7 +56,7 @@ $(document).ready(function() {
 			{title: `Evidencia(s)`,     name:`evidence`,         data:`evidence`},        //17
 			{title: `T.P. Entregados`,  name:`t_pk_delivery`,    data:`t_pk_delivery`}    //18+ 1 last
 		],
-        'order': [[13, 'desc']]
+        'order': [[14, 'desc']]
 	});
 
 	//funcion para borrar campo de busqueda
@@ -219,6 +219,7 @@ $(document).ready(function() {
 				<td>${item.contact_name}</td>
 				<td>${item.user}</td>
 				<td>${item.message}</td>
+				<td>${item.sid}</td>
 			</tr>`;
 			$('#tbl-sms-sent').append(row);
 			c++;

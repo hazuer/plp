@@ -332,14 +332,6 @@ $(document).ready(function() {
 		$('#modal-package').modal({backdrop: 'static', keyboard: false}, 'show');
 	}
 
-	function speakText(txt) {
-		const utterance = new SpeechSynthesisUtterance(txt);
-		utterance.lang  = 'es-ES'; // Español
-		utterance.rate  = 1; // Velocidad normal
-		utterance.pitch = 1; // Tono normal
-		window.speechSynthesis.speak(utterance);
-	}
-
 	async function getFolio(type) {
 		let folio    = 0;
 		let formData =  new FormData();
@@ -668,19 +660,12 @@ $(document).ready(function() {
 								e.preventDefault();
 								selectedIndex = (selectedIndex - 1 + items.length) % items.length;
 							} else if (e.key === "Enter" && selectedIndex !== -1) {
-								let selected = items.eq(selectedIndex); // Obtiene el elemento seleccionado
-								let name        = selected.data('name');  // Usa 'selected' en lugar de 'this'
+								let selected = items.eq(selectedIndex);
+								let name        = selected.data('name');
 								let phoneNumber = selected.data('phone');
 								let id_contact  = selected.data('idcontact');
-								$('#receiver').val(name);
-								$('#phone').val(phoneNumber);
-								$('#id_contact').val(id_contact);
-								$('#coincidencias').hide();
-								$('#tracking').focus();
+								seleccionarCoincidencia(name, phoneNumber, id_contact,'Enter');
 								coincidenciasDiv.hide();
-								if($('#action').val()=='new'){
-									speakText(name);
-								}
 							}
 
 							items.removeClass("selected");
@@ -716,7 +701,7 @@ $(document).ready(function() {
     });
 
 	// Manejar la selección de una coincidencia
-	$('#coincidencias').on('click', 'p', function() {
+	/*$('#coincidencias').on('click', 'p', function() {
 		let name        = $(this).data('name');
 		let phoneNumber = $(this).data('phone');
 		let id_contact = $(this).data('idcontact');
@@ -730,6 +715,26 @@ $(document).ready(function() {
 		}
 		//hasFetchedContact = false; // 🔄 Permitir futuras búsquedas
 	});
+	*/
+	$('#coincidencias').on('click', 'p', function() {
+		let name        = $(this).data('name');
+		let phoneNumber = $(this).data('phone');
+		let id_contact  = $(this).data('idcontact');
+		seleccionarCoincidencia(name, phoneNumber, id_contact,'clic');
+	});
+
+	function seleccionarCoincidencia(name, phoneNumber, id_contact,mode) {
+		console.log(mode,name, phoneNumber, id_contact);
+		$('#receiver').val(name);
+		$('#phone').val(phoneNumber);
+		$('#id_contact').val(id_contact);
+		$('#coincidencias').hide();
+		$('#tracking').focus();
+		if($('#action').val() === 'new') {
+			console.log(name);
+			speakText(name);
+		}
+	}
 
 	$('#mfNumFolio').on('input', function() {
         let input = $(this).val();
@@ -1189,6 +1194,7 @@ $(document).ready(function() {
 				<td>${item.contact_name}</td>
 				<td>${item.user}</td>
 				<td>${item.message}</td>
+				<td>${item.sid}</td>
 			</tr>`;
 			$('#tbl-sms-sent').append(row);
 			c++;
@@ -1874,6 +1880,56 @@ $(document).ready(function() {
         // Forzar un "input" o "keyup" para que DataTables detecte el cambio
         searchInput.trigger('input').trigger('keyup');
     });
+
+	$('#btn-puppeteer').click(function(){
+		$('#mpptListTracking').val('');
+		$('#modal-puppeteer-title').html('Puppeteer 👾');
+		$('#modal-puppeteer').modal({backdrop: 'static', keyboard: false}, 'show');
+		setTimeout(function(){
+			$('#mpptListTracking').focus();
+		}, 600);
+	});
+
+	$('#btn-puppeteer-command').click(function(){
+		if($('#mpptListTracking').val()==''){
+			swal("Atención!", "* Campos requeridos", "error");
+			return;
+		}
+
+		let formData = new FormData();
+		formData.append('id_location', idLocationSelected.val());
+		formData.append('mpptIdCatParcel', $('#mpptIdCatParcel').val());
+		formData.append('mpptIdMarcador', $('#mpptIdMarcador').val());
+		formData.append('mpptListTracking', $('#mpptListTracking').val());
+		formData.append('option', 'puppeteer');
+		try {
+			$.ajax({
+				url        : `${base_url}/${baseController}`,
+				type       : 'POST',
+				data       : formData,
+				cache      : false,
+				contentType: false,
+				processData: false,
+				beforeSend : function() {
+					showSwal('Creando Puppeteer','Espere por favor...');
+					$('.swal-button-container').hide();
+				}
+			})
+			.done(function(response) {
+				swal.close();
+				$('#modal-puppeteer').modal('hide');
+				swal(`👾`,`${response.message}`, "success");
+				$('.swal-button-container').hide();
+				setTimeout(function(){
+					swal.close();
+				}, 3500);
+			});
+		} catch (error) {
+			console.log("Opps algo salio mal",error);
+
+		}
+	});
+
 
 });
 

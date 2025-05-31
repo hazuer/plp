@@ -36,9 +36,9 @@ $txtchgval = ($_SESSION['uLocation']==2) ? 1:2;
 			<button id="btn-chart" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Porcentaje de Entrega">
 				<i class="fa fa-pie-chart fa-lg" aria-hidden="true"></i>
 			</button>
-			<!-- <button id="btn-map" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Map">
+			<button id="btn-map" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Map">
 				<i class="fa fa-th fa-lg" aria-hidden="true"></i>
-			</button> -->
+			</button>
 			<button id="btn-list-contact" type="button" class="btn-sm btn-primary" data-toggle="tooltip" data-placement="top" title="Lista de Contactos">
 				<i class="fa fa-users fa-lg" aria-hidden="true"></i>
 			</button>
@@ -60,7 +60,7 @@ $txtchgval = ($_SESSION['uLocation']==2) ? 1:2;
 						<i class="fa fa-file-text-o fa-lg" aria-hidden="true"></i> Plantillas de Mensajes
 					</button>
 					<button id="btn-add-package-1" class="dropdown-item">
-						<i class="fa fa-cube fa-lg" aria-hidden="true"></i> Nuevo Paquete
+						<span style="font-size: 1.2rem;">📦</span></i> Nuevo Paquete
 					</button>
 					<!--<button id="btn-release-package-1" class="dropdown-item">
 						<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i> Entrega de Paquetes
@@ -75,8 +75,8 @@ $txtchgval = ($_SESSION['uLocation']==2) ? 1:2;
                 </div>
             </div>
 			<select name="option-location" id="option-location" class="form-control d-none d-md-inline" <?php echo $selectDisabled; ?> >
-				<option value="1" <?php echo ($_SESSION['uLocation']==1) ? 'selected': ''; ?> >Tlaquiltenango</option>
-				<option value="2" <?php echo ($_SESSION['uLocation']==2) ? 'selected': ''; ?> >Zacatepec</option>
+				<option value="1" <?php echo ($_SESSION['uLocation']==1) ? 'selected': ''; ?> >TLQ</option>
+				<option value="2" <?php echo ($_SESSION['uLocation']==2) ? 'selected': ''; ?> >ZAC</option>
 			</select>
 			<?php
 			if($paginaInUse=="packages"){
@@ -88,14 +88,17 @@ $txtchgval = ($_SESSION['uLocation']==2) ? 1:2;
 				<i class="fa fa-file-text-o fa-lg" aria-hidden="true"></i>
 			</button>
 			<button id="btn-add-package" type="button" class="btn-success btn-sm d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Nuevo Paquete">
-				<i class="fa fa-cube fa-lg" aria-hidden="true"></i>
+				<span style="font-size: 1.2rem;">📦</span>
 			</button>
 			<?php if($host==NAME_HOST_LOCAL){?>
 			<button id="btn-bot" type="button" class="btn-sm btn-primary d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Chatbot Envío de Mensajes">
-				<i class="fa fa-simplybuilt fa-lg" aria-hidden="true"></i>
+				  <span style="font-size: 1.2rem;">🤖</span>
 			</button>
 			<button id="btn-handler" type="button" class="btn-sm btn-primary d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Envío Manual de Mensajes">
 				<i class="fa fa-hand-o-up fa-lg" aria-hidden="true"></i>
+			</button>
+			<button id="btn-puppeteer" type="button" class="btn-sm btn-primary d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Puppeteer">
+				  <span style="font-size: 1.2rem;">👾</span>
 			</button>
 			<?php }?>
 			<!-- <button id="btn-release-package" type="button" class="btn-sm btn-success d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Entrega de Paquetes">
@@ -108,6 +111,10 @@ $txtchgval = ($_SESSION['uLocation']==2) ? 1:2;
 				<i class="fa fa-barcode fa-lg" aria-hidden="true"></i>
 			</button>
 			<?php }?>
+			<input type="text" class="d-none d-md-inline" data-toggle="tooltip" data-placement="top" placeholder="Verificador Guía" id="vGuia">
+			<button id="btn-scan-qr" type="button" class="btn-primary btn-sm" title="Verificador Guía">
+				<i class="fa fa-camera" aria-hidden="true"></i>
+			</button>
 		</div>
 	</div>
 </div>

@@ -27,7 +27,7 @@ require_once('system/configuration.php');
 
     <!-- Customized Bootstrap Stylesheet -->
     <link href="<?php echo BASE_URL;?>/assets/css/index.css" rel="stylesheet">
-    <script src="<?php echo BASE_URL;?>/assets/js/sweetalert.min.js"></script>
+    <script src="<?php echo BASE_URL;?>/assets/js/libraries/sweetalert.min.js"></script>
 
     <script>
         let base_url = '<?php echo BASE_URL;?>';

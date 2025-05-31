@@ -83,7 +83,7 @@ ud.user user_libera,
 p.note,
 (SELECT count(e.id_evidence) FROM evidence e WHERE e.id_package IN(p.id_package)) t_evidence,
 cp.parcel parcel_desc,
-(SELECT count(pk.id_package) FROM package pk WHERE pk.id_contact IN(cc.id_contact) and pk.id_status in(3)) t_pk_delivery,
+(SELECT COUNT(pk.id_package) FROM package pk LEFT JOIN cat_contact cpk ON cpk.id_contact = pk.id_contact WHERE cpk.phone = cc.phone AND pk.id_status IN (3)) AS t_pk_delivery,
 cct.contact_type 
 FROM package p 
 LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 

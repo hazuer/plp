@@ -1,112 +1,81 @@
 // List of tracking numbers to process
 const trackingNumbers = [
-'JMX300443207219'
+"JMX300443207219"
 ];
-
 // Array para almacenar los resultados
 const resultados = [];
-
 // Función para enviar datos al endpoint
 async function enviarDatos(resultado) {
     try {
-        const endpoint = 'https://paqueterialospinos.com/controllers/puppeteer.php';
-        
+        const endpoint = "https://paqueterialospinos.com/controllers/puppeteer.php";
         console.log(`📤 Enviando datos de ${resultado.tracking} al endpoint paqueterialospinos`);
-        
         // Usando fetch desde el contexto del navegador
         const response = await page.evaluate(async (url, data) => {
             const response = await fetch(url, {
-                method: 'POST',
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify(data)
             });
             return await response.json();
         }, endpoint, resultado);
-
-        console.log('✅ Respuesta del servidor:', response);
+        console.log("✅ Respuesta del servidor:", response);
         return true;
     } catch (error) {
-        console.error('❌ Error al enviar datos:', error);
+        console.error("❌ Error al enviar datos:", error);
         return false;
     }
 }
-
-// Main processing loop
 let contador = 0;
-// Contar los elementos del arreglo
 const totalElementos = trackingNumbers.length;
-
 for (const trackingNumber of trackingNumbers) {
     contador++;
-    //console.log(`\n=== Processing tracking number: ${trackingNumber} ===`);
-
     const resultado = {
-            option:'store',
+            option:"store",
             id_location:1,
-            phone:'',
-            receiver:'',
-            // id_status:1,
-            // note:'',
+            phone:"",
+            receiver:"",
             // id_contact:0,
             tracking:trackingNumber,
             id_cat_parcel:1,
-            id_marcador:'blue',
-            estado:''
+            id_marcador:"",
+            estado:""
         };
- 
     try {
-        // Navigate to the page
-        await page.goto('https://jmx.jtjms-mx.com/app/serviceQualityIndex/recordSheet?title=Orden%20de%20registro&moduleCode=');
+        await page.goto("https://jmx.jtjms-mx.com/app/serviceQualityIndex/recordSheet?title=Orden%20de%20registro&moduleCode=");
         await page.waitForTimeout(2000);
-        // Wait for and focus the input
-        /*await page.waitForSelector('input[placeholder="Por favor, ingrese"]');
-        const input = await page.$('input[placeholder="Por favor, ingrese"]');
-        await input.click();*/
         try {
-        // Espera máximo 3 segundos por el input en español
-            await page.waitForSelector('input[placeholder="Por favor, ingrese"]', { timeout: 2000 });
+            await page.waitForSelector(`input[placeholder="Por favor, ingrese"]`, { timeout: 2000 });
         } catch {
-            console.log('No se encontró el input en español, recargando...');
+            console.log("No se encontró el input en español, recargando...");
             await page.reload();
-            await page.waitForSelector('input[placeholder="Por favor, ingrese"]', { timeout: 3000 });
+            await page.waitForSelector(`input[placeholder="Por favor, ingrese"]`, { timeout: 3000 });
         }
-
-        const input = await page.$('input[placeholder="Por favor, ingrese"]');
+        const input = await page.$(`input[placeholder="Por favor, ingrese"]`);
         await input.click();
-    
-        // Enter the tracking number
         await page.evaluate((inputElement, text) => {
             inputElement.value = text;
-            const event = new Event('input', { bubbles: true });
+            const event = new Event("input", { bubbles: true });
             inputElement.dispatchEvent(event);
         }, input, trackingNumber);
-        
-        
         console.log(`:::::: Procesando ${contador} de ${totalElementos} ::::::`);
-    
-        // Verify input
         const currentValue = await page.evaluate(el => el.value, input);
         if (currentValue !== trackingNumber) {
-            throw new Error('Error al pegar el texto');
+            throw new Error("Error al pegar el texto");
         }
-        console.log('✅ Texto pegado correctamente');
-    
+        console.log("✅ Texto pegado correctamente");
         // Wait and click "Información básica" tab
         await page.waitForTimeout(500);
-        await page.waitForSelector('#tab-base.el-tabs__item', { timeout: 500 });
-        await page.click('#tab-base.el-tabs__item');
-        console.log('✅ Pestaña "Información básica" clickeada');
-    
+        await page.waitForSelector("#tab-base.el-tabs__item", { timeout: 500 });
+        await page.click("#tab-base.el-tabs__item");
+        console.log(`✅ Pestaña "Información básica" clickeada`);
         await page.waitForTimeout(1000);
-    
         // Click all info icons
         try {
-            await page.waitForSelector('.iconfuwuzhiliang-mingwen', { timeout: 800 });
-            const icons = await page.$$('.iconfuwuzhiliang-mingwen');
+            await page.waitForSelector(".iconfuwuzhiliang-mingwen", { timeout: 800 });
+            const icons = await page.$$(".iconfuwuzhiliang-mingwen");
             console.log(`🔍 Íconos encontrados: ${icons.length}`);
-    
             for (let i = 0; i < icons.length; i++) {
                 try {
                     await icons[i].hover();
@@ -118,33 +87,27 @@ for (const trackingNumber of trackingNumbers) {
                 }
             }
         } catch (error) {
-            console.error('❌ No se encontraron íconos:', error.message);
+            console.error("❌ No se encontraron íconos:", error.message);
         }
-    
         await page.waitForTimeout(800);
-    
         // Extract receiver information
-        await page.waitForSelector('.item .row', { timeout: 2500 });
+        await page.waitForSelector(".item .row", { timeout: 2500 });
         const [nameR, telR] = await page.evaluate(() => {
-            const rows = Array.from(document.querySelectorAll('.item .row'));
-            const nameRow = rows.find(row => row.textContent.includes('Nombre del receptor:'));
-            const telRow = rows.find(row => row.textContent.includes('Teléfono del destinatario:'));
-            const nameR = nameRow ? nameRow.querySelector('span').textContent.trim() : '';
-            let telR = telRow ? telRow.querySelector('span').textContent.trim() : '';
+            const rows = Array.from(document.querySelectorAll(".item .row"));
+            const nameRow = rows.find(row => row.textContent.includes("Nombre del receptor:"));
+            const telRow = rows.find(row => row.textContent.includes("Teléfono del destinatario:"));
+            const nameR = nameRow ? nameRow.querySelector("span").textContent.trim() : "";
+            let telR = telRow ? telRow.querySelector("span").textContent.trim() : "";
             telR = telR.slice(-10);
             return [nameR, telR];
         });
-    
         // Guardar datos en el objeto resultado
         resultado.receiver = nameR;
         resultado.phone = telR;
-        
         console.log(`✅ Datos extraídos: ${nameR} | ${telR}`);
-        
         // Enviar datos al endpoint inmediatamente después de extraerlos
         const envioExitoso = await enviarDatos(resultado);
-        resultado.estado = envioExitoso ? 'Registrado' : 'Procesado pero falló envío';
-        
+        resultado.estado = envioExitoso ? "Registrado" : "Procesado pero falló envío";
     } catch (error) {
         console.error(`❌ Error al procesar ${trackingNumber}:`, error.message);
         resultado.estado = `error: ${error.message}`;
@@ -155,8 +118,6 @@ for (const trackingNumber of trackingNumbers) {
     //contador++;
     //console.info(`Procesando ${contador} de ${totalElementos}`);
 }
-
-
-console.log('\n=== Proceso completado para todos los números de guía ===');
-console.log('\n📊 RESULTADOS FINALES:');
+console.log("\n=== Proceso completado para todos los números de guía ===");
+console.log("\n📊 RESULTADOS FINALES:");
 console.log(JSON.stringify(resultados, null, 2));

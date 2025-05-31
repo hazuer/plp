@@ -10,8 +10,8 @@
             <div class="modal-body">
                 <form id="form-modal-sms-report" name="form-modal-sms-report" class="form" enctype="multipart/form-data">
                     <div class="row">
-                        <div class="col-md-12" style="overflow: auto; max-height: 250px; width: 100%;">
-                        <table class="table table-striped table-bordered nowrap table-hover">
+                        <div class="col-md-12" style="overflow: auto; max-height: 300px; width: 100%;">
+                        <table class="table table-striped table-bordered nowrap table-hover" style="width: 100%;">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -20,6 +20,7 @@
                                 <th>Destinatario</th>
                                 <th>Envió</th>
                                 <th>Mensaje</th>
+                                <th>SID</th>
                             </tr>
                         </thead>
                         <tbody id="tbl-sms-sent">

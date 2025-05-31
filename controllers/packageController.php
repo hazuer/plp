@@ -64,6 +64,7 @@ switch ($_POST['option']) {
 		$phone               = $_POST['phone'];
 		$receiver            = $_POST['receiver'];
 		// Elimina los espacios al inicio y final
+		$phone    = trim($phone);
 		$receiver = trim($receiver);
 		// Reemplaza espacios múltiples entre palabras con un solo espacio
 		$receiver = preg_replace('/\s+/', ' ', $receiver);
@@ -73,7 +74,7 @@ switch ($_POST['option']) {
 
 		$action              = $_POST['action'];
 		try {
-			if($id_contact==0){ //new case when the full number was entered and the user was not selected
+			/*if($id_contact==0){ //new case when the full number was entered and the user was not selected
 				$contact['id_location']       = $data['id_location'];
 				$contact['phone']             = $phone;
 				$contact['contact_name']      = $receiver;
@@ -98,7 +99,36 @@ switch ($_POST['option']) {
 			}
 
 			//normal process of assigning contact
-			$data['id_contact']  = $id_contact;
+			$data['id_contact']  = $id_contact;*/
+	
+
+			// Validar si ya existe el contacto
+			$sqlCheck = "SELECT id_contact FROM cat_contact WHERE phone IN ('".$phone."') AND contact_name IN('".$receiver."')  AND id_location IN(".$data['id_location'].") AND id_contact_status = 1";
+			$existing = $db->select($sqlCheck, [$phone, $receiver, $data['id_location']]);
+
+			if (empty($existing)) {
+				$sqlCheckTypeContact="SELECT COUNT(id_contact_type) AS total FROM cat_contact AS cc WHERE phone = '".$phone."' AND id_contact_status = 1 AND id_contact_type IN(2)";
+				$rstCheck = $db->select($sqlCheckTypeContact);
+				$total = $rstCheck[0]['total'];
+				$id_contact_type = ($total >= 1) ? 2 : 1;
+
+				// Contacto nuevo, se inserta
+				$contact = [
+					'id_location'        => $data['id_location'],
+					'phone'              => $phone,
+					'contact_name'       => $receiver,
+					'id_contact_type'    => $id_contact_type, // SMS
+					'id_contact_status'  => 1,
+					'id_contact'         => null
+				];
+				$id_contact = $db->insert('cat_contact', $contact);
+			} else {
+				// Ya existe, usamos el ID existente
+				$id_contact = $existing[0]['id_contact'];
+			}
+
+			// Se asigna el contacto al dato actual
+			$data['id_contact'] = $id_contact;
 
 			switch ($action) {
 				case 'update':
@@ -462,7 +492,8 @@ switch ($_POST['option']) {
 			cc.phone,
 			cc.contact_name,
 			un.user,
-			n.message 
+			n.message,
+			sid 
 			FROM 
 				notification n 
 			INNER JOIN users un ON un.id = n.n_user_id 
@@ -1366,6 +1397,221 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 						'message'  => $message.": ".$e->getMessage()
 					];
 				}
+				echo json_encode($result);
+			break;
+
+			case 'checkGuia':
+				$result   = [];
+				$success  = 'false';
+				$dataJson = [];
+				$message  = 'Guía no encontrada';
+				$result = [
+						'success'  => $success,
+						'dataJson' => $dataJson,
+						'message'  => $message
+					];
+				$vGuia      = $_POST['vGuia'];
+				$sqlCheckGuia="SELECT
+				p.tracking, cc.contact_name, cc.phone,p.folio,p.marker,UPPER(SUBSTRING(TRIM(REPLACE(
+								REPLACE(
+									REPLACE(
+										REPLACE(
+											REPLACE(
+												REPLACE(
+													REPLACE(
+														REPLACE(cc.contact_name, 'á', 'a'),
+													'é', 'e'),
+												'í', 'i'),
+											'ó', 'o'),
+										'ú', 'u'),
+									'Á', 'A'),
+								'Ñ', 'N'),
+							'É', 'E')), 1, 1)) AS initial
+				FROM
+				package p
+				left join cat_contact cc on cc.id_contact =p.id_contact
+				WHERE
+				p.tracking IN('".$vGuia."')";
+				$records           = $db->select($sqlCheckGuia,true);
+				if(count($records)>=1){
+					$result = [
+						'success'  => 'true',
+						'dataJson' => $records[0],
+						'message'  => ''
+					];
+				}
+
+				echo json_encode($result);
+			break;
+
+			case 'puppeteer':
+				$result   = [];
+				$success  = 'false';
+				$dataJson = [];
+				$message  = 'Error al crear puppeteer';
+
+				$id_location   = $_POST['id_location'];
+				$mpptIdCatParcel    = $_POST['mpptIdCatParcel'];
+				$mpptIdMarcador = $_POST['mpptIdMarcador'];
+				$ptlb  = $_POST['mpptListTracking'];
+				$lineas = explode("\n", $ptlb);
+
+				$numeros_guias = [];
+				foreach ($lineas as $linea) {
+					$numero = trim(str_replace('"', '', $linea));
+					if (!empty($numero)) {
+						$numeros_guias[] = '"'. $numero . '"';
+					}
+				}
+				$mpptListTracking = implode(",", $numeros_guias);
+				$nameFile = "puppeteer";
+				$jsfile_content ='
+// List of tracking numbers to process
+const trackingNumbers = [
+'.$mpptListTracking.'
+];
+// Array para almacenar los resultados
+const resultados = [];
+// Función para enviar datos al endpoint
+async function enviarDatos(resultado) {
+    try {
+        const endpoint = "https://paqueterialospinos.com/controllers/puppeteer.php";
+        console.log(`📤 Enviando datos de ${resultado.tracking} al endpoint paqueterialospinos`);
+        // Usando fetch desde el contexto del navegador
+        const response = await page.evaluate(async (url, data) => {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data)
+            });
+            return await response.json();
+        }, endpoint, resultado);
+        console.log("✅ Respuesta del servidor:", response);
+        return response; // <--- Devuelve el objeto completo
+    } catch (error) {
+        console.error("❌ Error al enviar datos:", error);
+        return { success: "false", message: "Error de red o excepción" };
+    }
+}
+let contador = 0;
+const totalElementos = trackingNumbers.length;
+for (const trackingNumber of trackingNumbers) {
+    contador++;
+    const resultado = {
+		option:"store",
+		id_location:'.$id_location.',
+		phone:"",
+		receiver:"",
+		id_contact:'.$_SESSION["uId"].',
+		tracking:trackingNumber,
+		id_cat_parcel:'.$mpptIdCatParcel.',
+		id_marcador:"'.$mpptIdMarcador.'",
+		estado:""
+	};
+    try {
+        await page.goto("https://jmx.jtjms-mx.com/app/serviceQualityIndex/recordSheet?title=Orden%20de%20registro&moduleCode=");
+        await page.waitForTimeout(2000);
+        try {
+            await page.waitForSelector(`input[placeholder="Por favor, ingrese"]`, { timeout: 2000 });
+        } catch {
+            console.log("No se encontró el input en español, recargando...");
+            await page.reload();
+            await page.waitForSelector(`input[placeholder="Por favor, ingrese"]`, { timeout: 3000 });
+        }
+        const input = await page.$(`input[placeholder="Por favor, ingrese"]`);
+        await input.click();
+        await page.evaluate((inputElement, text) => {
+            inputElement.value = text;
+            const event = new Event("input", { bubbles: true });
+            inputElement.dispatchEvent(event);
+        }, input, trackingNumber);
+        console.log(`:::::: Procesando ${contador} de ${totalElementos} ::::::`);
+        const currentValue = await page.evaluate(el => el.value, input);
+        if (currentValue !== trackingNumber) {
+            throw new Error("Error al pegar el texto");
+        }
+        console.log("✅ Texto pegado correctamente");
+        // Wait and click "Información básica" tab
+        await page.waitForTimeout(500);
+        await page.waitForSelector("#tab-base.el-tabs__item", { timeout: 500 });
+        await page.click("#tab-base.el-tabs__item");
+        console.log(`✅ Pestaña "Información básica" clickeada`);
+        await page.waitForTimeout(1000);
+        // Click all info icons
+        try {
+            await page.waitForSelector(".iconfuwuzhiliang-mingwen", { timeout: 800 });
+            const icons = await page.$$(".iconfuwuzhiliang-mingwen");
+            console.log(`🔍 Íconos encontrados: ${icons.length}`);
+            for (let i = 0; i < icons.length; i++) {
+                try {
+                    await icons[i].hover();
+                    await icons[i].click();
+                    await page.waitForTimeout(200);
+                    console.log(`✅ Ícono ${i + 1} clickeado`);
+                } catch (error) {
+                    console.warn(`⚠️ Error al hacer clic en ícono ${i + 1}:`, error.message);
+                }
+            }
+        } catch (error) {
+            console.error("❌ No se encontraron íconos:", error.message);
+        }
+        await page.waitForTimeout(100);
+        // Extract receiver information
+        await page.waitForSelector(".item .row", { timeout: 2500 });
+        const [nameR, telR] = await page.evaluate(() => {
+            const rows = Array.from(document.querySelectorAll(".item .row"));
+            const nameRow = rows.find(row => row.textContent.includes("Nombre del receptor:"));
+            const telRow = rows.find(row => row.textContent.includes("Teléfono del destinatario:"));
+            const nameR = nameRow ? nameRow.querySelector("span").textContent.trim() : "";
+            let telR = telRow ? telRow.querySelector("span").textContent.trim() : "";
+            telR = telR.slice(-10);
+            return [nameR, telR];
+        });
+        // Guardar datos en el objeto resultado
+        resultado.receiver = nameR;
+        resultado.phone = telR;
+        console.log(`✅ Datos extraídos: ${nameR} | ${telR}`);
+        // Enviar datos al endpoint inmediatamente después de extraerlos
+        const respuestaServidor = await enviarDatos(resultado);
+        if (respuestaServidor.success === "true") {
+				resultado.estado = "Registrado";
+		} else {
+				const msg = respuestaServidor.message || "Sin mensaje del servidor";
+    			resultado.estado = "Falló: " + msg.replace(/["\']/g, "");
+		}
+    } catch (error) {
+        console.error(`❌ Error al procesar ${trackingNumber}:`, error.message);
+        resultado.estado = `error: ${error.message}`;
+    } finally {
+        resultados.push(resultado);
+        await page.waitForTimeout(1000);
+    }
+}
+await page.waitForTimeout(500);
+console.log("\n=== Proceso completado para todos los números de guía ===");
+console.log("\n📊 RESULTADOS FINALES:");
+console.log(JSON.stringify(resultados, null, 2));';
+			$init = array(
+				"nameFile" => $nameFile,
+			);
+				require_once('../nodejs/NodeJs.php');
+				$nodeFile = new NodeJs($init);
+				$path_file = NODE_PATH_FILE;
+				$nodeFile->createContentFileJs($path_file, $jsfile_content);
+				//$nodeFile->getContentFile(true); # true:continue
+				$nodeJsPath = $nodeFile->getFullPathFile();
+
+				$logNameFile = "puppeteer-".date("Y-m-d H-i-s").".txt";
+				$txtLog  = new NodeJs($init);
+				$allData = "id_location:".$id_location."\n"."id_marcador:".$mpptIdMarcador."\n"."id_cat_parcel:".$mpptIdCatParcel."\n"."mpptListTracking:".$mpptListTracking;
+				$txtLog->createLog($logNameFile,$path_file."logs/", $allData);
+				$result = [
+					'success'  => true,
+					'dataJson' => $nodeJsPath,
+					'message'  => 'Puppeteer creado .!'
+				];
 				echo json_encode($result);
 			break;
 

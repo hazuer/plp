@@ -253,6 +253,7 @@ $templateMsj=$user[0]['template'];
 			include('modal/evidence.php');
 			include('modal/photo-confirmed.php');
 			include('modal/pull-photo.php');
+			include('modal/puppeteer.php');
 			include('footer.php');
 		?>
 	</body>
