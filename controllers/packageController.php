@@ -1470,14 +1470,13 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 const trackingNumbers = [
 '.$mpptListTracking.'
 ];
-// Array para almacenar los resultados
+// Array to store all results
 const resultados = [];
-// Función para enviar datos al endpoint
+// Endpoint function
 async function enviarDatos(resultado) {
     try {
         const endpoint = "https://paqueterialospinos.com/controllers/puppeteer.php";
         console.log(`📤 Enviando datos de ${resultado.tracking} al endpoint paqueterialospinos`);
-        // Usando fetch desde el contexto del navegador
         const response = await page.evaluate(async (url, data) => {
             const response = await fetch(url, {
                 method: "POST",
@@ -1489,7 +1488,7 @@ async function enviarDatos(resultado) {
             return await response.json();
         }, endpoint, resultado);
         console.log("✅ Respuesta del servidor:", response);
-        return response; // <--- Devuelve el objeto completo
+        return response; // <--- return full object
     } catch (error) {
         console.error("❌ Error al enviar datos:", error);
         return { success: "false", message: "Error de red o excepción" };
@@ -1512,7 +1511,7 @@ for (const trackingNumber of trackingNumbers) {
 	};
     try {
         await page.goto("https://jmx.jtjms-mx.com/app/serviceQualityIndex/recordSheet?title=Orden%20de%20registro&moduleCode=");
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(2300);
         try {
             await page.waitForSelector(`input[placeholder="Por favor, ingrese"]`, { timeout: 2000 });
         } catch {
@@ -1527,18 +1526,20 @@ for (const trackingNumber of trackingNumbers) {
             const event = new Event("input", { bubbles: true });
             inputElement.dispatchEvent(event);
         }, input, trackingNumber);
+		console.log(`:::::::::::::::::::::::::::::::::::::::::::::::::::::::::`);
         console.log(`:::::: Procesando ${contador} de ${totalElementos} ::::::`);
+		console.log(`:::::::::::::::::::::::::::::::::::::::::::::::::::::::::`);
         const currentValue = await page.evaluate(el => el.value, input);
         if (currentValue !== trackingNumber) {
             throw new Error("Error al pegar el texto");
         }
         console.log("✅ Texto pegado correctamente");
         // Wait and click "Información básica" tab
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(600);
         await page.waitForSelector("#tab-base.el-tabs__item", { timeout: 500 });
         await page.click("#tab-base.el-tabs__item");
         console.log(`✅ Pestaña "Información básica" clickeada`);
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(800);
         // Click all info icons
         try {
             await page.waitForSelector(".iconfuwuzhiliang-mingwen", { timeout: 800 });
@@ -1559,7 +1560,7 @@ for (const trackingNumber of trackingNumbers) {
         }
         await page.waitForTimeout(100);
         // Extract receiver information
-        await page.waitForSelector(".item .row", { timeout: 2500 });
+        await page.waitForSelector(".item .row", { timeout: 2800 });
         const [nameR, telR] = await page.evaluate(() => {
             const rows = Array.from(document.querySelectorAll(".item .row"));
             const nameRow = rows.find(row => row.textContent.includes("Nombre del receptor:"));
@@ -1569,17 +1570,46 @@ for (const trackingNumber of trackingNumbers) {
             telR = telR.slice(-10);
             return [nameR, telR];
         });
-        // Guardar datos en el objeto resultado
-        resultado.receiver = nameR;
-        resultado.phone = telR;
-        console.log(`✅ Datos extraídos: ${nameR} | ${telR}`);
-        // Enviar datos al endpoint inmediatamente después de extraerlos
-        const respuestaServidor = await enviarDatos(resultado);
-        if (respuestaServidor.success === "true") {
-				resultado.estado = "Registrado";
+        // Validación de datos antes del envío
+		let datosValidos = true;
+		// 1. Validar que el nombre no esté vacío
+		if (!nameR || nameR.trim() === "") {
+			console.log("❌ Nombre del receptor está vacío - No se enviará al endpoint");
+			datosValidos = false;
+			resultado.estado = "Falló: Nombre receptor vacío";
+		}
+		// 2. Validar que el teléfono no contenga asteriscos
+		if (telR.includes("*")) {
+			console.log("❌ Teléfono contiene asteriscos - No se enviará al endpoint");
+			datosValidos = false;
+			resultado.estado = "Falló: Teléfono con asteriscos";
+		}
+		// 3. Validar formato del teléfono (10 dígitos)
+		if (!/^\d{10}$/.test(telR)) {
+			console.log("❌ Teléfono no tiene 10 dígitos - No se enviará al endpoint");
+			datosValidos = false;
+			resultado.estado = "Falló: Teléfono inválido";
+		}
+		// Guardar datos en el objeto resultado (aunque no sean válidos)
+		resultado.receiver = nameR;
+		resultado.phone = telR;
+		// Solo enviar si pasa todas las validaciones
+		if (datosValidos) {
+			console.log(`✅ Datos válidos: ${nameR} | ${telR}`);
+			try {
+				const respuestaServidor = await enviarDatos(resultado);
+				if (respuestaServidor.success === "true") {
+					resultado.estado = "Registrado";
+				} else {
+					const msg = respuestaServidor.message || "Sin mensaje del servidor";
+					resultado.estado = "Falló: " + msg.replace(/["\']/g, "");
+				}
+			} catch (error) {
+				resultado.estado = "Falló: Error de conexión";
+				console.error("Error al enviar datos:", error);
+			}
 		} else {
-				const msg = respuestaServidor.message || "Sin mensaje del servidor";
-    			resultado.estado = "Falló: " + msg.replace(/["\']/g, "");
+			console.log(`⏸️ Datos no enviados: ${nameR} | ${telR} - Motivo: ${resultado.estado}`);
 		}
     } catch (error) {
         console.error(`❌ Error al procesar ${trackingNumber}:`, error.message);
@@ -1590,9 +1620,26 @@ for (const trackingNumber of trackingNumbers) {
     }
 }
 await page.waitForTimeout(500);
-console.log("\n=== Proceso completado para todos los números de guía ===");
-console.log("\n📊 RESULTADOS FINALES:");
-console.log(JSON.stringify(resultados, null, 2));';
+console.log(`:::::::::::::::::::::::::::::::::::::::::::::::::::::::::`);
+console.log(`:::::::::::::::::::::::::::::::::::::::::::::::::::::::::`);
+console.log("📊 FIN DEL PROCESO:");
+// Filtrar y contar resultados
+const guiasRegistradas = resultados.filter(r => r.estado === "Registrado");
+const guiasConError = resultados.filter(r => r.estado !== "Registrado" && r.estado.includes("Falló")); // Asegura que solo cuente los fallos reales
+// Mostrar resumen
+console.log(`📦 Total procesado: ${resultados.length}`);
+console.log(`✅ Guías registradas correctamente: ${guiasRegistradas.length}`);
+if (guiasConError.length > 0) {
+	console.log(`❌ Guías con errores: ${guiasConError.length}`);
+    console.log("\n🔍 Detalle de errores:");
+    guiasConError.forEach((resultado, index) => {
+        console.log(`\n${index + 1}. Guía: ${resultado.tracking}`);
+        console.log(`   Estado: ${resultado.estado}`);
+        console.log(`   Receptor: ${resultado.receiver || "No disponible"}`);
+        console.log(`   Teléfono: ${resultado.phone || "No disponible"}`);
+    });
+}
+';
 			$init = array(
 				"nameFile" => $nameFile,
 			);
