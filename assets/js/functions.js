@@ -117,9 +117,9 @@ $(document).ready(function() {
 				swal.close();
 				if(response.success=='true'){
 
-					speakText(`Folio:${response.dataJson.folio}`);
+					speakText(`Folio: ${response.dataJson.folio}`);
 					setTimeout(function(){
-						speakText(`Letra:${response.dataJson.initial}`);
+						speakText(`Letra, ${response.dataJson.initial}`);
 					}, 600);
 					setTimeout(function(){
 						speakText(`${response.dataJson.contact_name}`);

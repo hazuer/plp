@@ -22,19 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
     exit();
 }
-/*
-header("Access-Control-Allow-Origin: https://jmx.jtjms-mx.com");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-header("Content-Type: application/json");
-
-// Respuesta rápida para OPTIONS (Preflight)
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}*/
-#error_reporting(E_ALL);
-#ini_set('display_errors', '1');
 
 define( '_VALID_MOS', 1 );
 
@@ -104,9 +91,8 @@ switch ($_POST['option']) {
 			}
 
 			// Se asigna el contacto al dato actual
-			$data['id_contact'] = $id_contact;
-
-			//switch ($action) {
+			$data['id_contact']   = $id_contact;
+			$data['id_type_mode'] = 2; //automated
 
 			if (empty($data['id_contact']) || $data['id_contact'] == 0 || $data['id_contact'] === null) {
 				$success  = 'false';
