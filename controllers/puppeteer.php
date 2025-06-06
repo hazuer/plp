@@ -65,6 +65,7 @@ switch ($_POST['option']) {
 		$data['id_location'] = $id_location;
 		$phone               = $_POST['phone'];
 		$receiver            = $_POST['receiver'];
+		$id_user             = $_POST['id_user'];
 		// Elimina los espacios al inicio y final
 		$receiver = trim($receiver);
 		// Reemplaza espacios múltiples entre palabras con un solo espacio
@@ -105,6 +106,7 @@ switch ($_POST['option']) {
 
 			// Se asigna el contacto al dato actual
 			$data['id_contact'] = $id_contact;
+			$data['id_type_mode'] = 2;
 
 			//switch ($action) {
 
@@ -116,7 +118,7 @@ switch ($_POST['option']) {
 				$data['id_package']  = null;
 				$data['folio']       = $folio;
 				$data['c_date']      = date("Y-m-d H:i:s");
-				$data['c_user_id']   = 1;#$_POST['c_user_id'];
+				$data['c_user_id']   = $id_user;
 				$data['tracking']    = $_POST['tracking'];
 				$data['id_cat_parcel']  = $_POST['id_cat_parcel'];
 				$sqlCheck = "SELECT COUNT(tracking) total FROM package WHERE tracking IN ('".$data['tracking']."')";
@@ -148,7 +150,7 @@ switch ($_POST['option']) {
 						$msjFolios = rtrim($msjFolios, ', ');
 					}
 					$new_id_package = $db->insert('package',$data);
-					saveLog($new_id_package,1,'Nuevo registro de paquete by puppeteer');
+					saveLog($new_id_package,$id_user,1,'Nuevo registro de paquete by puppeteer');
 
 					$success  = 'true';
 					$dataJson = $msjFolios;
@@ -178,7 +180,7 @@ switch ($_POST['option']) {
 
 }
 
-function saveLog($id_package,$new_id_status,$desc_mov,$currentStatus=false){
+function saveLog($id_package,$id_user,$new_id_status,$desc_mov,$currentStatus=false){
 	global $db;
 
 	$old_id_status = 1;
@@ -189,7 +191,7 @@ function saveLog($id_package,$new_id_status,$desc_mov,$currentStatus=false){
 	$dataLog['id_log']        = null;
 	$dataLog['datelog']       = date("Y-m-d H:i:s");
 	$dataLog['id_package']    = $id_package;
-	$dataLog['id_user']       = 1;
+	$dataLog['id_user']       = $id_user;
 	$dataLog['new_id_status'] = $new_id_status;
 	$dataLog['old_id_status'] = $old_id_status;
 	$dataLog['desc_mov']      = $desc_mov;

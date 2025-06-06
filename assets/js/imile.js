@@ -84,7 +84,7 @@ for (const trackingNumber of trackingNumbers) {
         } catch (error) {
             console.error('🔴 Error durante la interacción:', error);
         }
-        try {
+        /*try {
             // Opción 2: Usar XPath para texto exacto
             const [tab] = await page.$x('//button[contains(@class, "MuiTab-root") and normalize-space(text())="Recipiente de información"]');
             if (tab) {
@@ -100,13 +100,35 @@ for (const trackingNumber of trackingNumbers) {
 
         } catch (error) {
             console.error('🔴 Error al interactuar con la pestaña:', error);
+        }*/
+       try {
+            const possibleNames = [
+                "Recipiente de información",
+                "Cliente Info",
+                "Customer Info"
+            ];
+            let tabFound = false;
+            for (const name of possibleNames) {
+                const [tab] = await page.$x(`//button[contains(@class, "MuiTab-root") and normalize-space(text())="${name}"]`);
+                if (tab) {
+                    await tab.click();
+                    console.log(`✅ Clic en pestaña: ${name}`);
+                    tabFound = true;
+                    break;
+                }
+            }
+            if (!tabFound) {
+                throw new Error(`No se encontró la pestaña con ninguno de los nombres: ${possibleNames.join(', ')}`);
+            }
+        } catch (error) {
+            console.error('🔴 Error al interactuar con la pestaña:', error);
         }
         await page.waitForTimeout(1000);
 
         let tel_entrante = null;
         let contact_name = null;
 
-        try {
+        /*try {
             const elements = await page.$$('.detail-item');
             for (const element of elements) {
                 try {
@@ -121,6 +143,40 @@ for (const trackingNumber of trackingNumbers) {
                     }if (label.includes('Cliente Nombre')) {
                         contact_name = value;
                     }
+                } catch (error) {
+                    console.log('Error procesando elemento:', error);
+                }
+            }
+        } catch (error) {
+            console.error('Error al buscar elementos:', error);
+        }*/
+       try {
+            const elements = await page.$$('.detail-item');
+            for (const element of elements) {
+                try {
+                    const label = await element.$eval('.label', el => el.textContent.trim());
+                    const value = await element.$eval('.value', el => el.textContent.trim());
+
+                    // Mapeo de posibles variaciones para cada campo
+                    const phoneLabels = ['Teléfono entrante', 'Customer phone'];
+                    const nameLabels = ['Contacto del destinatario', 'Customer Name'];
+
+                    // Normalizar la etiqueta para comparación (elimina acentos y convierte a minúsculas)
+                    const normalizedLabel = label
+                        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Elimina acentos
+                        .toLowerCase();
+                    // Buscar coincidencias para teléfono
+                    if (phoneLabels.some(phoneLabel => 
+                        normalizedLabel.includes(phoneLabel.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()))) {
+                        tel_entrante = value.replace(/\D/g, '').slice(-10);
+                    }
+
+                    // Buscar coincidencias para nombre
+                    if (nameLabels.some(nameLabel => 
+                        normalizedLabel.includes(nameLabel.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()))) {
+                        contact_name = value;
+                    }
+
                 } catch (error) {
                     console.log('Error procesando elemento:', error);
                 }
