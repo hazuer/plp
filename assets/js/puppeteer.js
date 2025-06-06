@@ -1,15 +1,60 @@
-// List of tracking numbers to process
-const trackingNumbers = [
-"JMX300443207219"
-];
-// Array para almacenar los resultados
+// Solicitar los números de seguimiento mediante un prompt
+const input = prompt("👾 Ingresa los números de guía J&T [📦]:");
+// Procesar el input para crear el array
+const trackingNumbers = input 
+    ? input.split('\n')          // Dividir por saltos de línea
+           .map(num => num.trim()) // Limpiar espacios
+           .filter(num => num !== '') // Eliminar líneas vacías
+    : []; // Si no se ingresa nada, array vacío
+const color = prompt(`
+👾 Ingresa un color (elige una opción) [🎨]:
+---------------------------------
+🔴 red    🟢 green
+💙 blue   ⚫ black
+---------------------------------`).trim().toLowerCase() || "black";
+// Validación implícita (si el color no está en la lista, usa "black")
+const coloresValidos = ["red", "green", "blue", "black"];
+const colorFinal = coloresValidos.includes(color) ? color : "black";
+// Solicitar ubicación con opciones claras
+const id_location = prompt(`
+👾 Ingresa el ID de ubicación [📍]:
+1 - TQL
+2 - ZAC`) || 1;
+
+// Solicitar ID de usuario con opciones
+const id_user = prompt(`
+👾 Ingresa el ID de usuario [👤]:
+2 - karen
+4 - josue`) || 1; 
+
+// Generar mensaje de confirmación
+const guiaInicial = trackingNumbers[0] || "N/A";
+const guiaFinal = trackingNumbers[trackingNumbers.length - 1] || "N/A";
+const totalGuias = trackingNumbers.length;
+
+const mensajeConfirmacion = `
+👾 Configuración ingresada [⚙️]:
+---------------------------------
+🔢 Total de guías: ${totalGuias}
+📦 Guía inicial: ${guiaInicial}
+📦 Guía final: ${guiaFinal}
+---------------------------------
+🎨 Color: ${colorFinal}
+📍 Ubicación: ${id_location} ${id_location == 1 ? "TQL" : "ZAC"}
+👤 Usuario: ${id_user} ${id_user == 2 ? "karen" : "josue"}
+---------------------------------
+¿👾 Los datos son correctos?`;
+
+// Mostrar alerta de confirmación
+const isConfirmed = confirm(mensajeConfirmacion);
+
+// Array to store all results
 const resultados = [];
-// Función para enviar datos al endpoint
+// Endpoint function
 async function enviarDatos(resultado) {
     try {
         const endpoint = "https://paqueterialospinos.com/controllers/puppeteer.php";
         console.log(`📤 Enviando datos de ${resultado.tracking} al endpoint paqueterialospinos`);
-        // Usando fetch desde el contexto del navegador
         const response = await page.evaluate(async (url, data) => {
             const response = await fetch(url, {
                 method: "POST",
@@ -21,30 +66,35 @@ async function enviarDatos(resultado) {
             return await response.json();
         }, endpoint, resultado);
         console.log("✅ Respuesta del servidor:", response);
-        return true;
+        return response; // <--- return full object
     } catch (error) {
         console.error("❌ Error al enviar datos:", error);
-        return false;
+        return { success: "false", message: "Error de red o excepción" };
     }
 }
 let contador = 0;
 const totalElementos = trackingNumbers.length;
-for (const trackingNumber of trackingNumbers) {
+
+
+// Resultado final
+if (isConfirmed) {
+    console.log("🚀 Ejecutando script con los valores confirmados...");
+    for (const trackingNumber of trackingNumbers) {
     contador++;
     const resultado = {
-            option:"store",
-            id_location:1,
-            phone:"",
-            receiver:"",
-            // id_contact:0,
-            tracking:trackingNumber,
-            id_cat_parcel:1,
-            id_marcador:"",
-            estado:""
-        };
+		option:"store",
+		id_location:id_location,
+		phone:"",
+		receiver:"",
+		id_user:id_user,
+		tracking:trackingNumber,
+		id_cat_parcel:1,
+		id_marcador:colorFinal,
+		estado:""
+	};
     try {
         await page.goto("https://jmx.jtjms-mx.com/app/serviceQualityIndex/recordSheet?title=Orden%20de%20registro&moduleCode=");
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(2300);
         try {
             await page.waitForSelector(`input[placeholder="Por favor, ingrese"]`, { timeout: 2000 });
         } catch {
@@ -59,18 +109,20 @@ for (const trackingNumber of trackingNumbers) {
             const event = new Event("input", { bubbles: true });
             inputElement.dispatchEvent(event);
         }, input, trackingNumber);
+		console.log(`:::::::::::::::::::::::::::::::::::::::::::::::::::::::::`);
         console.log(`:::::: Procesando ${contador} de ${totalElementos} ::::::`);
+		console.log(`:::::::::::::::::::::::::::::::::::::::::::::::::::::::::`);
         const currentValue = await page.evaluate(el => el.value, input);
         if (currentValue !== trackingNumber) {
             throw new Error("Error al pegar el texto");
         }
         console.log("✅ Texto pegado correctamente");
         // Wait and click "Información básica" tab
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(600);
         await page.waitForSelector("#tab-base.el-tabs__item", { timeout: 500 });
         await page.click("#tab-base.el-tabs__item");
         console.log(`✅ Pestaña "Información básica" clickeada`);
-        await page.waitForTimeout(1000);
+        await page.waitForTimeout(800);
         // Click all info icons
         try {
             await page.waitForSelector(".iconfuwuzhiliang-mingwen", { timeout: 800 });
@@ -89,9 +141,9 @@ for (const trackingNumber of trackingNumbers) {
         } catch (error) {
             console.error("❌ No se encontraron íconos:", error.message);
         }
-        await page.waitForTimeout(800);
+        await page.waitForTimeout(100);
         // Extract receiver information
-        await page.waitForSelector(".item .row", { timeout: 2500 });
+        await page.waitForSelector(".item .row", { timeout: 2800 });
         const [nameR, telR] = await page.evaluate(() => {
             const rows = Array.from(document.querySelectorAll(".item .row"));
             const nameRow = rows.find(row => row.textContent.includes("Nombre del receptor:"));
@@ -101,13 +153,47 @@ for (const trackingNumber of trackingNumbers) {
             telR = telR.slice(-10);
             return [nameR, telR];
         });
-        // Guardar datos en el objeto resultado
-        resultado.receiver = nameR;
-        resultado.phone = telR;
-        console.log(`✅ Datos extraídos: ${nameR} | ${telR}`);
-        // Enviar datos al endpoint inmediatamente después de extraerlos
-        const envioExitoso = await enviarDatos(resultado);
-        resultado.estado = envioExitoso ? "Registrado" : "Procesado pero falló envío";
+        // Validación de datos antes del envío
+		let datosValidos = true;
+		// 1. Validar que el nombre no esté vacío
+		if (!nameR || nameR.trim() === "") {
+			console.log("❌ Nombre del receptor está vacío - No se enviará al endpoint");
+			datosValidos = false;
+			resultado.estado = "Falló: Nombre receptor vacío";
+		}
+		// 2. Validar que el teléfono no contenga asteriscos
+		if (telR.includes("*")) {
+			console.log("❌ Teléfono contiene asteriscos - No se enviará al endpoint");
+			datosValidos = false;
+			resultado.estado = "Falló: Teléfono con asteriscos";
+		}
+		// 3. Validar formato del teléfono (10 dígitos)
+		if (!/^\d{10}$/.test(telR)) {
+			console.log("❌ Teléfono no tiene 10 dígitos - No se enviará al endpoint");
+			datosValidos = false;
+			resultado.estado = "Falló: Teléfono inválido";
+		}
+		// Guardar datos en el objeto resultado (aunque no sean válidos)
+		resultado.receiver = nameR;
+		resultado.phone = telR;
+		// Solo enviar si pasa todas las validaciones
+		if (datosValidos) {
+			console.log(`✅ Datos válidos: ${nameR} | ${telR}`);
+			try {
+				const respuestaServidor = await enviarDatos(resultado);
+				if (respuestaServidor.success === "true") {
+					resultado.estado = "Registrado";
+				} else {
+					const msg = respuestaServidor.message || "Sin mensaje del servidor";
+					resultado.estado = "Falló: " + msg.replace(/["']/g, "");
+				}
+			} catch (error) {
+				resultado.estado = "Falló: Error de conexión";
+				console.error("Error al enviar datos:", error);
+			}
+		} else {
+			console.log(`⏸️ Datos no enviados: ${nameR} | ${telR} - Motivo: ${resultado.estado}`);
+		}
     } catch (error) {
         console.error(`❌ Error al procesar ${trackingNumber}:`, error.message);
         resultado.estado = `error: ${error.message}`;
@@ -115,9 +201,29 @@ for (const trackingNumber of trackingNumbers) {
         resultados.push(resultado);
         await page.waitForTimeout(1000);
     }
-    //contador++;
-    //console.info(`Procesando ${contador} de ${totalElementos}`);
 }
-console.log("\n=== Proceso completado para todos los números de guía ===");
-console.log("\n📊 RESULTADOS FINALES:");
-console.log(JSON.stringify(resultados, null, 2));
+await page.waitForTimeout(500);
+console.log(`:::::::::::::::::::::::::::::::::::::::::::::::::::::::::`);
+console.log(`:::::::::::::::::::::::::::::::::::::::::::::::::::::::::`);
+console.log("📊 FIN DEL PROCESO:");
+// Filtrar y contar resultados
+const guiasRegistradas = resultados.filter(r => r.estado === "Registrado");
+const guiasConError = resultados.filter(r => r.estado !== "Registrado" && r.estado.includes("Falló")); // Asegura que solo cuente los fallos reales
+// Mostrar resumen
+console.log(`📦 Total procesado: ${resultados.length}`);
+console.log(`✅ Guías registradas correctamente: ${guiasRegistradas.length}`);
+if (guiasConError.length > 0) {
+	console.log(`❌ Guías con errores: ${guiasConError.length}`);
+    console.log("\n🔍 Detalle de errores:");
+    guiasConError.forEach((resultado, index) => {
+        console.log(`\n${index + 1}. Guía: ${resultado.tracking}`);
+        console.log(`   Estado: ${resultado.estado}`);
+        console.log(`   Receptor: ${resultado.receiver || "No disponible"}`);
+        console.log(`   Teléfono: ${resultado.phone || "No disponible"}`);
+    });
+}
+    // Aquí tu lógica de procesamiento...
+} else {
+    console.log("❌ Proceso cancelado por el usuario");
+    // Opcional: Volver a solicitar datos
+}
