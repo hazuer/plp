@@ -54,7 +54,10 @@ $(document).ready(function() {
 			{title: `Entregó`,          name:`libero`,           data:`libero`},          //15
 			{title: `Nota`,             name:`note`,             data:`note`},            //16
 			{title: `Evidencia(s)`,     name:`evidence`,         data:`evidence`},        //17
-			{title: `T.P. Entregados`,  name:`t_pk_delivery`,    data:`t_pk_delivery`}    //18+ 1 last
+			{title: `T.P. Entregados`,  name:`t_pk_delivery`,    data:`t_pk_delivery`},   //18
+			{title: `Modo Registro`,    name:`tipo_modo`,        data:`tipo_modo`},       //19
+			{title: `Fecha Rotulación`, name:`v_date`,           data:`v_date`},          //20
+			{title: `Usuario que Rotuló`, name:`user_rotulo`,    data:`user_rotulo`}      //21
 		],
         'order': [[14, 'desc']]
 	});

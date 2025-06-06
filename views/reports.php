@@ -84,7 +84,13 @@ p.note,
 (SELECT count(e.id_evidence) FROM evidence e WHERE e.id_package IN(p.id_package)) t_evidence,
 cp.parcel parcel_desc,
 (SELECT COUNT(pk.id_package) FROM package pk LEFT JOIN cat_contact cpk ON cpk.id_contact = pk.id_contact WHERE cpk.phone = cc.phone AND pk.id_status IN (3)) AS t_pk_delivery,
-cct.contact_type 
+cct.contact_type,
+CASE p.id_type_mode
+    WHEN 1 THEN 'Manual'
+    WHEN 2 THEN 'Automático'
+END AS tipo_modo,
+p.v_date,
+uv.user user_rotulo 
 FROM package p 
 LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
 LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
@@ -94,6 +100,7 @@ LEFT JOIN users un ON un.id = p.n_user_id
 LEFT JOIN users ud ON ud.id = p.d_user_id 
 LEFT JOIN cat_parcel cp ON cp.id_cat_parcel = p.id_cat_parcel 
 LEFT JOIN cat_contact_type cct ON cct.id_contact_type = cc.id_contact_type 
+LEFT JOIN users uv ON uv.id = p.v_user_id 
 WHERE 1 
 AND p.id_location IN ($id_location) 
 $andStatusIn 
@@ -226,6 +233,9 @@ $packages = $db->select($sql);
 						<th>evidence</th>
 						<th>t_pk_delivery</th>
 						<th>contact_type</th>
+						<th>tipo_modo</th>
+						<th>v_date</th>
+						<th>user_rotulo</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -264,6 +274,9 @@ $packages = $db->select($sql);
 							} ?>
 						</td>
 						<td><?php echo $d['t_pk_delivery']; ?></td>
+						<td><?php echo $d['tipo_modo']; ?></td>
+						<td><?php echo $d['v_date']; ?></td>
+						<td><?php echo $d['user_rotulo']; ?></td>
 						</tr>
 					<?php endforeach; ?>
 				</tbody>

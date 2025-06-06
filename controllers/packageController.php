@@ -19,11 +19,6 @@ switch ($_POST['option']) {
 		$id_location = $_POST['id_location'];
 		$type = $_POST['type'];
 		$increment = ($type == 'new') ? 1 : 0;
-		/*$sqlMax="SELECT MAX(folio) + $newOrCurrent AS nuevo_folio FROM folio WHERE id_location IN ($id_location)";
-		$records = $db->select($sqlMax);
-		$folio = $records[0]['nuevo_folio'];
-		$upQr['folio']  = $folio;
-		$db->update('folio',$upQr," `id_location` = $id_location");*/
 		if ($increment) {
 			// Incrementa folio en 1 y guarda el nuevo valor en sesión segura
 			$db->sqlPure("UPDATE folio SET folio = LAST_INSERT_ID(folio + 1) WHERE id_location = $id_location");
@@ -74,34 +69,6 @@ switch ($_POST['option']) {
 
 		$action              = $_POST['action'];
 		try {
-			/*if($id_contact==0){ //new case when the full number was entered and the user was not selected
-				$contact['id_location']       = $data['id_location'];
-				$contact['phone']             = $phone;
-				$contact['contact_name']      = $receiver;
-				$contact['id_contact_type']   = 1; //SMS
-				$contact['id_contact_status'] = 1;
-				$contact['id_contact']  = null;
-				$id_contact = $db->insert('cat_contact',$contact);
-			}else{
-				$sqlContactCheck = "SELECT COUNT(phone) tContact FROM cat_contact 
-				WHERE phone IN ('$phone') AND contact_name IN('$receiver') AND id_location IN(".$data['id_location'].")";
-				$rstContactCheck = $db->select($sqlContactCheck);
-				$tContact = $rstContactCheck[0]['tContact'];
-				if($tContact==0){ //check if it is a variant of the name with the same phone number
-					$contact['id_location']       = $data['id_location'];
-					$contact['phone']             = $phone;
-					$contact['contact_name']      = $receiver;
-					$contact['id_contact_type']   = 1; //SMS
-					$contact['id_contact_status'] = 1;
-					$contact['id_contact']  = null;
-					$id_contact = $db->insert('cat_contact',$contact);
-				}
-			}
-
-			//normal process of assigning contact
-			$data['id_contact']  = $id_contact;*/
-	
-
 			// Validar si ya existe el contacto
 			$sqlCheck = "SELECT id_contact FROM cat_contact WHERE phone IN ('".$phone."') AND contact_name IN('".$receiver."')  AND id_location IN(".$data['id_location'].") AND id_contact_status = 1";
 			$existing = $db->select($sqlCheck, [$phone, $receiver, $data['id_location']]);
@@ -128,7 +95,8 @@ switch ($_POST['option']) {
 			}
 
 			// Se asigna el contacto al dato actual
-			$data['id_contact'] = $id_contact;
+			$data['id_contact']   = $id_contact;
+			$data['id_type_mode'] = 1; //manual
 
 			switch ($action) {
 				case 'update':
@@ -1412,7 +1380,12 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 					];
 				$vGuia      = $_POST['vGuia'];
 				$sqlCheckGuia="SELECT
-				p.tracking, cc.contact_name, cc.phone,p.folio,p.marker,UPPER(SUBSTRING(TRIM(REPLACE(
+				p.id_package,
+				p.tracking,
+				cc.contact_name,
+				cc.phone,
+				p.folio,
+				p.marker,UPPER(SUBSTRING(TRIM(REPLACE(
 								REPLACE(
 									REPLACE(
 										REPLACE(
@@ -1434,6 +1407,14 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 				p.tracking IN('".$vGuia."')";
 				$records           = $db->select($sqlCheckGuia,true);
 				if(count($records)>=1){
+					$id_package = $records[0]['id_package'];
+					$currentStatus = getCurrentStatus($id_package);
+					saveLog($id_package,$currentStatus,'Rotulado/Verificado por: '.$_SESSION["uName"]);
+
+					$data['v_date']    = date("Y-m-d H:i:s");
+					$data['v_user_id'] = $_SESSION["uId"];
+
+					$dataJson = $db->update('package',$data," `id_package` = $id_package");
 					$result = [
 						'success'  => 'true',
 						'dataJson' => $records[0],
