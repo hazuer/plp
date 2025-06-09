@@ -162,7 +162,7 @@ $(document).ready(function() {
 	$('#btn-scan-qr').click(function(){
 		$('#vGuia').val('');
 		let titleModal =  'Verificador Guía';
-		html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox : { width: 260, height: 85 } });
+		html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 15, qrbox : { width: 260, height: 85 } });
 		html5QrcodeScanner.render(onScanSuccess);
 
 		$('#modal-scan-qr-title').html(titleModal);

@@ -34,11 +34,9 @@ $json = file_get_contents('php://input');
 $request = json_decode($json, true); // Convierte a array asociativo
 $_POST = array_merge($_POST, $request);
 
-
 header('Content-Type: application/json; charset=utf-8');
 
 switch ($_POST['option']) {
-
 	case 'store':
 		$id_location = $_POST['id_location'];
 		$db->sqlPure("UPDATE folio SET folio = LAST_INSERT_ID(folio + 1) WHERE id_location =".$id_location);
@@ -59,7 +57,6 @@ switch ($_POST['option']) {
 		$receiver = preg_replace('/\s+/', ' ', $receiver);
 		$data['id_status']   = 1;
 		$data['note']        = "";
-		#$id_contact          = $_POST['id_contact'];
 
 		try {
 			// Normalizamos el nombre y el teléfono (opcional pero útil)
@@ -94,7 +91,6 @@ switch ($_POST['option']) {
 			// Se asigna el contacto al dato actual
 			$data['id_contact'] = $id_contact;
 			$data['id_type_mode'] = 2;
-			//switch ($action) {
 
 			if (empty($data['id_contact']) || $data['id_contact'] == 0 || $data['id_contact'] === null) {
 				$success  = 'false';
@@ -152,7 +148,6 @@ switch ($_POST['option']) {
 				'dataJson' => $dataJson,
 				'message'  => $message
 			];
-
 		} catch (Exception $e) {
 			$result = [
 				'success'  => $success,
@@ -161,9 +156,7 @@ switch ($_POST['option']) {
 			];
 		}
 		echo json_encode($result);
-
 	break;
-
 }
 
 function saveLog($id_package,$id_user,$new_id_status,$desc_mov,$currentStatus=false){
