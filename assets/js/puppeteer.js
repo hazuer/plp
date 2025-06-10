@@ -25,7 +25,13 @@ const id_location = prompt(`
 const id_user = prompt(`
 👾 Ingresa el ID de usuario [👤]:
 2 - karen
-4 - josue`) || 1; 
+4 - josue`) || 1;
+
+const hours = prompt(`
+👾 Ingresa el número de horas [🕟]:
+0 - Para indicar la hora de inicio de registro actual
+>0 - Para modificar la fecha de registro
+`) || 0;
 
 // Generar mensaje de confirmación
 const guiaInicial = trackingNumbers[0] || "N/A";
@@ -42,6 +48,7 @@ const mensajeConfirmacion = `
 🎨 Color: ${colorFinal}
 📍 Ubicación: ${id_location} ${id_location == 1 ? "TQL" : "ZAC"}
 👤 Usuario: ${id_user} ${id_user == 2 ? "karen" : "josue"}
+🕟 Horas: ${hours}
 ---------------------------------
 ¿👾 Los datos son correctos?`;
 
@@ -88,7 +95,8 @@ if (isConfirmed) {
             tracking:trackingNumber,
             id_cat_parcel:1, //JMX
             id_marcador:colorFinal,
-            estado:""
+            estado:"",
+            hours:hours
         };
         try {
             await page.goto("https://jmx.jtjms-mx.com/app/serviceQualityIndex/recordSheet?title=Orden%20de%20registro&moduleCode=");

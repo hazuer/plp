@@ -404,14 +404,18 @@ $(document).ready(function() {
 		}else if($('#id_cat_parcel').val()==2){
 			clearTimeout(scanTimeout); // Reinicia el temporizador si hay más entradas rápidas
 
-			let inputImile = $(this).val().replace(/\D/g, '').replace(/[\r\n]/g, ''); // Solo números, sin saltos de línea
-			$(this).val(inputImile); // Actualiza el inputImile con los datos limpios
+			let inputImile = $(this).val().replace(/[\r\n\s]/g, ''); // Elimina saltos de línea y espacios
+			$(this).val(inputImile); // Actualiza el input con los datos limpios
 		
 			// Espera 500ms antes de validar para permitir que el escáner termine de escribir
 			scanTimeout = setTimeout(() => {
-				if (inputImile.length === 13 || inputImile.length === 14) {
+				if (
+					(/^\d{13}$/.test(inputImile)) ||       // Solo números, 13 dígitos
+					(/^\d{14}$/.test(inputImile)) ||       // Solo números, 14 dígitos
+					(/^IM\d{14}$/.test(inputImile))        // Empieza con IM y seguido de 14 dígitos (total 16)
+				) {
 					$('#btn-save').click();
-					$(this).val(''); // Limpia el inputImile después de procesarlo
+					$(this).val(''); // Limpia el input después de procesarlo
 				}
 			}, 500);
 		}else if($('#id_cat_parcel').val()==3){
@@ -455,7 +459,7 @@ $(document).ready(function() {
 			let decodedText = $('#tracking').val();
 			guia = decodedText.substring(0, 3).toUpperCase() + decodedText.substring(3);
 		}else if($('#id_cat_parcel').val()==2){
-			let imTracking = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
+			/*let imTracking = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
 			const regex = /^\d{13,14}$/; // Acepta exactamente 13 o 14 dígitos
 
 			// Verificar si la longitud no es 13 o 14 o si el formato no es válido
@@ -468,7 +472,32 @@ $(document).ready(function() {
 				}
 				swal("Atención!", mensajeError, "error");
 				return;
+			}*/
+			let imTracking = tracking.val().trim(); // Eliminar espacios al inicio y al final
+			// Expresiones regulares para validar
+			const regexNumerico = /^\d{13,14}$/;       // Solo números, 13 o 14 dígitos
+			const regexIm = /^IM\d{14}$/;              // Empieza con IM seguido de 14 dígitos
+
+			// Validar el formato
+			if (!regexNumerico.test(imTracking) && !regexIm.test(imTracking)) {
+				let mensajeError = "* Código de barras no válido:";
+
+				if (imTracking.startsWith("IM")) {
+					if (imTracking.length !== 16) {
+						mensajeError += " Los códigos 'IM' deben tener exactamente 16 caracteres.";
+					} else {
+						mensajeError += " El formato debe ser 'IM' seguido de 14 dígitos.";
+					}
+				} else if (/^\d+$/.test(imTracking)) {
+					mensajeError += " Debe tener 13 o 14 dígitos numéricos.";
+				} else {
+					mensajeError += " Solo se permiten números o formato 'IM' con 14 dígitos.";
+				}
+
+				swal("Atención!", mensajeError, "error");
+				return;
 			}
+
 			guia = imTracking;
 		}else if($('#id_cat_parcel').val()==3){
 			let cnTracking = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final

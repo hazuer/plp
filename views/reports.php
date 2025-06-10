@@ -117,7 +117,7 @@ $packages = $db->select($sql);
 <html lang = "en">
 	<head>
 		<?php include '../views/header.php'; ?>
-		<script src="<?php echo BASE_URL;?>/assets/js/reports.js"></script>
+		<script src="<?php echo BASE_URL;?>/assets/js/reports.js?version=<?php echo time(); ?>"></script>
 	</head>
 	<body>
 		<div class="main">

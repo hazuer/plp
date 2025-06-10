@@ -97,9 +97,12 @@ switch ($_POST['option']) {
 				$dataJson = [];
 				$message  = 'No se registro el usuario, vuelve a intentarlo';
 			}else{
+				$hours=$_POST['hours'];
+				$fecha_actual = date("Y-m-d H:i:s");
+				$fecha_modificada = date("Y-m-d H:i:s", strtotime($fecha_actual . ' +'.$hours.' hours'));
 				$data['id_package']  = null;
 				$data['folio']       = $folio;
-				$data['c_date']      = date("Y-m-d H:i:s");
+				$data['c_date']      = $fecha_modificada;
 				$data['c_user_id']   = $id_user;
 				$data['tracking']    = $_POST['tracking'];
 				$data['id_cat_parcel']  = $_POST['id_cat_parcel'];
