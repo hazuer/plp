@@ -1,3 +1,5 @@
+//Powered By HaZuEr.Ing
+//Version:10062025
 // Solicitar los números de seguimiento mediante un prompt
 const input = prompt("👾 Ingresa los números de guía iMile [📦]:");
 // Procesar el input para crear el array
@@ -79,7 +81,6 @@ async function enviarDatos(resultado) {
         return { success: "false", message: "Error de red o excepción" };
     }
 }
-
 // Array para almacenar los resultados
 const resultados = [];
 let contador = 0;
@@ -99,7 +100,6 @@ if (isConfirmed) {
             estado:"",
             hours:hours
         };
-
         try {
             await page.goto("https://ds.imile.com/");
             await page.waitForTimeout(2000);
@@ -141,23 +141,6 @@ if (isConfirmed) {
             } catch (error) {
                 console.error('🔴 Error durante la interacción:', error);
             }
-            /*try {
-                // Opción 2: Usar XPath para texto exacto
-                const [tab] = await page.$x('//button[contains(@class, "MuiTab-root") and normalize-space(text())="Recipiente de información"]');
-                if (tab) {
-                    await tab.click();
-                    console.log('✅ Clic con XPath');
-                } else {
-                    const [tab] = await page.$x('//button[contains(@class, "MuiTab-root") and normalize-space(text())="Cliente Info"]');
-                    if (tab) {
-                        await tab.click();
-                    }
-                    throw new Error("No se encontró la pestaña con XPath");
-                }
-
-            } catch (error) {
-                console.error('🔴 Error al interactuar con la pestaña:', error);
-            }*/
         try {
                 const possibleNames = [
                     "Recipiente de información",
@@ -180,44 +163,18 @@ if (isConfirmed) {
             } catch (error) {
                 console.error('🔴 Error al interactuar con la pestaña:', error);
             }
-            await page.waitForTimeout(1000);
-
-            let tel_entrante = null;
-            let contact_name = null;
-
-            /*try {
-                const elements = await page.$$('.detail-item');
-                for (const element of elements) {
-                    try {
-                        const label = await element.$eval('.label', el => el.textContent.trim());
-                        const value = await element.$eval('.value', el => el.textContent.trim());
-
-                        if (label.includes('Teléfono entrante')) {
-                            tel_entrante = value.replace(/\D/g, '').slice(-10);
-                        }
-                        if (label.includes('Contacto del destinatario')) {
-                            contact_name = value;
-                        }if (label.includes('Cliente Nombre')) {
-                            contact_name = value;
-                        }
-                    } catch (error) {
-                        console.log('Error procesando elemento:', error);
-                    }
-                }
-            } catch (error) {
-                console.error('Error al buscar elementos:', error);
-            }*/
+        await page.waitForTimeout(2000);
+        let tel_entrante = null;
+        let contact_name = null;
+        // Mapeo de posibles variaciones para cada campo
+        const phoneLabels = ['Teléfono entrante', 'Customer phone'];
+        const nameLabels = ['Contacto del destinatario', 'Customer Name'];
         try {
                 const elements = await page.$$('.detail-item');
                 for (const element of elements) {
                     try {
                         const label = await element.$eval('.label', el => el.textContent.trim());
                         const value = await element.$eval('.value', el => el.textContent.trim());
-
-                        // Mapeo de posibles variaciones para cada campo
-                        const phoneLabels = ['Teléfono entrante', 'Customer phone'];
-                        const nameLabels = ['Contacto del destinatario', 'Customer Name'];
-
                         // Normalizar la etiqueta para comparación (elimina acentos y convierte a minúsculas)
                         const normalizedLabel = label
                             .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Elimina acentos
@@ -227,13 +184,11 @@ if (isConfirmed) {
                             normalizedLabel.includes(phoneLabel.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()))) {
                             tel_entrante = value.replace(/\D/g, '').slice(-10);
                         }
-
                         // Buscar coincidencias para nombre
                         if (nameLabels.some(nameLabel => 
                             normalizedLabel.includes(nameLabel.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()))) {
                             contact_name = value;
                         }
-
                     } catch (error) {
                         console.log('Error procesando elemento:', error);
                     }
@@ -241,14 +196,14 @@ if (isConfirmed) {
             } catch (error) {
                 console.error('Error al buscar elementos:', error);
             }
-                        // Usar los valores donde los necesites
-                console.log('::::::::::::::::::::::::::::::::');
-                console.log('::::::::::::::::::::::::::::::::');
-                console.log('Datos extraídos:');
-                console.log('Teléfono:', tel_entrante);
-                console.log('Contacto:', contact_name);
-                console.log('::::::::::::::::::::::::::::::::');
-                console.log('::::::::::::::::::::::::::::::::');
+            // Usar los valores donde los necesites
+            console.log('::::::::::::::::::::::::::::::::');
+            console.log('::::::::::::::::::::::::::::::::');
+            console.log('Datos extraídos:');
+            console.log('Teléfono:', tel_entrante);
+            console.log('Contacto:', contact_name);
+            console.log('::::::::::::::::::::::::::::::::');
+            console.log('::::::::::::::::::::::::::::::::');
             // ========= VALIDACIÓN DE DATOS =========
             const errores = [];
 
@@ -294,11 +249,7 @@ if (isConfirmed) {
             } else {
                 resultado.estado = "Falló: " + errores.join(' - ');
                 console.error('❌ Datos incompletos:', errores.join(' | '));
-                
-                // Opcional: Tomar screenshot para diagnóstico
-                // await page.screenshot({ path: `error_${Date.now()}.png` });
             }
-
         } catch (error) {
             console.error(`❌ Error al procesar ${trackingNumber}:`, error.message);
             resultado.estado = `error: ${error.message}`;
@@ -326,6 +277,7 @@ if (isConfirmed) {
             console.log(`Teléfono: ${resultado.phone || "No disponible"}`);
         });
     }
+    console.clear()
 } else {
     console.log("❌ Proceso cancelado por el usuario");
 }
