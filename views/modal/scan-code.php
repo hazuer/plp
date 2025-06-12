@@ -15,7 +15,7 @@
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button id="close-qr-b" type="button" class="btn btn-danger" title="Close" data-dismiss="modal">Close</button>
+						<button id="close-qr-b" type="button" class="btn btn-danger" title="Close" data-dismiss="modal">Detener</button>
 					</div>
 				</div>
 			</div>

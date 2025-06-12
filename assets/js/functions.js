@@ -1,5 +1,5 @@
 $(document).ready(function() {
-
+	let keepReading = false;
 	$("#logoff").click(function(){
 		swal({
 			title: "Cerrar sesión",
@@ -87,6 +87,9 @@ $(document).ready(function() {
 		$('[data-toggle="tooltip"]').tooltip()
 	})
 
+		let html5QrcodeScanner;
+		let scanning = false; // bandera de bloqueo
+
 	$('#vGuia').on('keydown', function(event) {
 		if (event.key === 'Enter' || event.keyCode === 13) {
 			event.preventDefault(); // Evita que se dispare un submit si está en un formulario
@@ -116,7 +119,6 @@ $(document).ready(function() {
 				$('#vGuia').val('');
 				swal.close();
 				if(response.success=='true'){
-
 					speakText(`Folio: ${response.dataJson.folio}`);
 					setTimeout(function(){
 						speakText(`Letra, ${response.dataJson.initial}`);
@@ -146,20 +148,29 @@ $(document).ready(function() {
 					setTimeout(function(){
 						$('#modal-info-guia').modal('hide');
 						$('#vGuia').focus();
+						if(keepReading){
+							$('#btn-scan-qr').click();
+						}
 					}, 5000);
 				}else{
 					swal("Error!", 'Guía no encontrada', "error");
 					setTimeout(function(){
-						$('#modal-info-guia').modal('hide');
+						swal.close();
 						$('#vGuia').focus();
+						if(keepReading){
+							$('#btn-scan-qr').click();
+						}
 					}, 2500);
 				}
 			})
 		}
 	});
 
-	let html5QrcodeScanner;
+
 	$('#btn-scan-qr').click(function(){
+		scanning = false; // reiniciar la bandera
+		keepReading = true;
+		console.log('init',keepReading);
 		$('#vGuia').val('');
 		let titleModal =  'Verificador Guía';
 		html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 15, qrbox : { width: 260, height: 85 } });
@@ -170,19 +181,25 @@ $(document).ready(function() {
 	});
 
 	function onScanSuccess(decodedText, decodedResult) {
+			if (scanning) return; // evitar múltiples ejecuciones
+			scanning = true;
+
+		console.log('leyo codigo',keepReading);
 		console.log(`Scan result: ${decodedText}`, decodedResult);
 		// Establecer el valor escaneado y simular Enter
 		$('#vGuia').val(decodedText).trigger('input');
 		$('#vGuia').trigger(jQuery.Event('keydown', { keyCode: 13, which: 13 }));
 
-		// Detener el scanner después de un breve retraso
-		setTimeout(() => {
-			$('#modal-scan-qr').modal('hide');
-			html5QrcodeScanner.clear();
-		}, 300); // pequeño delay para evitar conflicto con otros eventos
+			// cerrar el modal y limpiar el escáner inmediatamente
+		$('#modal-scan-qr').modal('hide');
+		html5QrcodeScanner.clear().catch(err => {
+			console.warn('Error al limpiar el escáner:', err);
+		});
 	}
 
 	$('#close-qr-b,#close-qr-x').click(function(){
+		keepReading=false;
+		console.log('se detuvo',keepReading);
 		if (html5QrcodeScanner) {
 			html5QrcodeScanner.clear().catch(error => {
 				console.warn('Error al detener el escáner:', error);

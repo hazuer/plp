@@ -1,3 +1,5 @@
+//Powered By HaZuEr.Ing
+//Version:10062025
 // Solicitar los números de seguimiento mediante un prompt
 const input = prompt("👾 Ingresa los números de guía J&T [📦]:");
 // Procesar el input para crear el array

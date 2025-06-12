@@ -131,7 +131,7 @@
             <div class="modal-footer">
                 <button id="btn-erase" type="button" class="btn btn-default" title="Borrar">Borrar</button>
                 <button id="btn-save" type="button" class="btn btn-success" title="Guardar">Guardar</button>
-                <button id="close-qr-b" type="button" class="btn btn-danger" title="Cerrar" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-danger" title="Cerrar" data-dismiss="modal">Cerrar</button>
                 <audio id="wrong" style="display: none;">
 					<source src="<?php echo BASE_URL;?>/assets/wrong.mp3" type="audio/mpeg">
 				</audio>
