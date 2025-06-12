@@ -130,7 +130,7 @@ require_once('../system/session_cookies.php');
 						<?php foreach ($packages as $package): ?>
 							<div class="col-md-3" data-toggle="tooltip" data-placement="top" title="<?php echo $package['tracking'];?>-<?php echo $package['receiver'];?>">
 								<span style="color:<?php echo $package['marker'];?>">
-									<b><?php echo $package['folio']; ?></b>
+									<input type="checkbox" autocomplete="off"><b><?php echo $package['folio']; ?></b>
 								</span>
 							</div>
 						<?php endforeach; ?>
