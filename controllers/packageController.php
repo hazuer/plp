@@ -96,7 +96,6 @@ switch ($_POST['option']) {
 
 			// Se asigna el contacto al dato actual
 			$data['id_contact']   = $id_contact;
-			$data['id_type_mode'] = 1; //manual
 
 			switch ($action) {
 				case 'update':
@@ -159,6 +158,7 @@ switch ($_POST['option']) {
 					$message  = 'Actualizado';
 				break;
 				case 'new':
+					$data['id_type_mode'] = 1; //manual
 					if (empty($data['id_contact']) || $data['id_contact'] == 0 || $data['id_contact'] === null) {
 						$success  = 'false';
 						$dataJson = [];
