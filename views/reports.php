@@ -67,7 +67,7 @@ if(isset($rParcel)){
 $sql = "SELECT 
 p.id_package,
 cl.location_desc,
-DATE_FORMAT(p.c_date, '%Y-%m-%d') c_date,
+p.c_date c_date,
 uc.user registro,
 p.tracking,
 cc.phone,

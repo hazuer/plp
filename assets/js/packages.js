@@ -412,7 +412,7 @@ $(document).ready(function() {
 				if (
 					(/^\d{13}$/.test(inputImile)) ||       // Solo números, 13 dígitos
 					(/^\d{14}$/.test(inputImile)) ||       // Solo números, 14 dígitos
-					(/^IM\d{14}$/.test(inputImile))        // Empieza con IM y seguido de 14 dígitos (total 16)
+					(/^im\d{14}$/i.test(inputImile))      // "im" o "IM" + 14 dígitos
 				) {
 					$('#btn-save').click();
 					$(this).val(''); // Limpia el input después de procesarlo
@@ -459,21 +459,11 @@ $(document).ready(function() {
 			let decodedText = $('#tracking').val();
 			guia = decodedText.substring(0, 3).toUpperCase() + decodedText.substring(3);
 		}else if($('#id_cat_parcel').val()==2){
-			/*let imTracking = tracking.val().trim(); // Eliminar espacios en blanco al inicio y al final
-			const regex = /^\d{13,14}$/; // Acepta exactamente 13 o 14 dígitos
-
-			// Verificar si la longitud no es 13 o 14 o si el formato no es válido
-			if ((imTracking.length !== 13 && imTracking.length !== 14) || !regex.test(imTracking)) {
-				let mensajeError = "* Código de barras no válido:";
-				if (imTracking.length < 13 || imTracking.length > 14) {
-					mensajeError += " Debe tener 13 o 14 caracteres.";
-				} else {
-					mensajeError += " Solo se permiten números.";
-				}
-				swal("Atención!", mensajeError, "error");
-				return;
-			}*/
 			let imTracking = tracking.val().trim(); // Eliminar espacios al inicio y al final
+			/* ── Normalizar a mayúsculas si empieza con im ── */
+			if (/^im\d{14}$/i.test(imTracking)) {     // "im" o "IM" + 14 dígitos
+				imTracking = imTracking.toUpperCase(); // lo convertimos a "IM...."
+			}
 			// Expresiones regulares para validar
 			const regexNumerico = /^\d{13,14}$/;       // Solo números, 13 o 14 dígitos
 			const regexIm = /^IM\d{14}$/;              // Empieza con IM seguido de 14 dígitos

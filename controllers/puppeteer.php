@@ -112,7 +112,7 @@ switch ($_POST['option']) {
 				if($total==0){
 					$data['marker']      = $_POST['id_marcador'];
 
-					$id_location = $data['id_location'];
+					/*$id_location = $data['id_location'];
 					$sqlCanBeAgrouped = "SELECT p.folio 
 					FROM package p 
 					LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
@@ -122,20 +122,20 @@ switch ($_POST['option']) {
 					AND p.id_location IN ($id_location)
 					AND p.id_status IN(1,2,5,6,7) ORDER BY p.folio DESC";
 					$rstCanBeAgrouped = $db->select($sqlCanBeAgrouped);
-					$totalPaquetesAgrouped = count($rstCanBeAgrouped);
+					$totalPaquetesAgrouped = count($rstCanBeAgrouped);*/
 
 					$titleMsj  = 'Registrado';
 					$msjFolios = "";
-					if($totalPaquetesAgrouped>=1){
+					/*if($totalPaquetesAgrouped>=1){
 						$titleMsj  = 'Paquete listo para Agrupar';
 						$msjFolios = $phone." - ".$receiver."\n Folios: ";
 						foreach ($rstCanBeAgrouped as $resultado) {
 							$msjFolios .= $resultado['folio'] . ", ";
 						}
 						$msjFolios = rtrim($msjFolios, ', ');
-					}
-					$new_id_package = $db->insert('package',$data);
-					saveLog($new_id_package,$id_user,1,'Nuevo registro de paquete by puppeteer');
+					}*/
+					$new_id_package = $db->insert('package_tmp',$data); //tmp table
+					// saveLog($new_id_package,$id_user,1,'Nuevo registro de paquete by puppeteer');
 
 					$success  = 'true';
 					$dataJson = $msjFolios;
@@ -162,7 +162,7 @@ switch ($_POST['option']) {
 	break;
 }
 
-function saveLog($id_package,$id_user,$new_id_status,$desc_mov,$currentStatus=false){
+/* function saveLog($id_package,$id_user,$new_id_status,$desc_mov,$currentStatus=false){
 	global $db;
 
 	$old_id_status = 1;
@@ -179,7 +179,7 @@ function saveLog($id_package,$id_user,$new_id_status,$desc_mov,$currentStatus=fa
 	$dataLog['desc_mov']      = $desc_mov;
 	#$dataLog['ip']            = $ip;
 	$db->insert('logger',$dataLog);
-}
+} */
 
 function getCurrentStatus($id_package){
 	global $db;

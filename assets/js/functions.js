@@ -102,6 +102,7 @@ $(document).ready(function() {
 			}
 			let formData = new FormData();
 			formData.append('vGuia',vGuia);
+			formData.append('id_location',$('#option-location').val());
 			formData.append('option','checkGuia');
 			$.ajax({
 				url : `${base_url}/controllers/packageController.php`,

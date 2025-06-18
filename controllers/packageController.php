@@ -1378,48 +1378,52 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 						'dataJson' => $dataJson,
 						'message'  => $message
 					];
-				$vGuia      = $_POST['vGuia'];
-				$sqlCheckGuia="SELECT
-				p.id_package,
-				p.tracking,
-				cc.contact_name,
-				cc.phone,
-				p.folio,
-				p.marker,UPPER(SUBSTRING(TRIM(REPLACE(
-								REPLACE(
-									REPLACE(
-										REPLACE(
-											REPLACE(
-												REPLACE(
-													REPLACE(
-														REPLACE(cc.contact_name, 'á', 'a'),
-													'é', 'e'),
-												'í', 'i'),
-											'ó', 'o'),
-										'ú', 'u'),
-									'Á', 'A'),
-								'Ñ', 'N'),
-							'É', 'E')), 1, 1)) AS initial
-				FROM
-				package p
-				left join cat_contact cc on cc.id_contact =p.id_contact
-				WHERE
-				p.tracking IN('".$vGuia."')";
-				$records           = $db->select($sqlCheckGuia,true);
-				if(count($records)>=1){
-					$id_package = $records[0]['id_package'];
-					$currentStatus = getCurrentStatus($id_package);
-					saveLog($id_package,$currentStatus,'Rotulado/Verificado por: '.$_SESSION["uName"]);
-
-					$data['v_date']    = date("Y-m-d H:i:s");
-					$data['v_user_id'] = $_SESSION["uId"];
-
-					$dataJson = $db->update('package',$data," `id_package` = $id_package");
+				$vGuia       = $_POST['vGuia'];
+				$id_location = $_POST['id_location'];
+				$existTmpRecord = validatorGuide($vGuia,'package_tmp',$id_location);
+				if(count($existTmpRecord)==1){//move records
+					$slt = "SELECT 
+					id_location, id_contact, c_date, c_user_id, tracking, folio,
+					n_date, n_user_id, d_date, d_user_id, id_status, note, marker,
+					id_cat_parcel, id_type_mode
+					FROM package_tmp 
+					WHERE tracking = '".$vGuia."'
+					AND id_location IN(".$id_location.") 
+					LIMIT 1";
+					$rstR = $db->select($slt);
+					$newData = $rstR[0];
+					$newData['v_date']    = date("Y-m-d H:i:s");
+					$newData['v_user_id'] = $_SESSION["uId"];
+					$new_id_package = $db->insert('package',$newData); //tmp table
+					saveLog($new_id_package,1,'Nuevo registro de paquete by puppeteer');
+					saveLog($new_id_package,1,'Rotulado/Verificado por: '.$_SESSION["uName"]);
+					if($new_id_package>=1){
+						$db->sqlPure("DELETE FROM package_tmp 
+						WHERE id_location IN(".$id_location.") 
+						AND tracking = '".$vGuia."'");
+					}
 					$result = [
 						'success'  => 'true',
-						'dataJson' => $records[0],
+						'dataJson' => $existTmpRecord[0],
 						'message'  => ''
 					];
+				}else{
+					$existRecord = validatorGuide($vGuia,'package',$id_location);
+						if(count($existRecord)>=1){
+						$id_package = $existRecord[0]['id_package'];
+						$currentStatus = getCurrentStatus($id_package);
+						saveLog($id_package,$currentStatus,'Rotulado/Verificado por: '.$_SESSION["uName"],true);
+
+						$data['v_date']    = date("Y-m-d H:i:s");
+						$data['v_user_id'] = $_SESSION["uId"];
+
+						$dataJson = $db->update('package',$data," `id_package` = $id_package");
+						$result = [
+							'success'  => 'true',
+							'dataJson' => $existRecord[0],
+							'message'  => ''
+						];
+					}
 				}
 
 				echo json_encode($result);
@@ -1883,6 +1887,42 @@ function saveLog($id_package,$new_id_status,$desc_mov,$currentStatus=false){
 	$dataLog['desc_mov']      = $desc_mov;
 	#$dataLog['ip']            = $ip;
 	$db->insert('logger',$dataLog);
+}
+
+function validatorGuide($vGuia,$tbl,$id_location){
+	global $db;
+
+	$sqlCheckGuia="SELECT
+	p.id_package,
+	p.tracking,
+	cc.contact_name,
+	cc.phone,
+	p.folio,
+	p.marker,
+	UPPER(SUBSTRING(TRIM(REPLACE(
+					REPLACE(
+						REPLACE(
+							REPLACE(
+								REPLACE(
+									REPLACE(
+										REPLACE(
+											REPLACE(cc.contact_name, 'á', 'a'),
+										'é', 'e'),
+									'í', 'i'),
+								'ó', 'o'),
+							'ú', 'u'),
+						'Á', 'A'),
+					'Ñ', 'N'),
+				'É', 'E')), 1, 1)) AS initial 
+	FROM 
+	".$tbl." p 
+	left join cat_contact cc on cc.id_contact =p.id_contact 
+	WHERE 
+	p.tracking IN('".$vGuia."') 
+	AND p.id_location IN(".$id_location.") 
+	LIMIT 1";
+	$records           = $db->select($sqlCheckGuia,true);
+	return $records;
 }
 
 function getCurrentStatus($id_package){
