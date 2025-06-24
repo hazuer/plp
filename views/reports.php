@@ -180,7 +180,7 @@ $packages = $db->select($sql);
 							</select>
 						</div>
 					</div>
-					<div class="col-md-3">
+					<div class="col-md-2">
 						<div class="form-group">
 							<label for="rTelefono"><b>Télefono:</b></label>
 							<input type="text" class="form-control" name="rTelefono" id="rTelefono" value="<?php echo $rTelefono; ?>" autocomplete="off">
@@ -205,6 +205,9 @@ $packages = $db->select($sql);
 					</div>
 					<div class="col-md-1"><br>
 						<button id="btn-f-erase" type="button" class="btn btn-default" title="Borrar">Borrar</button>
+					</div>
+					<div class="col-md-1"><br>
+						<button id="btn-admin" type="button" class="btn btn-primary" title="Admin">Admin</button>
 					</div>
 				</div>
 			</form>

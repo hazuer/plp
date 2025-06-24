@@ -39,10 +39,6 @@ header('Content-Type: application/json; charset=utf-8');
 switch ($_POST['option']) {
 	case 'store':
 		$id_location = $_POST['id_location'];
-		$db->sqlPure("UPDATE folio SET folio = LAST_INSERT_ID(folio + 1) WHERE id_location =".$id_location);
-		// Obtiene el nuevo folio de forma segura para esta conexión
-		$records = $db->select("SELECT LAST_INSERT_ID() AS nuevo_folio");
-		$folio = $records[0]['nuevo_folio'];
 		$result   = [];
 		$success  = 'false';
 		$dataJson = [];
@@ -90,52 +86,39 @@ switch ($_POST['option']) {
 
 			// Se asigna el contacto al dato actual
 			$data['id_contact'] = $id_contact;
-			$data['id_type_mode'] = 2;
 
 			if (empty($data['id_contact']) || $data['id_contact'] == 0 || $data['id_contact'] === null) {
 				$success  = 'false';
 				$dataJson = [];
 				$message  = 'No se registro el usuario, vuelve a intentarlo';
 			}else{
-				$hours=$_POST['hours'];
-				$fecha_actual = date("Y-m-d H:i:s");
-				$fecha_modificada = date("Y-m-d H:i:s", strtotime($fecha_actual . ' +'.$hours.' hours'));
-				$data['id_package']  = null;
-				$data['folio']       = $folio;
-				$data['c_date']      = $fecha_modificada;
-				$data['c_user_id']   = $id_user;
-				$data['tracking']    = $_POST['tracking'];
-				$data['id_cat_parcel']  = $_POST['id_cat_parcel'];
 				$sqlCheck = "SELECT COUNT(tracking) total FROM package WHERE tracking IN ('".$data['tracking']."')";
 				$rstCheck = $db->select($sqlCheck);
-				$total = $rstCheck[0]['total'];
-				if($total==0){
-					$data['marker']      = $_POST['id_marcador'];
+				$total    = $rstCheck[0]['total'];
+				$tmpSql    = "SELECT COUNT(tracking) total FROM package_tmp WHERE tracking IN ('".$data['tracking']."')";
+				$tmpResult = $db->select($tmpSql);
+				$tmpTotal  = $tmpResult[0]['total'];
 
-					/*$id_location = $data['id_location'];
-					$sqlCanBeAgrouped = "SELECT p.folio 
-					FROM package p 
-					LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
-					LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
-					WHERE 1 
-					AND cc.phone IN('$phone')
-					AND p.id_location IN ($id_location)
-					AND p.id_status IN(1,2,5,6,7) ORDER BY p.folio DESC";
-					$rstCanBeAgrouped = $db->select($sqlCanBeAgrouped);
-					$totalPaquetesAgrouped = count($rstCanBeAgrouped);*/
-
+				if($total==0 && $tmpTotal==0){
+					$db->sqlPure("UPDATE folio SET folio = LAST_INSERT_ID(folio + 1) WHERE id_location =".$id_location);
+					// Obtiene el nuevo folio de forma segura para esta conexión
+					$records = $db->select("SELECT LAST_INSERT_ID() AS nuevo_folio");
+					$folio   = $records[0]['nuevo_folio'];
+					$hours   = $_POST['hours'];
+					$fecha_actual     = date("Y-m-d H:i:s");
+					$fecha_modificada = date("Y-m-d H:i:s", strtotime($fecha_actual . ' +'.$hours.' hours'));
+					$data['id_package']  = null;
+					$data['folio']       = $folio;
+					$data['c_date']      = $fecha_modificada;
+					$data['c_user_id']   = $id_user;
+					$data['tracking']    = $_POST['tracking'];
+					$data['id_cat_parcel']  = $_POST['id_cat_parcel'];
+					$data['id_type_mode']   = 2;
+					$data['marker']         = $_POST['id_marcador'];
 					$titleMsj  = 'Registrado';
 					$msjFolios = "";
-					/*if($totalPaquetesAgrouped>=1){
-						$titleMsj  = 'Paquete listo para Agrupar';
-						$msjFolios = $phone." - ".$receiver."\n Folios: ";
-						foreach ($rstCanBeAgrouped as $resultado) {
-							$msjFolios .= $resultado['folio'] . ", ";
-						}
-						$msjFolios = rtrim($msjFolios, ', ');
-					}*/
+
 					$new_id_package = $db->insert('package_tmp',$data); //tmp table
-					// saveLog($new_id_package,$id_user,1,'Nuevo registro de paquete by puppeteer');
 
 					$success  = 'true';
 					$dataJson = $msjFolios;
@@ -160,31 +143,4 @@ switch ($_POST['option']) {
 		}
 		echo json_encode($result);
 	break;
-}
-
-/* function saveLog($id_package,$id_user,$new_id_status,$desc_mov,$currentStatus=false){
-	global $db;
-
-	$old_id_status = 1;
-	if($currentStatus){
-		$old_id_status = getCurrentStatus($id_package);
-	}
-
-	$dataLog['id_log']        = null;
-	$dataLog['datelog']       = date("Y-m-d H:i:s");
-	$dataLog['id_package']    = $id_package;
-	$dataLog['id_user']       = $id_user;
-	$dataLog['new_id_status'] = $new_id_status;
-	$dataLog['old_id_status'] = $old_id_status;
-	$dataLog['desc_mov']      = $desc_mov;
-	#$dataLog['ip']            = $ip;
-	$db->insert('logger',$dataLog);
-} */
-
-function getCurrentStatus($id_package){
-	global $db;
-	$sqlGetCurrentStatus="SELECT id_status old_id_status FROM package WHERE id_package IN ($id_package)";
-	$records           = $db->select($sqlGetCurrentStatus);
-	$id_status_current = $records[0]['old_id_status'];
-	return $id_status_current;
 }

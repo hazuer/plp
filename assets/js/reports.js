@@ -334,4 +334,11 @@ $(document).ready(function() {
         return previewHtml;
     }
 
+	$("#btn-admin").click(function(){
+		window.location.href = `${base_url}/views/adminReport.php`;
+	});
+
+	$("#btn-pre").click(function(){
+		window.location.href = `${base_url}/views/adminReport.php`;
+	});
 });

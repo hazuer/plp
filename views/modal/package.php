@@ -100,7 +100,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="note"><b>Notas:</b></label>
-                                <input type="note" class="form-control" name="note" id="note" value="" autocomplete="off">
+                                <input type="text" class="form-control" name="note" id="note" value="" autocomplete="off">
                             </div>
                         </div>
                     </div>
