@@ -746,11 +746,11 @@ client.on("ready", async () => {
 				let fullLog=`${sid}, ${logWhats}`;
 				for (let i = 0; i < listIds.length; i++) {
 					const id_package = listIds[i];
-					/*const sqlSaveNotification = `INSERT INTO notification 
+					const sqlSaveNotification = `INSERT INTO notification 
 					(id_location,n_date,n_user_id,message,id_contact_type,sid,id_package) 
 					VALUES 
 					(${id_location},\'${nDate}\',${n_user_id},\'${fullMessage}\',${id_contact_type},\'${fullLog}\',${id_package})`
-					await db.processDBQueryUsingPool(sqlSaveNotification);*/
+					await db.processDBQueryUsingPool(sqlSaveNotification);
 
 					const sqlLogger = `INSERT INTO logger 
 					(datelog, id_package, id_user, new_id_status, old_id_status, desc_mov) 
