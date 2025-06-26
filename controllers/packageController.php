@@ -303,9 +303,10 @@ switch ($_POST['option']) {
 		$dataJson = [];
 		$message  = 'Error al guardar el contacto';
 
-		 $data['contact_name']      = $_POST['mCName'];
-		 $data['id_contact_type']   = $_POST['mCContactType'];
-		 $data['id_contact_status'] = $_POST['mCEstatus'];
+		$data['contact_name']      = $_POST['mCName'];
+		$data['id_contact_type']   = $_POST['mCContactType'];
+		$data['id_contact_status'] = $_POST['mCEstatus'];
+
 
 		 $action = $_POST['action'];
 
@@ -318,6 +319,7 @@ switch ($_POST['option']) {
 					$message  = 'Contacto Actualizado';
 				break;
 				case 'new':
+					$data['id_type_mode']      = 1;
 					$data['id_location']       = $_POST['id_location'];
 					$data['phone']             = $_POST['mCPhone'];
 					$data['id_contact']  = null;
@@ -744,11 +746,11 @@ client.on("ready", async () => {
 				let fullLog=`${sid}, ${logWhats}`;
 				for (let i = 0; i < listIds.length; i++) {
 					const id_package = listIds[i];
-					const sqlSaveNotification = `INSERT INTO notification 
+					/*const sqlSaveNotification = `INSERT INTO notification 
 					(id_location,n_date,n_user_id,message,id_contact_type,sid,id_package) 
 					VALUES 
 					(${id_location},\'${nDate}\',${n_user_id},\'${fullMessage}\',${id_contact_type},\'${fullLog}\',${id_package})`
-					await db.processDBQueryUsingPool(sqlSaveNotification);
+					await db.processDBQueryUsingPool(sqlSaveNotification);*/
 
 					const sqlLogger = `INSERT INTO logger 
 					(datelog, id_package, id_user, new_id_status, old_id_status, desc_mov) 
@@ -1383,16 +1385,18 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 				$existTmpRecord = validatorGuide($vGuia,'package_tmp',$id_location);
 				if(count($existTmpRecord)==1){//move records
 					$slt = "SELECT 
-					id_location, id_contact, c_date, c_user_id, tracking, folio,
+					id_location, id_contact, c_user_id, tracking, folio,
 					n_date, n_user_id, d_date, d_user_id, id_status, note, marker,
-					id_cat_parcel, id_type_mode
+					id_cat_parcel, id_type_mode,address 
 					FROM package_tmp 
 					WHERE tracking = '".$vGuia."'
 					AND id_location IN(".$id_location.") 
 					LIMIT 1";
 					$rstR = $db->select($slt);
 					$newData = $rstR[0];
-					$newData['v_date']    = date("Y-m-d H:i:s");
+					$dateCurrent = date("Y-m-d H:i:s");
+					$newData['c_date']    = $dateCurrent;
+					$newData['v_date']    = $dateCurrent;
 					$newData['v_user_id'] = $_SESSION["uId"];
 					$new_id_package = $db->insert('package',$newData); //tmp table
 					saveLog($new_id_package,1,'Nuevo registro de paquete by puppeteer');
