@@ -14,7 +14,7 @@
                         <input type="hidden" name="mCaction" id="mCaction" value="" >
                 </div>
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label for="mCIdLocation"><b>Ubicación:</b></label>
                             <select name="mCIdLocation" id="mCIdLocation" class="form-control" disabled>
@@ -23,7 +23,15 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <div class="form-group">
+                                <label for="mFRegContact"><b>Fecha Registro:</b></label>
+                                <input type="text" class="form-control" name="mFRegContact" id="mFRegContact" value="<?php echo date('Y-m-d H:i:s');?>" autocomplete="off" disabled>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
                         <div class="form-group">
                             <div class="form-group">
                                 <label for="mCPhone"><b>* Télefono:</b></label>
@@ -61,10 +69,20 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="mRegContact"><b>Modo Registro:</b></label>
+                            <select name="mRegContact" id="mRegContact" class="form-control" disabled>
+                                <option value="1">Manual</option>
+                                <option value="2">Automático</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
             </form>
             <div class="modal-footer">
+                <button id="btn-show-address" type="button" class="btn btn-primary" title="Direcciones">Direcciones</button>
                 <button id="btn-save-contacto" type="button" class="btn btn-success" title="Guardar">Guardar</button>
                 <button type="button" class="btn btn-danger" title="Cerrar" data-dismiss="modal">Cerrar</button>
             </div>

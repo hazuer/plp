@@ -39,7 +39,7 @@ $rowEmpty  = ["id_package"    => "0" ,
 ];
 
 if($tat==0){ //pre load
-	$titltModule = "Registros Precargados";
+	$titltModule = "Registros Pre-registrados";
 	$sql = "SELECT 
 	p.id_package,
 	cl.location_desc,
@@ -50,24 +50,24 @@ if($tat==0){ //pre load
 	p.folio,
 	p.marker,
 	cc.contact_name receiver,
-	cs.status_desc,
+	'Pre-registrado' status_desc,
 	'' n_date,
 	'' sms_by_user,
 	'' t_sms_sent,
 	p.d_date,
 	'' user_libera,
-	'Pre-registrado' note,
+	'Pendiente por rotular' note,
 	'0' t_evidence,
 	cp.parcel parcel_desc,
 	'' t_pk_delivery,
 	cct.contact_type,
 	'Automático' tipo_modo,
 	p.v_date,
-	'' user_rotulo 
+	'' user_rotulo,
+	p.address 
 	FROM 
 		package_tmp p 
 	LEFT JOIN cat_contact cc ON cc.id_contact = p.id_contact 
-	LEFT JOIN cat_status cs ON cs.id_status = p.id_status 
 	LEFT JOIN users uc ON uc.id = p.c_user_id 
 	LEFT JOIN cat_location cl ON cl.id_location = p.id_location 
 	LEFT JOIN cat_parcel cp ON cp.id_cat_parcel = p.id_cat_parcel 
@@ -128,7 +128,8 @@ if($tat==0){ //pre load
 					WHEN 2 THEN 'Automático'
 				END AS tipo_modo,
 				p.v_date,
-				uv.user user_rotulo
+				uv.user user_rotulo,
+				p.address 
 			FROM
 				package p
 			LEFT JOIN cat_contact cc ON cc.id_contact = p.id_contact
@@ -214,6 +215,7 @@ if($tat==0){ //pre load
 						<th>tipo_modo</th>
 						<th>v_date</th>
 						<th>user_rotulo</th>
+						<th>address</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -255,6 +257,7 @@ if($tat==0){ //pre load
 						<td><?php echo $d['tipo_modo']; ?></td>
 						<td><?php echo $d['v_date']; ?></td>
 						<td><?php echo $d['user_rotulo']; ?></td>
+						<td><?php echo $d['address']; ?></td>
 						</tr>
 					<?php endforeach; ?>
 				</tbody>

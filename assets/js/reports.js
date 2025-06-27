@@ -57,7 +57,8 @@ $(document).ready(function() {
 			{title: `T.P. Entregados`,  name:`t_pk_delivery`,    data:`t_pk_delivery`},   //18
 			{title: `Modo Registro`,    name:`tipo_modo`,        data:`tipo_modo`},       //19
 			{title: `Fecha Rotulación`, name:`v_date`,           data:`v_date`},          //20
-			{title: `Usuario que Rotuló`, name:`user_rotulo`,    data:`user_rotulo`}      //21
+			{title: `Usuario que Rotuló`, name:`user_rotulo`,    data:`user_rotulo`},     //21
+			{title: `Dirección`,        name:`address`,          data:`address`}          //22
 		],
         'order': [[14, 'desc']]
 	});

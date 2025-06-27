@@ -38,15 +38,18 @@ header('Content-Type: application/json; charset=utf-8');
 
 switch ($_POST['option']) {
 	case 'store':
-		$id_location = $_POST['id_location'];
 		$result   = [];
 		$success  = 'false';
 		$dataJson = [];
 		$message  = 'Error al guardar la infomación del paquete';
-		$data['id_location'] = $id_location;
+		$id_location         = $_POST['id_location'];
+		$tracking            = $_POST['tracking'];
 		$phone               = $_POST['phone'];
 		$receiver            = $_POST['receiver'];
+		$address             = $_POST['address'] ?? "";
 		$id_user             = $_POST['id_user'];
+		$marker              = $_POST['marker'];
+		$id_cat_parcel       = $_POST['id_cat_parcel'];
 		// Elimina los espacios al inicio y final
 		$receiver = trim($receiver);
 		// Reemplaza espacios múltiples entre palabras con un solo espacio
@@ -60,7 +63,7 @@ switch ($_POST['option']) {
 			$receiver = trim($receiver);
 
 			// Validar si ya existe el contacto
-			$sqlCheck = "SELECT id_contact FROM cat_contact WHERE phone IN ('".$phone."') AND contact_name IN('".$receiver."')  AND id_location IN(".$data['id_location'].") AND id_contact_status = 1";
+			$sqlCheck = "SELECT id_contact FROM cat_contact WHERE phone IN ('".$phone."') AND contact_name IN('".$receiver."')  AND id_location IN(".$id_location.") AND id_contact_status = 1";
 			$existing = $db->select($sqlCheck);
 
 			if (empty($existing)) {
@@ -71,12 +74,13 @@ switch ($_POST['option']) {
 
 				// Contacto nuevo, se inserta
 				$contact = [
-					'id_location'        => $data['id_location'],
+					'id_location'        => $id_location,
 					'phone'              => $phone,
 					'contact_name'       => $receiver,
 					'id_contact_type'    => $id_contact_type, // SMS
 					'id_contact_status'  => 1,
-					'id_contact'         => null
+					'id_contact'         => null,
+					'id_type_mode'       => 2
 				];
 				$id_contact = $db->insert('cat_contact', $contact);
 			} else {
@@ -92,10 +96,10 @@ switch ($_POST['option']) {
 				$dataJson = [];
 				$message  = 'No se registro el usuario, vuelve a intentarlo';
 			}else{
-				$sqlCheck = "SELECT COUNT(tracking) total FROM package WHERE tracking IN ('".$data['tracking']."')";
+				$sqlCheck = "SELECT COUNT(tracking) total FROM package WHERE tracking IN ('".$tracking."')";
 				$rstCheck = $db->select($sqlCheck);
 				$total    = $rstCheck[0]['total'];
-				$tmpSql    = "SELECT COUNT(tracking) total FROM package_tmp WHERE tracking IN ('".$data['tracking']."')";
+				$tmpSql    = "SELECT COUNT(tracking) total FROM package_tmp WHERE tracking IN ('".$tracking."')";
 				$tmpResult = $db->select($tmpSql);
 				$tmpTotal  = $tmpResult[0]['total'];
 
@@ -104,17 +108,17 @@ switch ($_POST['option']) {
 					// Obtiene el nuevo folio de forma segura para esta conexión
 					$records = $db->select("SELECT LAST_INSERT_ID() AS nuevo_folio");
 					$folio   = $records[0]['nuevo_folio'];
-					$hours   = $_POST['hours'];
-					$fecha_actual     = date("Y-m-d H:i:s");
-					$fecha_modificada = date("Y-m-d H:i:s", strtotime($fecha_actual . ' +'.$hours.' hours'));
+					$data['id_location'] = $id_location;
+					$fecha_actual        = date("Y-m-d H:i:s");
 					$data['id_package']  = null;
 					$data['folio']       = $folio;
-					$data['c_date']      = $fecha_modificada;
+					$data['c_date']      = $fecha_actual;
 					$data['c_user_id']   = $id_user;
-					$data['tracking']    = $_POST['tracking'];
-					$data['id_cat_parcel']  = $_POST['id_cat_parcel'];
+					$data['tracking']    = $tracking;
+					$data['id_cat_parcel']  = $id_cat_parcel;
 					$data['id_type_mode']   = 2;
-					$data['marker']         = $_POST['id_marcador'];
+					$data['marker']         = $marker;
+					$data['address']        = $address;
 					$titleMsj  = 'Registrado';
 					$msjFolios = "";
 

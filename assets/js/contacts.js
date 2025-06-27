@@ -43,14 +43,17 @@ $(document).ready(function() {
             {title: `Nombre`,           name:`contact_name`,     data:`contact_name`},      //3
 			{title: `id_contact_type`,  name:`id_contact_type`,  data:`id_contact_type`},   //4
 			{title: `Tipo Contacto`,    name:`contact_type`,     data:`contact_type`},      //5
-			{title: `id_contact_status`,name:`id_contact_status`,data:`id_contact_status`}, //6
-			{title: `Estatus`,          name:`desc_estatus`,     data:`desc_estatus`},      //7+ 1 last
+			{title: `Fecha Registro`,   name:`c_date`,           data:`c_date`},            //6
+			{title: `Modo Registro`,    name:`tipo_modo`,        data:`tipo_modo`},         //7
+			{title: `id_type_mode`,     name:`id_type_mode`,     data:`id_type_mode`},      //8
+			{title: `id_contact_status`,name:`id_contact_status`,data:`id_contact_status`}, //9
+			{title: `Estatus`,          name:`desc_estatus`,     data:`desc_estatus`},      //10+ 1 last
 		],
 		"columnDefs": [
-			{ "targets": [0,1,4,6], "visible"   : false, "searchable": false, "orderable": false},
-			{ "orderable": false,"targets": 8 }, // last
+			{ "targets": [0,1,4,8,9], "visible"   : false, "searchable": false, "orderable": false},
+			{ "orderable": false,"targets": 11 }, // last
 		],
-        'order': [[3, 'asc']]
+        'order': [[6, 'desc']]
 	});
 
 	//funcion para borrar campo de busqueda
@@ -84,9 +87,17 @@ $(document).ready(function() {
 			phone          : '',
 			contact_name   : '',
 			id_contact_type: 2,
-			id_contact_status:1
+			id_contact_status: 1,
+			c_date      : '',
+			id_type_mode: 1
+
 		}
 		loadContactModal(row);
+	});
+
+	$('#btn-c-erase').click(function(){
+		$('#cTelefono').val('');
+		$('#cNombre').val('');
 	});
 
 	function loadContactModal(row){
@@ -98,6 +109,7 @@ $(document).ready(function() {
 		$('#mCName').val(row.contact_name);
 		$('#mCContactType').val(row.id_contact_type);
 		$('#mCEstatus').val(row.id_contact_status);
+		$('#mRegContact').val(row.id_type_mode);
 
 		$('#mCaction').val('new');
 		$('#mCPhone').prop('disabled', false);
@@ -105,6 +117,7 @@ $(document).ready(function() {
 			titleModal = 'Editar Contacto';
 			$('#mCPhone').prop('disabled', true);
 			$('#mCaction').val('update');
+			$('#mFRegContact').val(row.c_date);
 		}
 
 		$('#modal-contacto-title').html(titleModal);

@@ -90,7 +90,8 @@ CASE p.id_type_mode
     WHEN 2 THEN 'Automático'
 END AS tipo_modo,
 p.v_date,
-uv.user user_rotulo 
+uv.user user_rotulo,
+p.address 
 FROM package p 
 LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
 LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
@@ -239,6 +240,7 @@ $packages = $db->select($sql);
 						<th>tipo_modo</th>
 						<th>v_date</th>
 						<th>user_rotulo</th>
+						<th>address</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -280,6 +282,7 @@ $packages = $db->select($sql);
 						<td><?php echo $d['tipo_modo']; ?></td>
 						<td><?php echo $d['v_date']; ?></td>
 						<td><?php echo $d['user_rotulo']; ?></td>
+						<td><?php echo $d['address']; ?></td>
 						</tr>
 					<?php endforeach; ?>
 				</tbody>

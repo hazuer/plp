@@ -1,5 +1,5 @@
 //Powered By HaZuEr.Ing
-//Version:10062025
+//Version:26062025
 // Solicitar los números de seguimiento mediante un prompt
 const input = prompt("👾 Ingresa los números de guía J&T [📦]:");
 // Procesar el input para crear el array
@@ -9,31 +9,34 @@ const trackingNumbers = input
            .filter(num => num !== '') // Eliminar líneas vacías
     : []; // Si no se ingresa nada, array vacío
 const color = prompt(`
-👾 Ingresa un color (elige una opción) [🎨]:
+👾 Color (elige un número) [🎨]:
 ---------------------------------
-🔴 red    🟢 green
-💙 blue   ⚫ black
----------------------------------`).trim().toLowerCase() || "black";
-// Validación implícita (si el color no está en la lista, usa "black")
-const coloresValidos = ["red", "green", "blue", "black"];
-const colorFinal = coloresValidos.includes(color) ? color : "black";
+🔴[1] red    🟢[3] green
+💙[2] blue   ⚫[4] black
+---------------------------------`).trim().toLowerCase() || "4";
+
+// Mapear números a nombres de color
+const colorMapNumber = {
+  '1': 'red',
+  '2': 'blue',
+  '3': 'green',
+  '4': 'black'
+};
+const colorMap = {
+  '1': '🔴',
+  '2': '💙',
+  '3': '🟢',
+  '4': '⚫'
+};
+// Validación y asignación del color
+const colorFinal = colorMapNumber[color] || "black";
 // Solicitar ubicación con opciones claras
 const id_location = prompt(`
 👾 Ingresa el ID de ubicación [📍]:
 1 - TQL
 2 - ZAC`) || 1;
 
-// Solicitar ID de usuario con opciones
-const id_user = prompt(`
-👾 Ingresa el ID de usuario [👤]:
-2 - karen
-4 - josue`) || 1;
-
-const hours = prompt(`
-👾 Ingresa el número de horas [🕟]:
-0 - Para indicar la hora de inicio de registro actual
->0 - Para modificar la fecha de registro
-`) || 0;
+const id_user = (id_location == 1) ? 2 : 4;  // Si es 1 (TQL), asigna usuario 2 (karen); si no, asigna 4 (josue)
 
 // Generar mensaje de confirmación
 const guiaInicial = trackingNumbers[0] || "N/A";
@@ -41,18 +44,14 @@ const guiaFinal = trackingNumbers[trackingNumbers.length - 1] || "N/A";
 const totalGuias = trackingNumbers.length;
 
 const mensajeConfirmacion = `
-👾 Configuración ingresada [⚙️]:
+¿👾 Los datos son correctos? [⚙️]:
 ---------------------------------
 🔢 Total de guías: ${totalGuias}
 📦 Guía inicial: ${guiaInicial}
 📦 Guía final: ${guiaFinal}
 ---------------------------------
-🎨 Color: ${colorFinal}
-📍 Ubicación: ${id_location} ${id_location == 1 ? "TQL" : "ZAC"}
-👤 Usuario: ${id_user} ${id_user == 2 ? "karen" : "josue"}
-🕟 Horas: ${hours}
----------------------------------
-¿👾 Los datos son correctos?`;
+🎨 Color: ${colorMap[color]}
+📍 Ubicación: ${id_location == 1 ? "TQL" : "ZAC"}`;
 
 // Mostrar alerta de confirmación
 const isConfirmed = confirm(mensajeConfirmacion);
@@ -89,16 +88,16 @@ if (isConfirmed) {
     for (const trackingNumber of trackingNumbers) {
         contador++;
         const resultado = {
-            option:"store",
-            id_location:id_location,
-            phone:"",
-            receiver:"",
-            id_user:id_user,
-            tracking:trackingNumber,
-            id_cat_parcel:1, //JMX
-            id_marcador:colorFinal,
-            estado:"",
-            hours:hours
+            option       : "store",
+            id_location  : id_location,
+            phone        : "",
+            receiver     : "",
+            address      : "",
+            id_user      : id_user,
+            tracking     : trackingNumber,
+            id_cat_parcel: 1, //JMX
+            marker       : colorFinal,
+            estado       : ""
         };
         try {
             await page.goto("https://jmx.jtjms-mx.com/app/serviceQualityIndex/recordSheet?title=Orden%20de%20registro&moduleCode=");
@@ -130,35 +129,40 @@ if (isConfirmed) {
             await page.waitForSelector("#tab-base.el-tabs__item", { timeout: 800 });
             await page.click("#tab-base.el-tabs__item");
             console.log(`✅ Pestaña "Información básica" clickeada`);
-            await page.waitForTimeout(800);
-            // Click all info icons
+            await page.waitForTimeout(1000);
+            // Click on the second info icons
             try {
-                await page.waitForSelector(".iconfuwuzhiliang-mingwen", { timeout: 800 });
+                await page.waitForSelector(".iconfuwuzhiliang-mingwen", { timeout: 1000 });
                 const icons = await page.$$(".iconfuwuzhiliang-mingwen");
                 console.log(`🔍 Íconos encontrados: ${icons.length}`);
-                for (let i = 0; i < icons.length; i++) {
+
+                if (icons.length >= 2) {
                     try {
-                        await icons[i].hover();
-                        await icons[i].click();
+                        await icons[1].hover();
+                        await icons[1].click();
                         await page.waitForTimeout(200);
-                        console.log(`✅ Ícono ${i + 1} clickeado`);
+                        console.log(`✅ Segundo ícono clickeado`);
                     } catch (error) {
-                        console.warn(`⚠️ Error al hacer clic en ícono ${i + 1}:`, error.message);
+                        console.warn(`⚠️ Error al hacer clic en el segundo ícono:`, error.message);
                     }
+                } else {
+                    console.warn("⚠️ No hay al menos dos íconos disponibles para hacer clic.");
                 }
             } catch (error) {
-                console.error("❌ No se encontraron íconos:", error.message);
+                console.error("❌ Error al buscar los íconos:", error.message);
             }
             await page.waitForTimeout(100);
             await page.waitForSelector(".item .row", { timeout: 2800 });
-            const [nameR, telR] = await page.evaluate(() => {
+            const [nameR, telR, addrR] = await page.evaluate(() => {
                 const rows    = Array.from(document.querySelectorAll(".item .row"));
                 const nameRow = rows.find(row => row.textContent.includes("Nombre del receptor:"));
                 const telRow  = rows.find(row => row.textContent.includes("Teléfono del destinatario:"));
+                const addRow  = rows.find(row => row.textContent.includes("Dirección de destinatario:"));
                 const nameR   = nameRow ? nameRow.querySelector("span").textContent.trim() : "";
                 let telR      = telRow ? telRow.querySelector("span").textContent.trim() : "";
+                const addrR   = addRow ? addRow.querySelector("span").textContent.trim().replace(/\s+/g, ' ').trim() : "";
                 telR          = telR.slice(-10);
-                return [nameR, telR];
+                return [nameR, telR, addrR];
             });
             // Validación de datos antes del envío
             let datosValidos = true;
@@ -179,8 +183,9 @@ if (isConfirmed) {
             }
             resultado.receiver = nameR;
             resultado.phone = telR;
+            resultado.address = addrR;
             if (datosValidos) {
-                console.log(`✅ Datos válidos: ${nameR} | ${telR}`);
+                console.log(`✅ Datos válidos: ${nameR} | ${telR} | ${addrR}`);
                 try {
                     const respuestaServidor = await enviarDatos(resultado);
                     if (respuestaServidor.success === "true") {
