@@ -104,8 +104,17 @@ switch ($_POST['option']) {
 				$tmpTotal  = $tmpResult[0]['total'];
 
 				if($total==0 && $tmpTotal==0){
-					$db->sqlPure("UPDATE folio SET folio = LAST_INSERT_ID(folio + 1) WHERE id_location =".$id_location);
-					// Obtiene el nuevo folio de forma segura para esta conexión
+					// Incrementa el folio o lo reinicia a 1 si llegó a 999, de forma segura
+					$db->sqlPure("UPDATE folio 
+						SET folio = LAST_INSERT_ID(
+							CASE 
+								WHEN folio >= 999 THEN 1 
+								ELSE folio + 1 
+							END
+						)
+						WHERE id_location = " . (int)$id_location
+					);
+					// Obtener el nuevo folio generado de forma segura para esta conexión
 					$records = $db->select("SELECT LAST_INSERT_ID() AS nuevo_folio");
 					$folio   = $records[0]['nuevo_folio'];
 					$data['id_location'] = $id_location;

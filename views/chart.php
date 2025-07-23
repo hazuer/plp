@@ -76,7 +76,7 @@ if(isset($rParcel)){
             $lastMonth=$start->format('Y-m-d'); 
 
             $start = new DateTime(date($lastMonth)); // Primer día del mes actual
-            $end = new DateTime($end_date); // Último día del mes actual con el día actual del mes
+            $end   = new DateTime($end_date); // Último día del mes actual con el día actual del mes
             $c=0;
             // Bucle desde la fecha de y/ hasta la fecha de fin
 
@@ -148,15 +148,13 @@ if(isset($rParcel)){
 
                     foreach ($result as $item) {
                         $labels[] = $item['status_desc']; // Nombre del estado
-                        $data[] = (int)$item['count'];    // Cantidad (convertida a número)
+                        $data[]   = (int)$item['count'];    // Cantidad (convertida a número)
                     }
 
                     // Convertir arrays PHP a JSON para JavaScript
-                    $labelsJson = json_encode($labels);
-                    $dataJson = json_encode($data);
-
+                    $labelsJson  = json_encode($labels);
+                    $dataJson    = json_encode($data);
                     $nameDateDiv = str_replace("-", "", $current_date);
-
                     ?>
                     <canvas id="myChart_<?php echo $nameDateDiv;?>"></canvas>
 
@@ -175,16 +173,24 @@ if(isset($rParcel)){
                                 label: 'Total',
                                 data: dataValues_<?php echo $nameDateDiv;?>,
                                 backgroundColor: [
-                                    'rgba(54, 162, 235, 0.6)',
-                                    'rgba(75, 192, 192, 0.6)',
-                                    'rgba(255, 99, 132, 0.6)',
-                                    'rgba(255, 206, 86, 0.6)'
+                                    'rgba(54, 162, 235, 0.6)',   // azul claro
+                                    'rgba(75, 192, 192, 0.6)',   // verde agua
+                                    'rgba(255, 99, 132, 0.6)',   // rojo rosado
+                                    'rgba(255, 206, 86, 0.6)',   // amarillo
+                                    'rgba(153, 102, 255, 0.6)',  // morado
+                                    'rgba(255, 159, 64, 0.6)',   // naranja
+                                    'rgba(60, 179, 113, 0.6)',   // verde medio
+                                    'rgba(199, 199, 199, 0.6)'   // gris claro
                                 ],
                                 borderColor: [
-                                    'rgba(54, 162, 235, 1)',
-                                    'rgba(75, 192, 192, 1)',
-                                    'rgba(255, 99, 132, 1)',
-                                    'rgba(255, 206, 86, 1)'
+                                    'rgba(54, 162, 235, 1)',   // azul claro
+                                    'rgba(75, 192, 192, 1)',   // verde agua
+                                    'rgba(255, 99, 132, 1)',   // rojo rosado
+                                    'rgba(255, 206, 86, 1)',   // amarillo
+                                    'rgba(153, 102, 255, 1)',  // morado
+                                    'rgba(255, 159, 64, 1)',   // naranja
+                                    'rgba(60, 179, 113, 1)',   // verde medio
+                                    'rgba(199, 199, 199, 1)'   // gris claro
                                 ],
                                 borderWidth: 1
                             }]
@@ -228,12 +234,12 @@ if(isset($rParcel)){
             $diaHoy = date('j');
             // Obtener el último día del mes actual con el día actual del mes
             $ultimoDiaMes = date('t'); // Último día del mes actual
-            $ultimoD = date('Y-m-' . min($diaHoy, $ultimoDiaMes)); // Ajusta al día actual del mes o al último día del mes si es mayor
+            $ultimoD      = date('Y-m-' . min($diaHoy, $ultimoDiaMes)); // Ajusta al día actual del mes o al último día del mes si es mayor
 
             // Convertir las fechas a objetos DateTime
             #$diaInicial = new DateTime(date('Y-m-01')); // Primer día del mes actual
             $diaInicial = new DateTime(date('Y-m-01')); // 'Y' es el año actual, 'm' es el mes actual y '01' es el primer día
-            $diaFinal = new DateTime($ultimoD); // Último día del mes actual con el día actual del mes
+            $diaFinal   = new DateTime($ultimoD); // Último día del mes actual con el día actual del mes
 
             $fini = $diaInicial->format('Y-m-d');
             $f1   = $fini . ' 00:00:00';
@@ -293,16 +299,16 @@ if(isset($rParcel)){
 
                 foreach ($rst as $item) {
                     $labels[] = $item['status_desc']; // Nombre del estado
-                    $data[] = (int)$item['count'];    // Cantidad (convertida a número)
+                    $data[]   = (int)$item['count'];    // Cantidad (convertida a número)
                 }
 
                 // Convertir arrays PHP a JSON para JavaScript
                 $labelsJson = json_encode($labels);
-                $dataJson = json_encode($data);
+                $dataJson   = json_encode($data);
 	            ?>
                 <script>
                     // Convertir los datos de PHP a JavaScript
-                    const labels = <?php echo $labelsJson; ?>;
+                    const labels     = <?php echo $labelsJson; ?>;
                     const dataValues = <?php echo $dataJson; ?>;
 
                     // Crear el gráfico con Chart.js
@@ -315,16 +321,24 @@ if(isset($rParcel)){
                                 label: 'Total',
                                 data: dataValues,
                                 backgroundColor: [
-                                    'rgba(54, 162, 235, 0.6)',
-                                    'rgba(75, 192, 192, 0.6)',
-                                    'rgba(255, 99, 132, 0.6)',
-                                    'rgba(255, 206, 86, 0.6)'
+                                    'rgba(54, 162, 235, 0.6)',   // azul claro
+                                    'rgba(75, 192, 192, 0.6)',   // verde agua
+                                    'rgba(255, 99, 132, 0.6)',   // rojo rosado
+                                    'rgba(255, 206, 86, 0.6)',   // amarillo
+                                    'rgba(153, 102, 255, 0.6)',  // morado
+                                    'rgba(255, 159, 64, 0.6)',   // naranja
+                                    'rgba(60, 179, 113, 0.6)',   // verde medio
+                                    'rgba(199, 199, 199, 0.6)'   // gris claro
                                 ],
                                 borderColor: [
-                                    'rgba(54, 162, 235, 1)',
-                                    'rgba(75, 192, 192, 1)',
-                                    'rgba(255, 99, 132, 1)',
-                                    'rgba(255, 206, 86, 1)'
+                                    'rgba(54, 162, 235, 1)',   // azul claro
+                                    'rgba(75, 192, 192, 1)',   // verde agua
+                                    'rgba(255, 99, 132, 1)',   // rojo rosado
+                                    'rgba(255, 206, 86, 1)',   // amarillo
+                                    'rgba(153, 102, 255, 1)',  // morado
+                                    'rgba(255, 159, 64, 1)',   // naranja
+                                    'rgba(60, 179, 113, 1)',   // verde medio
+                                    'rgba(199, 199, 199, 1)'   // gris claro
                                 ],
                                 borderWidth: 1
                             }]

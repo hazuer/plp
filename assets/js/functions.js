@@ -1,5 +1,8 @@
 $(document).ready(function() {
 	let keepReading = false;
+	let html5QrcodeScanner;
+	let scanning = false; // bandera de bloqueo
+
 	$("#logoff").click(function(){
 		swal({
 			title: "Cerrar sesión",
@@ -55,10 +58,10 @@ $(document).ready(function() {
 			cache: false,
 			contentType: false,
 			processData: false,
-		  })
-		  .done(function(response) {
+		})
+		.done(function(response) {
 			setTimeout(function(){
-			window.location.reload();
+				window.location.reload();
 			}, 1500);
 		})
 	});
@@ -86,9 +89,6 @@ $(document).ready(function() {
 	$(function () {
 		$('[data-toggle="tooltip"]').tooltip()
 	})
-
-		let html5QrcodeScanner;
-		let scanning = false; // bandera de bloqueo
 
 	$('#vGuia').on('keydown', function(event) {
 		if (event.key === 'Enter' || event.keyCode === 13) {
@@ -131,12 +131,12 @@ $(document).ready(function() {
 					$('#mif-folio')
 					.html(`${response.dataJson.folio}`)
 					.css('color', response.dataJson.marker)
-					.css('font-size', '45px');
+					.css('font-size', '70px');
 
 					$('#mif-letra')
 					.html(`${response.dataJson.initial}`)
 					.css('color', response.dataJson.marker)
-					.css('font-size', '45px');;
+					.css('font-size', '70px');;
 
 					$('#mif-nombre').html(`${response.dataJson.contact_name}`);
 					let rawPhone = response.dataJson.phone;
@@ -152,7 +152,7 @@ $(document).ready(function() {
 						if(keepReading){
 							$('#btn-scan-qr').click();
 						}
-					}, 5000);
+					}, 7000);
 				}else{
 					swal("Error!", 'Guía no encontrada', "error");
 					setTimeout(function(){
@@ -167,14 +167,20 @@ $(document).ready(function() {
 		}
 	});
 
-
 	$('#btn-scan-qr').click(function(){
 		scanning = false; // reiniciar la bandera
 		keepReading = true;
-		console.log('init',keepReading);
 		$('#vGuia').val('');
 		let titleModal =  'Verificador Guía';
-		html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 15, qrbox : { width: 260, height: 85 } });
+		html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", {
+			fps: 15,
+			qrbox: function(viewfinderWidth, viewfinderHeight) {
+				// Calcular el lado del cuadro como el 60% del ancho disponible o el más pequeño entre ancho y alto
+				const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+				const side = Math.floor(minEdge * 0.7); // por ejemplo, 60% del área visible
+				return { width: side, height: side };
+			}
+		});
 		html5QrcodeScanner.render(onScanSuccess);
 
 		$('#modal-scan-qr-title').html(titleModal);
@@ -182,16 +188,14 @@ $(document).ready(function() {
 	});
 
 	function onScanSuccess(decodedText, decodedResult) {
-			if (scanning) return; // evitar múltiples ejecuciones
-			scanning = true;
+		if (scanning) return; // evitar múltiples ejecuciones
+		scanning = true;
 
-		console.log('leyo codigo',keepReading);
-		console.log(`Scan result: ${decodedText}`, decodedResult);
 		// Establecer el valor escaneado y simular Enter
 		$('#vGuia').val(decodedText).trigger('input');
 		$('#vGuia').trigger(jQuery.Event('keydown', { keyCode: 13, which: 13 }));
 
-			// cerrar el modal y limpiar el escáner inmediatamente
+		// cerrar el modal y limpiar el escáner inmediatamente
 		$('#modal-scan-qr').modal('hide');
 		html5QrcodeScanner.clear().catch(err => {
 			console.warn('Error al limpiar el escáner:', err);
@@ -200,7 +204,6 @@ $(document).ready(function() {
 
 	$('#close-qr-b,#close-qr-x').click(function(){
 		keepReading=false;
-		console.log('se detuvo',keepReading);
 		if (html5QrcodeScanner) {
 			html5QrcodeScanner.clear().catch(error => {
 				console.warn('Error al detener el escáner:', error);

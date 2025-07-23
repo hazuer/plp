@@ -97,9 +97,6 @@ $txtchgval = ($_SESSION['uLocation']==2) ? 1:2;
 			<button id="btn-handler" type="button" class="btn-sm btn-primary d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Envío Manual de Mensajes">
 				<i class="fa fa-hand-o-up fa-lg" aria-hidden="true"></i>
 			</button>
-			<!--<button id="btn-puppeteer" type="button" class="btn-sm btn-primary d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Puppeteer">
-				  <span style="font-size: 1.2rem;">👾</span>-->
-			</button>
 			<?php }?>
 			<!-- <button id="btn-release-package" type="button" class="btn-sm btn-success d-none d-md-inline" data-toggle="tooltip" data-placement="top" title="Entrega de Paquetes">
 				<i class="fa fa-check-square-o fa-lg" aria-hidden="true"></i>

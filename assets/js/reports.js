@@ -81,7 +81,6 @@ $(document).ready(function() {
 	$(`#tbl-reports tbody`).on( `click`, `#id-logger`, function () {
 		let row = table.row( $(this).closest('tr') ).data();
 		$('#btn-revert-status').hide();
-		// console.log(row);
 		$('#id_package_revert').val(0);
 		loadHistory(row.id_package,row.guia);
 		if(row.status_desc==='Devuelto'){
@@ -97,7 +96,6 @@ $(document).ready(function() {
 	function revertEstatus() {
 		let id_package = $('#id_package_revert').val();
 
-		let list = [];
 		let formData =  new FormData();
 		formData.append('id_package', id_package);
 		formData.append('option','revertStatus');

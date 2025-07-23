@@ -22,7 +22,7 @@ $(document).ready(function() {
 		contentType: false,
 		processData: false,
 		beforeSend : function() {
-				showSwal();
+				showSwal('Iniciando Sesión');
 				$('.swal-button-container').hide();
 			}
 		})

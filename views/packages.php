@@ -60,12 +60,12 @@ $templateMsj=$user[0]['template'];
 	<head>
 		<?php include '../views/header.php'; ?>
 		<script>
-    	let templateMsj =`<?php echo $templateMsj;?>`;
-		let uMarker =`<?php echo $_SESSION["uMarker"];?>`;
-		let uIdCatParcel =`<?php echo $_SESSION["uIdCatParcel"];?>`;
-		let largo = `<?php echo LARGO;?>`;
-		let alto = `<?php echo ALTO;?>`;
-		let rVoice =`<?php echo $_SESSION["uVoice"]; ?>`
+    	let templateMsj    = `<?php echo $templateMsj;?>`;
+		let uMarker        = `<?php echo $_SESSION["uMarker"];?>`;
+		let uIdCatParcel   = `<?php echo $_SESSION["uIdCatParcel"];?>`;
+		let largo          = `<?php echo LARGO;?>`;
+		let alto           = `<?php echo ALTO;?>`;
+		let rVoice         = `<?php echo $_SESSION["uVoice"]; ?>`
 		</script>
 		<script src="<?php echo BASE_URL;?>/assets/js/packages.js?version=<?php echo time(); ?>"></script>
 		<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -253,7 +253,6 @@ $templateMsj=$user[0]['template'];
 			include('modal/evidence.php');
 			include('modal/photo-confirmed.php');
 			include('modal/pull-photo.php');
-			include('modal/puppeteer.php');
 			include('footer.php');
 		?>
 	</body>

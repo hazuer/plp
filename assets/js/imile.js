@@ -1,7 +1,7 @@
 //Powered By HaZuEr.Ing
-//Version:26062025
+//Version:08072025
 // Solicitar los números de seguimiento mediante un prompt
-const input = prompt("👾 Ingresa los números de guía J&T [📦]:");
+const input = prompt("👾 Ingresa los números de guía iMile [📦]:");
 // Procesar el input para crear el array
 const trackingNumbers = input 
     ? input.split('\n')          // Dividir por saltos de línea
@@ -40,8 +40,8 @@ const id_user = (id_location == 1) ? 2 : 4;  // Si es 1 (TQL), asigna usuario 2 
 
 // Generar mensaje de confirmación
 const guiaInicial = trackingNumbers[0] || "N/A";
-const guiaFinal = trackingNumbers[trackingNumbers.length - 1] || "N/A";
-const totalGuias = trackingNumbers.length;
+const guiaFinal   = trackingNumbers[trackingNumbers.length - 1] || "N/A";
+const totalGuias  = trackingNumbers.length;
 
 const mensajeConfirmacion = `
 ¿👾 Los datos son correctos? [⚙️]:
@@ -55,7 +55,12 @@ const mensajeConfirmacion = `
 
 // Mostrar alerta de confirmación
 const isConfirmed = confirm(mensajeConfirmacion);
-// Función para enviar datos al endpoint
+
+// Array to store all results
+const resultados = [];
+let contador = 0;
+const totalElementos = trackingNumbers.length;
+
 async function enviarDatos(resultado) {
     try {
         const endpoint = "https://paqueterialospinos.com/controllers/puppeteer.php";
@@ -77,10 +82,34 @@ async function enviarDatos(resultado) {
         return { success: "false", message: "Error de red o excepción" };
     }
 }
-// Array para almacenar los resultados
-const resultados = [];
-let contador = 0;
-const totalElementos = trackingNumbers.length;
+
+async function clickTab(page, possibleNames, maxAttempts = 6, delayBetweenAttempts = 3000) {
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+            const tabs = await page.$$('button.MuiTab-root');
+
+            for (const tab of tabs) {
+                const tabText = await page.evaluate(el => el.textContent.trim(), tab);
+                if (possibleNames.includes(tabText)) {
+                    await tab.click();
+                    console.log(`✅ ${attempt > 1 ? 'Reintento ' : ''}Clic en pestaña: ${tabText}`);
+                    await page.waitForTimeout(1000); // Pequeña espera para estabilización
+                    return true;
+                }
+            }
+            if (attempt < maxAttempts) {
+                console.log(`⏳ Intento ${attempt} fallido. Reintentando...`);
+                await page.waitForTimeout(delayBetweenAttempts);
+            }
+        } catch (error) {
+            console.error(`🔴 Error en intento ${attempt}:`, error.message);
+        }
+    }
+
+    console.error(`❌ No se encontró ninguna pestaña válida después de ${maxAttempts} intentos`);
+    return false;
+}
+
 if (isConfirmed) {
     for (const trackingNumber of trackingNumbers) {
         contador++;
@@ -97,75 +126,28 @@ if (isConfirmed) {
             estado       : ""
         };
         try {
-            await page.goto("https://ds.imile.com/");
-            await page.waitForTimeout(2000);
+            await page.goto(`https://ds.imile.com/#/DSOperation/WaybillManagement/dsTrackQuery?waybillNo=${trackingNumber}`);
+            await page.reload();
+
             console.log(`:::::::::::::::::::::::::::::::::::::::::::::::::::::::::`);
             console.log(`:::::::::::::::::: Procesando ${contador} de ${totalElementos} ::::::::::::::::::`);
             console.log(`:::::::::::::::::::::::::::::::::::::::::::::::::::::::::`);
+            await page.evaluate(() => console.clear());
 
-            await page.waitForSelector(`input[placeholder="Tracking..."]`, { timeout: 3000 });
-            let input;
+            const possibleNames = [
+                "Recipiente de información",
+                "Cliente Info",
+                "Customer Info"
+            ];
+
+            await clickTab(page, possibleNames);
+
+            let tel_entrante = null;
+            let contact_name = null;
+            // Mapeo de posibles variaciones para cada campo
+            const phoneLabels = ['Teléfono entrante', 'Customer phone'];
+            const nameLabels = ['Contacto del destinatario', 'Customer Name'];
             try {
-                // Intentar con el selector en inglés
-                await page.waitForSelector(`input[placeholder="Tracking..."]`, { 
-                    visible: true,
-                    timeout: 6000 
-                });
-                input = await page.$(`input[placeholder="Tracking..."]`);
-            } catch (error) {
-                console.log('🔴 No se encontró el input en inglés, probando en español...');
-            }
-            // Interacción con el input
-            try {
-                console.log('🟡 Escribiendo número de seguimiento...');
-                await input.click({ delay: 200 }); // Pequeña pausa para simular comportamiento humano
-                // Opción 1: Usando page.type (más fiable para aplicaciones React)
-                await input.type(trackingNumber);
-                // Verificación
-                const currentValue = await page.evaluate(el => el.value, input);
-                if (currentValue !== trackingNumber) {
-                    await page.screenshot({ path: 'input-value-error.png' });
-                    throw new Error("El texto no se ingresó correctamente");
-                }
-                console.log("✅ Texto ingresado correctamente");
-                // Presionar Enter
-                console.log('🟡 Presionando Enter...');
-                await input.press('Enter');
-                // --- NUEVO CÓDIGO PARA PESTAÑA ---
-                console.log('🟡 Esperando pestaña "Recipiente de información"...');
-                await page.waitForTimeout(5500); // Espera más generosa
-            } catch (error) {
-                console.error('🔴 Error durante la interacción:', error);
-            }
-        try {
-                const possibleNames = [
-                    "Recipiente de información",
-                    "Cliente Info",
-                    "Customer Info"
-                ];
-                let tabFound = false;
-                for (const name of possibleNames) {
-                    const [tab] = await page.$x(`//button[contains(@class, "MuiTab-root") and normalize-space(text())="${name}"]`);
-                    if (tab) {
-                        await tab.click();
-                        console.log(`✅ Clic en pestaña: ${name}`);
-                        tabFound = true;
-                        break;
-                    }
-                }
-                if (!tabFound) {
-                    throw new Error(`No se encontró la pestaña con ninguno de los nombres: ${possibleNames.join(', ')}`);
-                }
-            } catch (error) {
-                console.error('🔴 Error al interactuar con la pestaña:', error);
-            }
-        await page.waitForTimeout(2500);
-        let tel_entrante = null;
-        let contact_name = null;
-        // Mapeo de posibles variaciones para cada campo
-        const phoneLabels = ['Teléfono entrante', 'Customer phone'];
-        const nameLabels = ['Contacto del destinatario', 'Customer Name'];
-        try {
                 const elements = await page.$$('.detail-item');
                 for (const element of elements) {
                     try {
@@ -192,35 +174,19 @@ if (isConfirmed) {
             } catch (error) {
                 console.error('Error al buscar elementos:', error);
             }
-            // Usar los valores donde los necesites
-            console.log('::::::::::::::::::::::::::::::::');
-            console.log('::::::::::::::::::::::::::::::::');
-            console.log('Datos extraídos:');
-            console.log('Teléfono:', tel_entrante);
-            console.log('Contacto:', contact_name);
-            console.log('::::::::::::::::::::::::::::::::');
-            console.log('::::::::::::::::::::::::::::::::');
-            // ========= VALIDACIÓN DE DATOS =========
-            const errores = [];
 
+            const errores = [];
             // Validar teléfono (10 dígitos exactos)
             if (!tel_entrante || !/^\d{10}$/.test(tel_entrante)) {
                 errores.push('Teléfono inválido o no encontrado');
                 tel_entrante = null; // Forzar a null si no cumple el formato
             }
 
-            // Validar nombre (mínimo 3 caracteres con letras)
-            /*if (!contact_name || !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,}$/.test(contact_name)) {
-                errores.push('Nombre de contacto inválido o no encontrado');
-                contact_name = null;
-            }*/
-
-            // ========= ASIGNACIÓN Y ENVÍO =========
             if (errores.length === 0) {
                 resultado.receiver = contact_name;
-                resultado.phone = tel_entrante;
+                resultado.phone    = tel_entrante;
                 console.log(`✅ Datos válidos: ${contact_name} | ${tel_entrante}`);
-            
+
                 try {
                     // Envío al endpoint con timeout
                     const respuestaServidor = await Promise.race([
@@ -246,15 +212,16 @@ if (isConfirmed) {
                 resultado.estado = "Falló: " + errores.join(' - ');
                 console.error('❌ Datos incompletos:', errores.join(' | '));
             }
+            await page.evaluate(() => console.clear());
+
         } catch (error) {
             console.error(`❌ Error al procesar ${trackingNumber}:`, error.message);
-            resultado.estado = `error: ${error.message}`;
+            resultado.estado = `Falló: ${error.message}`;
         } finally {
             resultados.push(resultado);
-            await page.waitForTimeout(1000);
         }
     }
-    await page.waitForTimeout(100);
+    await page.waitForTimeout(1000);
     console.log(`:::::::::::::::::::::::::::::::::::::::::::::::::::::::::`);
     console.log(`:::::::::::::::::::::::::::::::::::::::::::::::::::::::::`);
     console.log("📊 FIN DEL PROCESO:");
@@ -273,7 +240,7 @@ if (isConfirmed) {
             console.log(`Teléfono: ${resultado.phone || "No disponible"}`);
         });
     }
-    console.clear()
+    console.clear();
 } else {
     console.log("❌ Proceso cancelado por el usuario");
 }

@@ -21,7 +21,15 @@ switch ($_POST['option']) {
 		$increment = ($type == 'new') ? 1 : 0;
 		if ($increment) {
 			// Incrementa folio en 1 y guarda el nuevo valor en sesión segura
-			$db->sqlPure("UPDATE folio SET folio = LAST_INSERT_ID(folio + 1) WHERE id_location = $id_location");
+			$db->sqlPure("UPDATE folio 
+				SET folio = LAST_INSERT_ID(
+					CASE 
+						WHEN folio >= 999 THEN 1 
+						ELSE folio + 1 
+					END
+				)
+				WHERE id_location = " . (int)$id_location
+			);
 			// Obtiene el nuevo folio de forma segura para esta conexión
 			$records = $db->select("SELECT LAST_INSERT_ID() AS nuevo_folio");
 			$folio = $records[0]['nuevo_folio'];
@@ -232,7 +240,6 @@ switch ($_POST['option']) {
 			];
 		}
 		echo json_encode($result);
-
 	break;
 
 	case 'saveFolio':
@@ -276,7 +283,6 @@ switch ($_POST['option']) {
 		$criteriaPhone = ($idParcel==1 || $idParcel==3) ? "'%$phone%'" : "'%$phone'";
 		$limit = ($idParcel==1 || $idParcel==3) ? 10 : 20;
 
-
 		try {
 			$success  = 'true';
 			$sqlContact = "SELECT id_contact,contact_name,phone FROM cat_contact WHERE phone LIKE ".$criteriaPhone." AND id_location IN($id_location) AND id_contact_status IN(1) ORDER BY contact_name ASC LIMIT ".$limit;
@@ -307,8 +313,7 @@ switch ($_POST['option']) {
 		$data['id_contact_type']   = $_POST['mCContactType'];
 		$data['id_contact_status'] = $_POST['mCEstatus'];
 
-
-		 $action = $_POST['action'];
+		$action = $_POST['action'];
 
 		 try {
 			switch ($action) {
@@ -375,6 +380,10 @@ switch ($_POST['option']) {
 					case 4:
 						$success  = 'false';
 						$message  = 'El paquete ya no esta disponible';
+						break;
+					case 8:
+						$success  = 'false';
+						$message  = 'Paquete en proceso de devolución';
 						break;
 					case 3:
 						$success  = 'false';
@@ -492,31 +501,31 @@ switch ($_POST['option']) {
 
 	case 'getRecordsEvidence':
 		try {
-		$result   = [];
-		$success  = 'false';
-		$dataJson = [];
-		$message  = 'Error al consultar evidencias';
-		$id_package   = $_POST['id_package'];
-		$sql="SELECT 
-		e.date_e,
-		e.`path`,
-		p.tracking,
-		u.`user` 
-		FROM 
-		evidence e 
-		INNER JOIN users u ON u.id  = e.id_user  
-		INNER JOIN package p  ON p.id_package = e.id_package 
-		WHERE
-			e.id_package IN($id_package) 
-		ORDER BY e.id_evidence DESC ";
-		$success  = 'true';
-		$dataJson = $db->select($sql);
-		$message  = 'ok';
-		$result = [
-			'success'  => $success,
-			'dataJson' => $dataJson,
-			'message'  => $message
-		];
+			$result   = [];
+			$success  = 'false';
+			$dataJson = [];
+			$message  = 'Error al consultar evidencias';
+			$id_package   = $_POST['id_package'];
+			$sql="SELECT 
+			e.date_e,
+			e.`path`,
+			p.tracking,
+			u.`user` 
+			FROM 
+			evidence e 
+			INNER JOIN users u ON u.id  = e.id_user  
+			INNER JOIN package p  ON p.id_package = e.id_package 
+			WHERE
+				e.id_package IN($id_package) 
+			ORDER BY e.id_evidence DESC ";
+			$success  = 'true';
+			$dataJson = $db->select($sql);
+			$message  = 'ok';
+			$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $message
+			];
 		} catch (Exception $e) {
 			$result = [
 				'success'  => $success,
@@ -529,32 +538,32 @@ switch ($_POST['option']) {
 
 	case 'getRecordsHistory':
 		try {
-		$result   = [];
-		$success  = 'false';
-		$dataJson = [];
-		$message  = 'Error al consultar el historial';
-		$id_package   = $_POST['id_package'];
-		$sql="SELECT 
-			l.datelog,
-			u.user name_user,
-			ns.status_desc new_status,
-			os.status_desc old_status,
-			l.desc_mov 
-			FROM logger l 
-			INNER JOIN users u ON u.id = l.id_user 
-			INNER JOIN cat_status ns ON ns.id_status = l.new_id_status 
-			INNER JOIN cat_status os ON os.id_status = l.old_id_status 
-			WHERE 
-			l.id_package IN($id_package) 
-			ORDER BY l.id_log DESC";
-		$success  = 'true';
-		$dataJson = $db->select($sql);
-		$message  = 'ok';
-		$result = [
-			'success'  => $success,
-			'dataJson' => $dataJson,
-			'message'  => $message
-		];
+			$result   = [];
+			$success  = 'false';
+			$dataJson = [];
+			$message  = 'Error al consultar el historial';
+			$id_package   = $_POST['id_package'];
+			$sql="SELECT 
+				l.datelog,
+				u.user name_user,
+				ns.status_desc new_status,
+				os.status_desc old_status,
+				l.desc_mov 
+				FROM logger l 
+				INNER JOIN users u ON u.id = l.id_user 
+				INNER JOIN cat_status ns ON ns.id_status = l.new_id_status 
+				INNER JOIN cat_status os ON os.id_status = l.old_id_status 
+				WHERE 
+				l.id_package IN($id_package) 
+				ORDER BY l.id_log DESC";
+			$success  = 'true';
+			$dataJson = $db->select($sql);
+			$message  = 'ok';
+			$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $message
+			];
 		} catch (Exception $e) {
 			$result = [
 				'success'  => $success,
@@ -569,10 +578,10 @@ switch ($_POST['option']) {
 	$result   = [];
 		$success  = 'false';
 		$dataJson = [];
-		$message  = 'Error al guardar el folio';
+		$message  = 'Error al guardar la plantilla';
 
 		$id_location      = $_POST['id_location'];
-		$data['template']    = $_POST['mTTemplate'];
+		$data['template'] = $_POST['mTTemplate'];
 		try {
 			$success  = 'true';
 			$dataJson = $db->update('cat_template',$data," `id_location` = $id_location");
@@ -878,8 +887,6 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 			// Cierra el archivo
 			fclose($archivo);
 			#echo "El archivo $nombreArchivo ha sido creado con éxito.";
-		} else {
-			#echo "No se pudo crear el archivo $nombreArchivo.";
 		}
 
 		$result = [
@@ -980,66 +987,65 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 		}
 
 		echo json_encode($result);
-		break;
+	break;
 
-		case 'mensajeManual':
-			$result   = [];
-			$success  = 'false';
-			$dataJson = [];
-			$message  = 'Error envio de mensaje';
-			$id_location   = $_POST['id_location'];
-			$uidbt    = $_POST['uidbt'];
-			$msjbt    = $_POST['msjbt'];
-			$telefono = $_POST['telefono'];
-			try {
-				$sql="SELECT 
-				cc.phone,
-				GROUP_CONCAT(p.id_package) AS ids,
-				GROUP_CONCAT('*(',p.folio,')-',p.tracking,'*' SEPARATOR '\n') AS folioGuias 
-				FROM package p 
-				INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
-				WHERE 
-				p.id_location IN ($id_location) 
-				AND p.id_status IN (1) 
-				AND cc.phone IN ($telefono)
-				GROUP BY cc.phone";
-				$rst = $db->select($sql);
-				$exist = count($rst);
-				$txtFolios='';
-				if($exist!=0){
-					$success="true";
-					$ids = $rst[0]['ids'];
-					$folioGuias = $rst[0]['folioGuias'];
-					$txtFolios="\n*(Folio)-Guía:*\n$folioGuias";
-					$fullMesage= $msjbt." ".$txtFolios;
+	case 'mensajeManual':
+		$result   = [];
+		$success  = 'false';
+		$dataJson = [];
+		$message  = 'Error envio de mensaje';
+		$id_location   = $_POST['id_location'];
+		$uidbt    = $_POST['uidbt'];
+		$msjbt    = $_POST['msjbt'];
+		$telefono = $_POST['telefono'];
+		try {
+			$sql="SELECT 
+			cc.phone,
+			GROUP_CONCAT(p.id_package) AS ids,
+			GROUP_CONCAT('*(',p.folio,')-',p.tracking,'*' SEPARATOR '\n') AS folioGuias 
+			FROM package p 
+			INNER JOIN cat_contact cc ON cc.id_contact=p.id_contact 
+			WHERE 
+			p.id_location IN ($id_location) 
+			AND p.id_status IN (1) 
+			AND cc.phone IN ($telefono)
+			GROUP BY cc.phone";
+			$rst = $db->select($sql);
+			$exist = count($rst);
+			$txtFolios='';
+			if($exist!=0){
+				$success="true";
+				$ids = $rst[0]['ids'];
+				$folioGuias = $rst[0]['folioGuias'];
+				$txtFolios="\n*(Folio)-Guía:*\n$folioGuias";
+				$fullMesage= $msjbt." ".$txtFolios;
 
-					$listIds = explode(",", $ids);
-					foreach ($listIds as $id_package) {
-						$sid ="Mensaje enviado con éxito a, $telefono";
-						$nDate = date("Y-m-d H:i:s");
-						$data['id_location']  = $id_location;
-						$data['n_date']      = $nDate;
-						$data['n_user_id']   = $uidbt;
-						$data['message']  = $fullMesage;
-						$data['id_contact_type']  = 2;
-						$data['sid']  = $sid;
-						$data['id_package']  = $id_package;
-						$db->insert('notification',$data);
+				$listIds = explode(",", $ids);
+				foreach ($listIds as $id_package) {
+					$sid ="Mensaje enviado con éxito a, $telefono";
+					$nDate = date("Y-m-d H:i:s");
+					$data['id_location']  = $id_location;
+					$data['n_date']      = $nDate;
+					$data['n_user_id']   = $uidbt;
+					$data['message']  = $fullMesage;
+					$data['id_contact_type']  = 2;
+					$data['sid']  = $sid;
+					$data['id_package']  = $id_package;
+					$db->insert('notification',$data);
 
-						$upData['n_date']    = $nDate;
-						$upData['n_user_id'] = $uidbt;
-						$upData['id_status'] = 2;
-						saveLog($id_package,$upData['id_status'],'Envío de Mensaje Manual',true);
-						$db->update('package',$upData," `id_package` IN($id_package)");
-					}
-
+					$upData['n_date']    = $nDate;
+					$upData['n_user_id'] = $uidbt;
+					$upData['id_status'] = 2;
+					saveLog($id_package,$upData['id_status'],'Envío de Mensaje Manual',true);
+					$db->update('package',$upData," `id_package` IN($id_package)");
 				}
+			}
 
-				$result = [
-					'success'  => $success,
-					'dataJson' => [],
-					'message'  => $txtFolios
-				];
+			$result = [
+				'success'  => $success,
+				'dataJson' => [],
+				'message'  => $txtFolios
+			];
 		} catch (Exception $e) {
 			$result = [
 				'success'  => $success,
@@ -1047,391 +1053,390 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 				'message'  => $message.": ".$e->getMessage()
 			];
 		}
-	
 		echo json_encode($result);
-		break;
-		
-		case 'chekout':
-			$arrayRst = [];
-			$id_location = $_POST['id_location'];
-			$idParcel = $_POST['idParcel'];
-			$parcelIn   = ($idParcel==99) ? " AND p.id_cat_parcel IN(1,2,3) ": "AND p.id_cat_parcel IN(".$idParcel.")";
-			$sql = "SELECT 
-			p.id_package,
-			p.id_cat_parcel,
-			p.tracking,
-			RIGHT(cc.phone, 4) AS last_four_digits,
-			cc.phone,
-			cc.contact_name receiver,
-			p.folio 
-			FROM package p 
-			LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
-			LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
-			WHERE 1 
+	break;
+
+	case 'chekout':
+		$arrayRst = [];
+		$id_location = $_POST['id_location'];
+		$idParcel = $_POST['idParcel'];
+		$parcelIn   = ($idParcel==99) ? " AND p.id_cat_parcel IN(1,2,3) ": "AND p.id_cat_parcel IN(".$idParcel.")";
+		$sql = "SELECT 
+		p.id_package,
+		p.id_cat_parcel,
+		p.tracking,
+		RIGHT(cc.phone, 4) AS last_four_digits,
+		cc.phone,
+		cc.contact_name receiver,
+		p.folio 
+		FROM package p 
+		LEFT JOIN cat_contact cc ON cc.id_contact=p.id_contact 
+		LEFT JOIN cat_status cs ON cs.id_status=p.id_status 
+		WHERE 1 
+		AND p.id_location IN ($id_location) 
+		AND p.id_status IN(1,2,6,7)
+		$parcelIn";
+		$packages = $db->select($sql);
+		foreach($packages as $d){
+			if($d['id_cat_parcel']==1){
+				jtCheckServiceTracking($d,$arrayRst);
+			}else if($d['id_cat_parcel']==2){
+				imileCheckServiceTracking($d,$arrayRst);
+			}else if($d['id_cat_parcel']==3){
+				cnmexCheckServiceTracking($d,$arrayRst);
+			}
+		}
+		$result = [
+			'success'      => 'true',
+			'trackingList' => $arrayRst,
+			'message'      => 'ok'
+		];
+		echo json_encode($result);
+	break;
+
+	case 'createBarcode':
+
+		$id_location  = $_POST['id_location'];
+		$idParcel   = $_POST['idParcel'];
+		$parcelIn   = ($idParcel==99) ? " AND p.id_cat_parcel IN(1,2,3) ": "AND p.id_cat_parcel IN(".$idParcel.")";
+		$labelParcel = "";
+		switch ($idParcel) {
+			case 1:
+				$labelParcel = "jt";
+				break;
+			case 2:
+				$labelParcel = "imile";
+				break;
+			case 3:
+				$labelParcel = "cnmex";
+				break;
+			case 99:
+				$labelParcel = "todas";
+				break;
+		}
+
+		$fechaAutoIni  = $_POST['fechaAuto'];
+		$fechaAutoFin      = explode(" ", $fechaAutoIni)[0];
+		$typeLocation ='tlaqui';
+		if($id_location==2){$typeLocation='zaca';}
+
+		$tat  = $_POST['textAreatracking'];
+		$lineasTat = explode("\n", $tat);
+
+		// Iterar sobre cada línea y limpiarla (eliminar espacios y comillas)
+		$numeros_de_guia = [];
+		foreach ($lineasTat as $linea) {
+			$numero = trim(str_replace('"', '', $linea));
+			if (!empty($numero)) {
+				$numeros_de_guia[] = "'" . $numero . "'";
+			}
+		}
+		// Unir los números de teléfono en un solo string con comas
+		$textAreatracking = implode(",", $numeros_de_guia);
+
+		$nameTypeMode = '';
+		$listEstatus  = '';
+		$dateBetween  = '';
+		switch ($_POST['type_mode']) {
+			case 'auto':
+				$nameTypeMode='auto_servicio';
+				#$listEstatus='1, 2, 3, 4, 5, 6, 7'; // al estatus
+				$listEstatus = "";
+				$dateBetween = "AND p.c_date BETWEEN '".$fechaAutoIni.":00' AND '".$fechaAutoFin." 23:59:59' ";
+				break;
+			case 'ocurre':
+				$nameTypeMode = 'ocurre';
+				//$listEstatus  = '1, 2, 7'; // Nuevo / Mensaje Enviado / Contactado
+				$listEstatus  = " AND p.id_status IN ('1', '2', '7') ";
+				#$dateBetween = "AND p.c_date BETWEEN '".date('Y-m-d')." 00:00:00' AND '".date('Y-m-d')." 23:59:59' ";
+				$dateBetween  = "";
+				break;
+			case 'anomalia':
+				$nameTypeMode = 'anomalia';
+				#$listEstatus = '6'; //Mensaje de error
+				$listEstatus  = " AND p.id_status IN ('6') ";
+				$dateBetween  = "";
+				break;
+			case 'manual':
+				$nameTypeMode='manual';
+				$listEstatus = "";
+				$dateBetween = "AND p.tracking IN (".$textAreatracking.") ";
+				break;
+		}
+
+		$result = [
+			'success'   => false,
+			'message'   => 'No se pudo abrir el archivo ZIP'
+		];
+
+		// Incluir la biblioteca PHPBarcode
+		require_once('barcode.php');
+
+		$sql ="SELECT 
+			p.tracking 
+		FROM 
+			package p 
+		LEFT JOIN cat_contact cc ON cc.id_contact = p.id_contact 
+		LEFT JOIN cat_status cs ON cs.id_status = p.id_status 
+		LEFT JOIN users uc ON uc.id = p.c_user_id 
+		LEFT JOIN cat_location cl ON cl.id_location = p.id_location 
+		LEFT JOIN users un ON un.id = p.n_user_id 
+		LEFT JOIN users ud ON ud.id = p.d_user_id 
+		WHERE 1 
 			AND p.id_location IN ($id_location) 
-			AND p.id_status IN(1,2,6,7)
-			$parcelIn";
-			$packages = $db->select($sql);
-			foreach($packages as $d){
-				if($d['id_cat_parcel']==1){
-					jtCheckServiceTracking($d,$arrayRst);
-				}else if($d['id_cat_parcel']==2){
-					imileCheckServiceTracking($d,$arrayRst);
-				}else if($d['id_cat_parcel']==3){
-					cnmexCheckServiceTracking($d,$arrayRst);
-				}
-			}
+			$listEstatus 
+			$dateBetween 
+			$parcelIn 
+		ORDER BY p.id_package DESC";
+		$codigos = $db->select($sql);
+		if(count($codigos)==0){
 			$result = [
-				'success'      => 'true',
-				'trackingList' => $arrayRst,
-				'message'      => 'ok'
+				'success'   => 'false',
+				'zip'       => '',
+				'message'   => 'Sin registros para crear códigos de barras'
 			];
 			echo json_encode($result);
-		break;
+			return;
+		}
 
-		case 'createBarcode':
+		$archivos = array();
+		// Iterar sobre cada código y generar el código de barras correspondiente
+		$c=1;
+		foreach ($codigos as $data) {
+			$codigo = $data['tracking'];
+			// Nombre del archivo para guardar el código de barras
+			$nombreImagen = $c.'_'.$codigo . '.png';
 
-			$id_location  = $_POST['id_location'];
-			$idParcel   = $_POST['idParcel'];
-			$parcelIn   = ($idParcel==99) ? " AND p.id_cat_parcel IN(1,2,3) ": "AND p.id_cat_parcel IN(".$idParcel.")";
-			$labelParcel = "";
-			switch ($idParcel) {
-				case 1:
-					$labelParcel = "jt";
-					break;
-				case 2:
-					$labelParcel = "imile";
-					break;
-				case 3:
-					$labelParcel = "cnmex";
-					break;
-				case 99:
-					$labelParcel = "todas";
-					break;
-			}
+			// Llamar a la función barcode() para generar el código de barras con un tamaño más grande
+			barcode($nombreImagen, $codigo, 80, 'horizontal', 'code128', true, 1);
 
-			$fechaAutoIni  = $_POST['fechaAuto'];
-			$fechaAutoFin      = explode(" ", $fechaAutoIni)[0];
-			$typeLocation ='tlaqui';
-			if($id_location==2){$typeLocation='zaca';}
+			# aca agegar el nombreImagen al array archivos
+			array_push($archivos,$nombreImagen);
+			$c++;
+		}
 
-			$tat  = $_POST['textAreatracking'];
-			$lineasTat = explode("\n", $tat);
+		$nameOcurre= $nameTypeMode.'_'.$typeLocation.'_'.$labelParcel.'_T'.count($codigos).'_'.date('Y-m-d');
+		// Nombre del archivo ZIP
+		$zipFilename = $nameOcurre.'.zip';
 
-			// Iterar sobre cada línea y limpiarla (eliminar espacios y comillas)
-			$numeros_de_guia = [];
-			foreach ($lineasTat as $linea) {
-				$numero = trim(str_replace('"', '', $linea));
-				if (!empty($numero)) {
-					$numeros_de_guia[] = "'" . $numero . "'";
-				}
-			}
-			// Unir los números de teléfono en un solo string con comas
-			$textAreatracking = implode(",", $numeros_de_guia);
+		// Crear una instancia de ZipArchive
+		$zip = new ZipArchive();
 
-			$nameTypeMode = '';
-			$listEstatus  = '';
-			$dateBetween  = '';
-			switch ($_POST['type_mode']) {
-				case 'auto':
-					$nameTypeMode='auto_servicio';
-					#$listEstatus='1, 2, 3, 4, 5, 6, 7'; // al estatus
-					$listEstatus = "";
-					$dateBetween = "AND p.c_date BETWEEN '".$fechaAutoIni.":00' AND '".$fechaAutoFin." 23:59:59' ";
-					break;
-				case 'ocurre':
-					$nameTypeMode = 'ocurre';
-					//$listEstatus  = '1, 2, 7'; // Nuevo / Mensaje Enviado / Contactado
-					$listEstatus  = " AND p.id_status IN ('1', '2', '7') ";
-					#$dateBetween = "AND p.c_date BETWEEN '".date('Y-m-d')." 00:00:00' AND '".date('Y-m-d')." 23:59:59' ";
-					$dateBetween  = "";
-					break;
-				case 'anomalia':
-					$nameTypeMode = 'anomalia';
-					#$listEstatus = '6'; //Mensaje de error
-					$listEstatus  = " AND p.id_status IN ('6') ";
-					$dateBetween  = "";
-					break;
-				case 'manual':
-					$nameTypeMode='manual';
-					$listEstatus = "";
-					$dateBetween = "AND p.tracking IN (".$textAreatracking.") ";
-					break;
-			}
-
-			$result = [
-				'success'   => false,
-				'message'   => 'No se pudo abrir el archivo ZIP'
-			];
-
-			// Incluir la biblioteca PHPBarcode
-			require_once('barcode.php');
-
-			$sql ="SELECT 
-				p.tracking 
-			FROM 
-				package p 
-			LEFT JOIN cat_contact cc ON cc.id_contact = p.id_contact 
-			LEFT JOIN cat_status cs ON cs.id_status = p.id_status 
-			LEFT JOIN users uc ON uc.id = p.c_user_id 
-			LEFT JOIN cat_location cl ON cl.id_location = p.id_location 
-			LEFT JOIN users un ON un.id = p.n_user_id 
-			LEFT JOIN users ud ON ud.id = p.d_user_id 
-			WHERE 1 
-				AND p.id_location IN ($id_location) 
-				$listEstatus 
-				$dateBetween 
-				$parcelIn 
-			ORDER BY p.id_package DESC";
-			$codigos = $db->select($sql);
-			if(count($codigos)==0){
-				$result = [
-					'success'   => 'false',
-					'zip'       => '',
-					'message'   => 'Sin registros para crear códigos de barras'
-				];
-				echo json_encode($result);
-				return;
-			}
-
-			$archivos = array();
-			// Iterar sobre cada código y generar el código de barras correspondiente
-			$c=1;
-			foreach ($codigos as $data) {
-				$codigo = $data['tracking'];
-				// Nombre del archivo para guardar el código de barras
-				$nombreImagen = $c.'_'.$codigo . '.png';
-
-				// Llamar a la función barcode() para generar el código de barras con un tamaño más grande
-				barcode($nombreImagen, $codigo, 80, 'horizontal', 'code128', true, 1);
-
-			   # aca agegar el nombreImagen al array archivos
-			   array_push($archivos,$nombreImagen);
-			   $c++;
-			}
-
-			$nameOcurre= $nameTypeMode.'_'.$typeLocation.'_'.$labelParcel.'_T'.count($codigos).'_'.date('Y-m-d');
-			// Nombre del archivo ZIP
-			$zipFilename = $nameOcurre.'.zip';
-
-			// Crear una instancia de ZipArchive
-			$zip = new ZipArchive();
-
-			// Abrir el archivo ZIP para escritura
-			if ($zip->open($zipFilename, ZipArchive::CREATE) === TRUE) {
-				// Agregar cada archivo al archivo ZIP
-				foreach ($archivos as $archivo) {
-					// Crear un objeto SplFileInfo para el archivo
-					$fileInfo = new SplFileInfo($archivo);
-					// Agregar el archivo al ZIP usando el nombre base como nombre interno
-					$zip->addFile($archivo, $fileInfo->getBasename());
-				}
-				// Cerrar el archivo ZIP
-				$zip->close();
-
-				$result = [
-					'success'   => 'true',
-					'zip'       => $zipFilename,
-					'message'   => 'ok'
-				];
-			}
-
+		// Abrir el archivo ZIP para escritura
+		if ($zip->open($zipFilename, ZipArchive::CREATE) === TRUE) {
+			// Agregar cada archivo al archivo ZIP
 			foreach ($archivos as $archivo) {
-				unlink($archivo);
+				// Crear un objeto SplFileInfo para el archivo
+				$fileInfo = new SplFileInfo($archivo);
+				// Agregar el archivo al ZIP usando el nombre base como nombre interno
+				$zip->addFile($archivo, $fileInfo->getBasename());
+			}
+			// Cerrar el archivo ZIP
+			$zip->close();
+
+			$result = [
+				'success'   => 'true',
+				'zip'       => $zipFilename,
+				'message'   => 'ok'
+			];
+		}
+
+		foreach ($archivos as $archivo) {
+			unlink($archivo);
+		}
+
+		echo json_encode($result);
+	break;
+
+	case 'deleteZip':
+		$zipFile=$_POST['zipFile'];
+		unlink($zipFile);
+	break;
+
+	case 'check-tracking':
+		$tracking = isset($_POST['tracking']) ? htmlspecialchars($_POST['tracking']) : '';
+
+		$result   = [];
+		$success  = 'false';
+		$message  = 'No se encontró el número de guía especificado';
+		$sql = "SELECT tracking, CASE 
+		WHEN id_location = 1 THEN 'Tlaquiltenango' 
+		WHEN id_location = 2 THEN 'Zacatepec' 
+		END AS ubicacion 
+		FROM package 
+		WHERE 
+		tracking IN ('$tracking')
+		AND id_status NOT IN(3,4,5,8)
+		LIMIT 1";
+		$rst      = $db->select($sql);
+		$total    = COUNT($rst);
+		if($total >= 1){
+			$location = $rst[0]['ubicacion'];
+			$success  = 'true';
+			$message  = "Felicitaciones, tu paquete está listo en la sucursal de $location";
+		}
+		$result = [
+			'success'  => $success,
+			'message'  => $message
+		];
+		echo json_encode($result);
+	break;
+
+	case 'pullConfirm':
+		$result   = [];
+		$success  = 'false';
+		$dataJson = [];
+		$message  = 'Error confirmar el pull de paquetes';
+		$id_location = $_POST['id_location'];
+		$idsx    = $_POST['idsx'];
+		$listIds = explode(",", $idsx);
+		$totPaqPorConfirmar = count($listIds);
+		try {
+			$sql="SELECT p.id_package,p.id_status,p.folio,cs.status_desc,note 
+				FROM package p 
+				INNER JOIN cat_status cs ON cs.id_status=p.id_status 
+				WHERE p.id_package IN ($idsx) 
+			AND p.id_location IN ($id_location) 
+			AND p.id_status IN (2,7)";
+			$checkRelease = $db->select($sql);
+			$totalPaqueteDisponibles = count($checkRelease);
+
+			if($totPaqPorConfirmar==$totalPaqueteDisponibles){
+				$success="true";
+				$message="$totPaqPorConfirmar Paquetes Confirmados";
+				$data['id_status']  = 5; //Confirmado
+				foreach ($listIds as $i => $idpkg) {
+					saveLog($idpkg,$data['id_status'],'Confirmación de Paquete por Selección',true);
+				}
+				$rst = $db->update('package',$data," `id_package` IN ($idsx)");
+				foreach ($checkRelease as $rdata) {
+					$separator = ($rdata['note']=='') ?  '':', ';
+					$dUpN['note'] = $rdata['note'].$separator.'Confirmó '.$_SESSION["uName"].' el día '.date("Y-m-d H:i");
+					$idnotex=$rdata['id_package'];
+					$db->update('package',$dUpN," `id_package` IN ($idnotex)");
+				}
+			}else{
+				$sql="SELECT p.id_status,p.folio,cs.status_desc 
+				FROM package p 
+				INNER JOIN cat_status cs ON cs.id_status=p.id_status 
+				WHERE p.id_package IN ($idsx) 
+				AND p.id_location IN ($id_location) 
+				AND p.id_status NOT IN (2,7)";
+				$noAvailable = $db->select($sql);
+				$success="error";
+				$mensaje="No es posible confirmar el grupo de paquetes, por favor verifica el estatus de los paquetes:\n";
+				foreach ($noAvailable as $resultado) {
+					$mensaje .= "Folio:" . $resultado['folio'] . ", Estatus:" . $resultado['status_desc'] . "\n";
+				}
+				$message = $mensaje. "\nNota:Solo paquetes con estatus:mensaje enviado o contactado pueden ser confirmados.";
 			}
 
-			echo json_encode($result);
-		break;
-
-		case 'deleteZip':
-			$zipFile=$_POST['zipFile'];
-			unlink($zipFile);
-		break;
-
-		case 'check-tracking':
-			$tracking = isset($_POST['tracking']) ? htmlspecialchars($_POST['tracking']) : '';
-
-			$result   = [];
-			$success  = 'false';
-			$message  = 'No se encontró el número de guía especificado';
-			$sql = "SELECT tracking, CASE 
-			WHEN id_location = 1 THEN 'Tlaquiltenango' 
-			WHEN id_location = 2 THEN 'Zacatepec' 
-			END AS ubicacion 
-			FROM package 
-			WHERE 
-			tracking IN ('$tracking')
-			AND id_status NOT IN(3,4,5)
-			LIMIT 1";
-			$rst      = $db->select($sql);
-			$total    = COUNT($rst);
-			if($total >= 1){
-				$location = $rst[0]['ubicacion'];
-				$success  = 'true';
-				$message  = "Felicitaciones, tu paquete está listo en la sucursal de $location";
-			}
 			$result = [
 				'success'  => $success,
+				'dataJson' => [],
 				'message'  => $message
 			];
-			echo json_encode($result);
+		} catch (Exception $e) {
+			$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $message.": ".$e->getMessage()
+			];
+		}
+
+		echo json_encode($result);
 		break;
 
-		case 'pullConfirm':
-			$result   = [];
-			$success  = 'false';
-			$dataJson = [];
-			$message  = 'Error confirmar el pull de paquetes';
-			$id_location = $_POST['id_location'];
-			$idsx    = $_POST['idsx'];
-			$listIds = explode(",", $idsx);
-			$totPaqPorConfirmar = count($listIds);
-			try {
-				$sql="SELECT p.id_package,p.id_status,p.folio,cs.status_desc,note 
-				   FROM package p 
-				   INNER JOIN cat_status cs ON cs.id_status=p.id_status 
-				   WHERE p.id_package IN ($idsx) 
-				AND p.id_location IN ($id_location) 
-				AND p.id_status IN (2,7)";
-				$checkRelease = $db->select($sql);
-				$totalPaqueteDisponibles = count($checkRelease);
+	case 'revertStatus':
+		$result   = [];
+		$success  = 'false';
+		$dataJson = [];
+		$message  = 'Error al guardar cambiar el estatus';
+		$id_package      = $_POST['id_package'];
 
-				if($totPaqPorConfirmar==$totalPaqueteDisponibles){
-					$success="true";
-					$message="$totPaqPorConfirmar Paquetes Confirmados";
-					$data['id_status']  = 5; //Confirmado
-					foreach ($listIds as $i => $idpkg) {
-						saveLog($idpkg,$data['id_status'],'Confirmación de Paquete por Selección',true);
-					}
-					$rst = $db->update('package',$data," `id_package` IN ($idsx)");
-					foreach ($checkRelease as $rdata) {
-						$separator = ($rdata['note']=='') ?  '':', ';
-						$dUpN['note'] = $rdata['note'].$separator.'Confirmó '.$_SESSION["uName"].' el día '.date("Y-m-d H:i");
-						$idnotex=$rdata['id_package'];
-						$db->update('package',$dUpN," `id_package` IN ($idnotex)");
-					}
-				}else{
-					$sql="SELECT p.id_status,p.folio,cs.status_desc 
-					FROM package p 
-					INNER JOIN cat_status cs ON cs.id_status=p.id_status 
-					WHERE p.id_package IN ($idsx) 
-					AND p.id_location IN ($id_location) 
-					AND p.id_status NOT IN (2,7)";
-					$noAvailable = $db->select($sql);
-					$success="error";
-					$mensaje="No es posible confirmar el grupo de paquetes, por favor verifica el estatus de los paquetes:\n";
-					foreach ($noAvailable as $resultado) {
-						$mensaje .= "Folio:" . $resultado['folio'] . ", Estatus:" . $resultado['status_desc'] . "\n";
-					}
-					$message = $mensaje. "\nNota:Solo paquetes con estatus:mensaje enviado o contactado pueden ser confirmados.";
-				}
+		try {
+			$success  = 'true';
+			$data['id_status']  = 7;
+			saveLog($id_package,$data['id_status'],'Activacion de Guía, se cambia a Contactado',true);
+			$dataJson = $db->update('package',$data," `id_package` = $id_package");
+			$message  = 'Guía Actualizada';
+			$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $message
+			];
+		} catch (Exception $e) {
+			$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $message.": ".$e->getMessage()
+			];
+		}
+		echo json_encode($result);
+	break;
 
+	case 'checkGuia':
+		$result   = [];
+		$success  = 'false';
+		$dataJson = [];
+		$message  = 'Guía no encontrada';
+		$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $message
+			];
+		$vGuia       = $_POST['vGuia'];
+		$id_location = $_POST['id_location'];
+		$existTmpRecord = validatorGuide($vGuia,'package_tmp',$id_location);
+		if(count($existTmpRecord)==1){//move records
+			$slt = "SELECT 
+			id_location, id_contact, c_user_id, tracking, folio,
+			n_date, n_user_id, d_date, d_user_id, id_status, note, marker,
+			id_cat_parcel, id_type_mode,address 
+			FROM package_tmp 
+			WHERE tracking = '".$vGuia."'
+			AND id_location IN(".$id_location.") 
+			LIMIT 1";
+			$rstR = $db->select($slt);
+			$newData = $rstR[0];
+			$dateCurrent = date("Y-m-d H:i:s");
+			$newData['c_date']    = $dateCurrent;
+			$newData['v_date']    = $dateCurrent;
+			$newData['v_user_id'] = $_SESSION["uId"];
+			$new_id_package = $db->insert('package',$newData); //tmp table
+			saveLog($new_id_package,1,'Nuevo registro de paquete by puppeteer');
+			saveLog($new_id_package,1,'Rotulado/Verificado por: '.$_SESSION["uName"]);
+			if($new_id_package>=1){
+				$db->sqlPure("DELETE FROM package_tmp 
+				WHERE id_location IN(".$id_location.") 
+				AND tracking = '".$vGuia."'");
+			}
+			$result = [
+				'success'  => 'true',
+				'dataJson' => $existTmpRecord[0],
+				'message'  => ''
+			];
+		}else{
+			$existRecord = validatorGuide($vGuia,'package',$id_location);
+			if(count($existRecord)>=1){
+				$id_package = $existRecord[0]['id_package'];
+				$currentStatus = getCurrentStatus($id_package);
+				saveLog($id_package,$currentStatus,'Rotulado/Verificado por: '.$_SESSION["uName"],true);
+
+				$data['v_date']    = date("Y-m-d H:i:s");
+				$data['v_user_id'] = $_SESSION["uId"];
+
+				$dataJson = $db->update('package',$data," `id_package` = $id_package");
 				$result = [
-					'success'  => $success,
-					'dataJson' => [],
-					'message'  => $message
-				];
-			} catch (Exception $e) {
-				$result = [
-					'success'  => $success,
-					'dataJson' => $dataJson,
-					'message'  => $message.": ".$e->getMessage()
+					'success'  => 'true',
+					'dataJson' => $existRecord[0],
+					'message'  => ''
 				];
 			}
+		}
 
-			echo json_encode($result);
-			break;
-
-			case 'revertStatus':
-				$result   = [];
-				$success  = 'false';
-				$dataJson = [];
-				$message  = 'Error al guardar cambiar el estatus';
-				$id_package      = $_POST['id_package'];
-
-				try {
-					$success  = 'true';
-					$data['id_status']  = 7;
-					saveLog($id_package,$data['id_status'],'Activacion de Guía, se cambia a Contactado',true);
-					$dataJson = $db->update('package',$data," `id_package` = $id_package");
-					$message  = 'Guía Actualizada';
-					$result = [
-						'success'  => $success,
-						'dataJson' => $dataJson,
-						'message'  => $message
-					];
-				} catch (Exception $e) {
-					$result = [
-						'success'  => $success,
-						'dataJson' => $dataJson,
-						'message'  => $message.": ".$e->getMessage()
-					];
-				}
-				echo json_encode($result);
-			break;
-
-			case 'checkGuia':
-				$result   = [];
-				$success  = 'false';
-				$dataJson = [];
-				$message  = 'Guía no encontrada';
-				$result = [
-						'success'  => $success,
-						'dataJson' => $dataJson,
-						'message'  => $message
-					];
-				$vGuia       = $_POST['vGuia'];
-				$id_location = $_POST['id_location'];
-				$existTmpRecord = validatorGuide($vGuia,'package_tmp',$id_location);
-				if(count($existTmpRecord)==1){//move records
-					$slt = "SELECT 
-					id_location, id_contact, c_user_id, tracking, folio,
-					n_date, n_user_id, d_date, d_user_id, id_status, note, marker,
-					id_cat_parcel, id_type_mode,address 
-					FROM package_tmp 
-					WHERE tracking = '".$vGuia."'
-					AND id_location IN(".$id_location.") 
-					LIMIT 1";
-					$rstR = $db->select($slt);
-					$newData = $rstR[0];
-					$dateCurrent = date("Y-m-d H:i:s");
-					$newData['c_date']    = $dateCurrent;
-					$newData['v_date']    = $dateCurrent;
-					$newData['v_user_id'] = $_SESSION["uId"];
-					$new_id_package = $db->insert('package',$newData); //tmp table
-					saveLog($new_id_package,1,'Nuevo registro de paquete by puppeteer');
-					saveLog($new_id_package,1,'Rotulado/Verificado por: '.$_SESSION["uName"]);
-					if($new_id_package>=1){
-						$db->sqlPure("DELETE FROM package_tmp 
-						WHERE id_location IN(".$id_location.") 
-						AND tracking = '".$vGuia."'");
-					}
-					$result = [
-						'success'  => 'true',
-						'dataJson' => $existTmpRecord[0],
-						'message'  => ''
-					];
-				}else{
-					$existRecord = validatorGuide($vGuia,'package',$id_location);
-					if(count($existRecord)>=1){
-						$id_package = $existRecord[0]['id_package'];
-						$currentStatus = getCurrentStatus($id_package);
-						saveLog($id_package,$currentStatus,'Rotulado/Verificado por: '.$_SESSION["uName"],true);
-
-						$data['v_date']    = date("Y-m-d H:i:s");
-						$data['v_user_id'] = $_SESSION["uId"];
-
-						$dataJson = $db->update('package',$data," `id_package` = $id_package");
-						$result = [
-							'success'  => 'true',
-							'dataJson' => $existRecord[0],
-							'message'  => ''
-						];
-					}
-				}
-
-				echo json_encode($result);
-			break;
+		echo json_encode($result);
+	break;
 }
 
 function cnmexCheckServiceTracking($d,&$arrayRst){

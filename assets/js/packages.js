@@ -719,22 +719,6 @@ $(document).ready(function() {
 		}, doneTypingInterval); // Ejecuta después de que el usuario deja de escribir
     });
 
-	// Manejar la selección de una coincidencia
-	/*$('#coincidencias').on('click', 'p', function() {
-		let name        = $(this).data('name');
-		let phoneNumber = $(this).data('phone');
-		let id_contact = $(this).data('idcontact');
-		$('#receiver').val(name);
-		$('#phone').val(phoneNumber);
-		$('#id_contact').val(id_contact);
-		$('#coincidencias').hide();
-		$('#tracking').focus();
-		if($('#action').val()=='new'){
-			speakText(name);
-		}
-		//hasFetchedContact = false; // 🔄 Permitir futuras búsquedas
-	});
-	*/
 	$('#coincidencias').on('click', 'p', function() {
 		let name        = $(this).data('name');
 		let phoneNumber = $(this).data('phone');
@@ -743,14 +727,12 @@ $(document).ready(function() {
 	});
 
 	function seleccionarCoincidencia(name, phoneNumber, id_contact,mode) {
-		console.log(mode,name, phoneNumber, id_contact);
 		$('#receiver').val(name);
 		$('#phone').val(phoneNumber);
 		$('#id_contact').val(id_contact);
 		$('#coincidencias').hide();
 		$('#tracking').focus();
 		if($('#action').val() === 'new') {
-			console.log(name);
 			speakText(name);
 		}
 	}
@@ -834,121 +816,6 @@ $(document).ready(function() {
 			console.error(error);
 		}
 	});
-
-	//------------------------------------------ release
-	let  listPackageRelease=[];
-/*
-	$('#btn-release-package,#btn-release-package-1').click(function(){
-		listPackage = [];
-		$('#form-modal-release-package')[0].reset();
-		$('#mrp-id_location').val(idLocationSelected.val());
-		let fechaFormateada = getCurrentDate();
-		$('#mrp-date-release').val(fechaFormateada);
-		$('#tablaPaquetes').hide();
-
-		$('#modal-release-package-title').html('Entrega de Paquetes');
-		$('#modal-release-package').modal({backdrop: 'static', keyboard: false}, 'show');
-		setTimeout(function(){
-			$('#mrp-tracking').focus();
-		}, 600);
-	});
-*/
-	/*
-	$('#close-mrp-x,#close-mrp-b').click(function(){
-		window.location.reload();
-	});
-	*/
-/*
-	$('#btn-mrp-save').click(function(){
-		saveAndReleasePakage();
-	});
-	*/
-
-	/*
-	function saveAndReleasePakage(){
-		try {
-			let tracking = $('#mrp-tracking').val();
-			let t = $('#mrp-tracking').val().trim(); // Eliminar espacios en blanco al inicio y al final
-
-			let regex = /^JMX\d{12}$/;
-			if (t.length !== 15 || !regex.test(t.toUpperCase())) {
-				let mensajeError = "* Código de barras no válido:";
-				if (t.length !== 15) {
-					mensajeError += " Debe tener 15 caracteres";
-				} else {
-					mensajeError += " Formato no válido";
-				}
-				swal("Atención!", mensajeError, "error");
-				return;
-			}
-
-			let guia = tracking.substring(0, 3).toUpperCase() + tracking.substring(3);
-			listPackageRelease.push(`'${guia}'`);
-
-
-			let formData = new FormData();
-			formData.append('id_location',idLocationSelected.val());
-			formData.append('tracking',guia);
-			formData.append('listPackageRelease', JSON.stringify(listPackageRelease));
-			formData.append('option','releasePackage');
-			formData.append('desc_mov','Liberación de Paquete Escáner Modal');
-			$.ajax({
-				url: `${base_url}/${baseController}`,
-				type       : 'POST',
-				data       : formData,
-				cache      : false,
-				contentType: false,
-				processData: false,
-			})
-			.done(function(response) {
-				$('#mrp-tracking').val('');
-				if(response.success==='true'){
-					if (response.dataJson.length > 0) {
-						$('#tablaPaquetes').show();
-						$('#tablaPaquetes tbody').empty();
-						$.each(response.dataJson, function(index, item) {
-							let row = `<tr>
-								<td>${item.tracking}</td>
-								<td>${item.phone}</td>
-								<td>${item.receiver}</td>
-								<td>${item.folio}</td>
-							</tr>`;
-							$('#tablaPaquetes tbody').append(row);
-						});
-					}
-					swal(guia, response.message, "success");
-				}else {
-					let index = listPackageRelease.indexOf(`'${guia}'`);
-					if (index !== -1) {
-						listPackageRelease.splice(index, 1);
-					}
-					swal(guia, response.message, "warning");
-				}
-				$('.swal-button-container').hide();
-				setTimeout(function(){
-					swal.close();
-					$('#mrp-tracking').focus();
-				}, 2500);
-
-			}).fail(function(e) {
-				console.log("Opps algo salio mal",e);
-			});
-
-		} catch (error) {
-			console.log("Opps algo salio mal",error);
-		}
-	}
-	*/
-
-	//-----------------------
-	/*
-	$('#mrp-tracking').on('input', function() {
-		let input = $(this).val().trim();
-		if (input.length === 15 && input.substr(0, 3).toUpperCase() === "JMX") {
-			$('#btn-mrp-save').click();
-		}
-	});
-	*/
 
 	//--------------
 	$('#btn-template,#btn-template-1').click(function(){
@@ -1899,56 +1766,6 @@ $(document).ready(function() {
         // Forzar un "input" o "keyup" para que DataTables detecte el cambio
         searchInput.trigger('input').trigger('keyup');
     });
-
-	$('#btn-puppeteer').click(function(){
-		$('#mpptListTracking').val('');
-		$('#modal-puppeteer-title').html('Puppeteer 👾');
-		$('#modal-puppeteer').modal({backdrop: 'static', keyboard: false}, 'show');
-		setTimeout(function(){
-			$('#mpptListTracking').focus();
-		}, 600);
-	});
-
-	$('#btn-puppeteer-command').click(function(){
-		if($('#mpptListTracking').val()==''){
-			swal("Atención!", "* Campos requeridos", "error");
-			return;
-		}
-
-		let formData = new FormData();
-		formData.append('id_location', idLocationSelected.val());
-		formData.append('mpptIdCatParcel', $('#mpptIdCatParcel').val());
-		formData.append('mpptIdMarcador', $('#mpptIdMarcador').val());
-		formData.append('mpptListTracking', $('#mpptListTracking').val());
-		formData.append('option', 'puppeteer');
-		try {
-			$.ajax({
-				url        : `${base_url}/${baseController}`,
-				type       : 'POST',
-				data       : formData,
-				cache      : false,
-				contentType: false,
-				processData: false,
-				beforeSend : function() {
-					showSwal('Creando Puppeteer','Espere por favor...');
-					$('.swal-button-container').hide();
-				}
-			})
-			.done(function(response) {
-				swal.close();
-				$('#modal-puppeteer').modal('hide');
-				swal(`👾`,`${response.message}`, "success");
-				$('.swal-button-container').hide();
-				setTimeout(function(){
-					swal.close();
-				}, 3500);
-			});
-		} catch (error) {
-			console.log("Opps algo salio mal",error);
-
-		}
-	});
-
 
 });
 

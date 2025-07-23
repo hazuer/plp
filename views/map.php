@@ -97,8 +97,8 @@ require_once('../system/session_cookies.php');
 			?></span>
 			<div class="row">
 			<?php foreach ($groupedPackages as $initial => $packages): ?>
-				<div class="col-6 col-md-1"></div>
-				<div class="col-6 col-md-2" style="border: 1px solid black; min-height: 150px; background-color: lightblue; margin-bottom: 15px;">
+				<div class="col-4 col-md-1"></div>
+				<div class="col-6 col-md-3" style="border: 1px solid black; min-height: 150px; background-color: lightblue; margin-bottom: 15px;">
 					<div class="row">
 						<div class="col-8" style="text-align:right;">
 							<span style="font-size:28px;"><?php echo $initial."-".count($packages); ?></span>
@@ -128,7 +128,7 @@ require_once('../system/session_cookies.php');
 					</div>
 					<div class="row">
 						<?php foreach ($packages as $package): ?>
-							<div class="col-md-3" data-toggle="tooltip" data-placement="top" title="<?php echo $package['tracking'];?>-<?php echo $package['receiver'];?>">
+							<div class="col-4 col-sm-3 col-md-3 mx-auto mb-1" data-toggle="tooltip" data-placement="top" title="<?php echo $package['tracking'];?>-<?php echo $package['receiver'];?>">
 								<span style="color:<?php echo $package['marker'];?>">
 									<input type="checkbox" autocomplete="off"><b><?php echo $package['folio']; ?></b>
 								</span>

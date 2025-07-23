@@ -1,5 +1,5 @@
 //Powered By HaZuEr.Ing
-//Version:26062025
+//Version:08072025
 // Solicitar los números de seguimiento mediante un prompt
 const input = prompt("👾 Ingresa los números de guía J&T [📦]:");
 // Procesar el input para crear el array
@@ -182,8 +182,8 @@ if (isConfirmed) {
                 resultado.estado = "Falló: Teléfono inválido";
             }
             resultado.receiver = nameR;
-            resultado.phone = telR;
-            resultado.address = addrR;
+            resultado.phone    = telR;
+            resultado.address  = addrR;
             if (datosValidos) {
                 console.log(`✅ Datos válidos: ${nameR} | ${telR} | ${addrR}`);
                 try {
@@ -206,10 +206,9 @@ if (isConfirmed) {
             resultado.estado = `Falló: ${error.message}`;
         } finally {
             resultados.push(resultado);
-            await page.waitForTimeout(1000);
         }
     } // end for
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1000);
     console.log(`:::::::::::::::::::::::::::::::::::::::::::::::::::::::::`);
     console.log(`:::::::::::::::::::::::::::::::::::::::::::::::::::::::::`);
     console.log("📊 FIN DEL PROCESO:");
