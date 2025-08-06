@@ -1347,6 +1347,37 @@ async function sendMessageWhats(client, chatId, fullMessage, iconBot) {
 		echo json_encode($result);
 		break;
 
+	case 'movePakageLocation':
+		$result   = [];
+		$success  = 'false';
+		$dataJson = [];
+		$message  = 'Error al cambiar la ubicación';
+		$id_package  = $_POST['id_package'];
+		$txtLocation = $_POST['txtLocation'];
+		$newLocation = $_POST['newLocation'];
+
+		try {
+			$success  = 'true';
+			$data['id_status']   = 1;
+			$data['id_location'] = $newLocation;
+			saveLog($id_package,$data['id_status'],$txtLocation,true);
+			$dataJson = $db->update('package',$data," `id_package` = $id_package");
+			$message  = 'Paquete actualizado';
+			$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $message
+			];
+		} catch (Exception $e) {
+			$result = [
+				'success'  => $success,
+				'dataJson' => $dataJson,
+				'message'  => $message.": ".$e->getMessage()
+			];
+		}
+		echo json_encode($result);
+	break;
+
 	case 'revertStatus':
 		$result   = [];
 		$success  = 'false';

@@ -81,11 +81,24 @@ $(document).ready(function() {
 	$(`#tbl-reports tbody`).on( `click`, `#id-logger`, function () {
 		let row = table.row( $(this).closest('tr') ).data();
 		$('#btn-revert-status').hide();
-		$('#id_package_revert').val(0);
+		$('#btn-change-location').hide();
+		$('#id_package_db').val(0);
+		$('#txt_mv_location').val('');
+		$('#newLocation').val('');
 		loadHistory(row.id_package,row.guia);
 		if(row.status_desc==='Devuelto'){
 			$('#btn-revert-status').show();
-			$('#id_package_revert').val(row.id_package);
+			$('#id_package_db').val(row.id_package);
+		}
+
+		if(row.status_desc==='Nuevo'){
+			const btnTxtLocation = (row.location_desc==='Tlaquiltenago') ? 'Zacatepec':'Tlaquiltenango';
+			const newIdLocation = (row.location_desc==='Tlaquiltenago') ? 2:1;
+			$('#btn-change-location').html(`Mover a ${btnTxtLocation}`);
+			$('#txt_mv_location').val(`Paquete actualizado: de ${row.location_desc} a ${btnTxtLocation}`);
+			$('#newLocation').val(newIdLocation)
+			$('#btn-change-location').show();
+			$('#id_package_db').val(row.id_package);
 		}
 	});
 
@@ -94,7 +107,7 @@ $(document).ready(function() {
 	});
 
 	function revertEstatus() {
-		let id_package = $('#id_package_revert').val();
+		let id_package = $('#id_package_db').val();
 
 		let formData =  new FormData();
 		formData.append('id_package', id_package);
@@ -109,6 +122,48 @@ $(document).ready(function() {
 				processData: false,
 				beforeSend : function() {
 					showSwal();
+					$('.swal-button-container').hide();
+				}
+			}).done(function(response) {
+				swal.close();
+				if(response.success=='true'){
+					swal("Éxito!", `${response.message}`, "success");
+					setTimeout(function(){
+						swal.close();
+						window.location.reload();
+					}, 1500);
+				}
+			}).fail(function(e) {
+				console.log("Opps algo salio mal",e);
+			});
+
+		} catch (error) {
+			console.error(error);
+		}
+	}
+
+	$('#btn-change-location').click(function(){
+		movePakageLocation();
+	});
+	function movePakageLocation() {
+		let id_package  = $('#id_package_db').val();
+		let txtLocation = $('#txt_mv_location').val();
+		let newLocation = $('#newLocation').val();
+		let formData    = new FormData();
+		formData.append('id_package', id_package);
+		formData.append('txtLocation', txtLocation);
+		formData.append('newLocation', newLocation);
+		formData.append('option','movePakageLocation');
+		try {
+			$.ajax({
+				url: `${base_url}/${baseController}`,
+				type: 'POST',
+				data: formData,
+				cache: false,
+				contentType: false,
+				processData: false,
+				beforeSend : function() {
+					showSwal('Actualizando ubicación');
 					$('.swal-button-container').hide();
 				}
 			}).done(function(response) {
