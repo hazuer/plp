@@ -91,7 +91,7 @@ $(document).ready(function() {
 			$('#id_package_db').val(row.id_package);
 		}
 
-		if(row.status_desc==='Nuevo'){
+		if(row.status_desc==='Nuevo' || row.status_desc==='Devuelto'){
 			const btnTxtLocation = (row.location_desc==='Tlaquiltenago') ? 'Zacatepec':'Tlaquiltenango';
 			const newIdLocation = (row.location_desc==='Tlaquiltenago') ? 2:1;
 			$('#btn-change-location').html(`Mover a ${btnTxtLocation}`);
